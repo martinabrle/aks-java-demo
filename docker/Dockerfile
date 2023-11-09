@@ -1,10 +1,3 @@
-FROM eclipse-temurin:17 as builder
-WORKDIR application
-ARG ARTIFACT_NAME
-COPY ${ARTIFACT_NAME}.jar application.jar
-
-
-
 # build using "docker build ./ -t tiny-java --build-arg VERSION=1.2.3.4"
 # run using docker run -p 8080:8080 docker.io/library/tiny-java -e SPRING_PROFILES_ACTIVE=local
 ###############################################################################################
