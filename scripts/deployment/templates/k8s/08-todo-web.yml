@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todoweb
+  namespace: todo-web
+  labels:
+    deploy: todoweb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todoweb
+  template:
+    metadata:
+      labels:
+        app: todoweb
+    spec:
+      containers:
+      - image: "$CONTAINER_IMAGE"
+        imagePullPolicy: Always
+        name: todoweb
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.3"
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "80"
+        - name: DEBUG_AUTH_TOKEN
+          value: "false"
+        - name: API_URI
+          value: "http://todoapi.todo-api.svc.cluster.local/api/todos/"
+        - name: APP_CLIENT_ID
+          value: ""
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-web
+              key: TODO-APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-web
+              key: TODO-APP-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
+        volumeMounts:
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
+      volumes:
+        - name: secrets-store01-inline
+          csi: 
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-secrets-todo-web
+---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: todoweb
+#   namespace: todo-web
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: todoweb
+#   ports:
+#   - protocol: TCP
+#     name: http
+#     port: 80
+#     targetPort: 80
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoweb
+  namespace: todo-web
+spec:
+  type: LoadBalancer
+  selector:
+    app: todoweb
+  ports:
+  - protocol: TCP
+    name: http
+    port: 80
+    targetPort: 80

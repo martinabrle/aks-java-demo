@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: todo
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pet-clinic
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rabbit-mq

@@ -1,0 +1,285 @@
+name: 70-Continuous-Integration
+
+on:
+  push:
+   branches:
+     - main
+   paths:
+     - 'todo-app/**'
+     - 'spring-petclinic-admin-server/**'
+     - 'spring-petclinic-api-gateway/**'
+     - 'spring-petclinic-config-server/**'
+     - 'spring-petclinic-customers-service/**'
+     - 'spring-petclinic-discovery-server/**'
+     - 'spring-petclinic-vets-service/**'
+     - 'spring-petclinic-visits-service/**'
+
+  workflow_dispatch:
+
+jobs:
+  new_versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+  versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.versions.outputs.matrix }}    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Semver for TODO-APP
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_todo_app_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: "todo-app"
+        namespace: todo-app
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+    
+    - name: Semver for ADMIN-SERVER
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_admin_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-admin-server
+        namespace: spring-petclinic-admin-server
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Semver for API-GATEWAY
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_api_gw_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-api-gateway
+        namespace: spring-petclinic-api-gateway
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+        
+    - name: Semver for CONFIG-SERVER
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_config_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-config-server
+        namespace: spring-petclinic-config-server
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Semver for CUSTOMER-SERVICE
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_customers_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-customers-service
+        namespace: spring-petclinic-customers-service
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+            
+    - name: Semver for DICSOVERY-SERVER
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_discovery_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-discovery-server
+        namespace: spring-petclinic-discovery-server
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Semver for VETS-SERVICE
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_vets_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-vets-service
+        namespace: spring-petclinic-vets-service
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Semver for VISITS-SERVICE
+      uses: PaulHatch/semantic-version@v5.0.3
+      id: semver_petclinic_visits_svc_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: spring-petclinic-visits-service
+        namespace: spring-petclinic-visits-service
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+    
+    - name: Set versions
+      id: versions
+      run: |
+          echo "{\"include\":[" > ./matrix.json
+          if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\","version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}" != "false"]]; then
+            echo "{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+          fi
+          echo "]}" >> ./matrix.json
+          cat ./matrix.json
+          echo '::set-output name=matrix::$(cat ./matrix.json)'
+  
+  release_app:
+    needs: [versions]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      max-parallel: 1
+      matrix: ${{fromJson(needs.versions.outputs.matrix)}}
+    env:
+      ARTIFACT_NAME: ${{ matrix.artifact_name }}
+      VERSION: ${{ matrix.version }}
+      VERSION_TAG: ${{ matrix.version_tag }}
+      JAVA_VERSION: ${{ matrix.java_version }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{env.JAVA_VERSION}}
+        distribution: 'microsoft'
+    
+    - name: Set the release version
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
+    
+    - name: Set the git commit id
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/JavaUtils.java -update_git_commit_id ./pom.xml.bak "${GITHUB_SHA}" ./pom.xml
+    
+    - name: Build the .jar
+      run: |
+        export PORT=8080
+        export SPRING_PROFILES_ACTIVE=local
+        ./mvnw clean package -DskipTests
+    
+    - name: Download Application Insights Agent
+      run: |
+         wget -q -O ./target/ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
+    
+    - name: Build release ZIP archive
+      id: create_archive
+      run: |
+        ls -la ./target
+        if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
+          echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
+          exit 1
+        fi
+        mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        mv "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        cp -R ../${{env.ARTIFACT_NAME}}/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        ls -la
+        echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        path: ./todo/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        if-no-files-found: error
+        retention-days: 1          
+
+    - name: Release build artifact
+      env:
+        GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: |
+        ls -la ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        gh release create ${{env.VERSION_TAG}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
+
+    - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+      uses: azure/login@v1
+      with:
+        client-id: ${{secrets.AAD_CLIENT_ID}}
+        tenant-id: ${{secrets.AAD_TENANT_ID}}
+        subscription-id: ${{secrets.AKS_SUBSCRIPTION_ID}}        
+
+    - name: Build a new container image
+      run: |
+        cd ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        ls -la
+        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}}--file ./Dockerfile
+        cd ..
