@@ -29,6 +29,7 @@ jobs:
       contents: read
     outputs:
       matrix: ${{ steps.versions.outputs.matrix }}
+      something_to_deploy: ${{ steps.versions.outputs.something_to_deploy }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -209,109 +210,111 @@ jobs:
           echo "matrix: $matrix"
           if [[ "$delimiter" == "" ]]; then
             matrix=""
+            echo "something_to_deploy=false" >> $GITHUB_OUTPUT
           else
             matrix="$matrix]}"
+            echo "something_to_deploy=true" >> $GITHUB_OUTPUT
           fi
           echo "matrix: $matrix"
-          echo "matrix=\'${matrix}\'"
-          echo "matrix=\'${matrix}\'" >> $GITHUB_OUTPUT
+          echo "matrix='${matrix}'"
+          echo "matrix='${matrix}'" >> $GITHUB_OUTPUT
   
-  test_version:
+  version_strategy_test:
     needs: [versions]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Matrix
         run: |
           echo "${{needs.versions.outputs.matrix}}"
 
-  # release_app:
-  #   needs: [versions]
-  #   runs-on: ubuntu-latest
-  #   if: ${{needs.versions.outputs.matrix}} != ''
-  #   permissions:
-  #     contents: read
-  #     packages: write
-  #   strategy:
-  #     max-parallel: 1
-  #     matrix: ${{fromJson(needs.versions.outputs.matrix)}}
-  #   env:
-  #     ARTIFACT_NAME: ${{ matrix.artifact_name }}
-  #     VERSION: ${{ matrix.version }}
-  #     VERSION_TAG: ${{ matrix.version_tag }}
-  #     JAVA_VERSION: ${{ matrix.java_version }}
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #     with:
-  #       fetch-depth: 0
+  release_app:
+    needs: [versions]
+    runs-on: ubuntu-latest
+    if: ${{needs.versions.outputs.something_to_deploy}} != ''
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      max-parallel: 1
+      matrix: ${{fromJson(needs.versions.outputs.matrix)}}
+    env:
+      ARTIFACT_NAME: ${{ matrix.artifact_name }}
+      VERSION: ${{ matrix.version }}
+      VERSION_TAG: ${{ matrix.version_tag }}
+      JAVA_VERSION: ${{ matrix.java_version }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-  #   - name: Set up JDK
-  #     uses: actions/setup-java@v3
-  #     with:
-  #       java-version: ${{env.JAVA_VERSION}}
-  #       distribution: 'microsoft'
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{env.JAVA_VERSION}}
+        distribution: 'microsoft'
     
-  #   - name: Set the release version
-  #     run: |
-  #       mv ./pom.xml ./pom.xml.bak
-  #       ls -la
-  #       java ../scripts/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
+    - name: Set the release version
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
     
-  #   - name: Set the git commit id
-  #     run: |
-  #       mv ./pom.xml ./pom.xml.bak
-  #       ls -la
-  #       java ../scripts/JavaUtils.java -update_git_commit_id ./pom.xml.bak "${GITHUB_SHA}" ./pom.xml
+    - name: Set the git commit id
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/JavaUtils.java -update_git_commit_id ./pom.xml.bak "${GITHUB_SHA}" ./pom.xml
     
-  #   - name: Build the .jar
-  #     run: |
-  #       export PORT=8080
-  #       export SPRING_PROFILES_ACTIVE=local
-  #       ./mvnw clean package -DskipTests
+    - name: Build the .jar
+      run: |
+        export PORT=8080
+        export SPRING_PROFILES_ACTIVE=local
+        ./mvnw clean package -DskipTests
     
-  #   - name: Download Application Insights Agent
-  #     run: |
-  #        wget -q -O ./target/ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
+    - name: Download Application Insights Agent
+      run: |
+         wget -q -O ./target/ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
     
-  #   - name: Build release ZIP archive
-  #     id: create_archive
-  #     run: |
-  #       ls -la ./target
-  #       if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
-  #         echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
-  #         exit 1
-  #       fi
-  #       mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       mv "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       cp -R ../${{env.ARTIFACT_NAME}}/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       ls -la
-  #       echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
+    - name: Build release ZIP archive
+      id: create_archive
+      run: |
+        ls -la ./target
+        if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
+          echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
+          exit 1
+        fi
+        mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        mv "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        cp -R ../${{env.ARTIFACT_NAME}}/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        ls -la
+        echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
 
-  #   - name: Upload build artifact
-  #     uses: actions/upload-artifact@v2
-  #     with:
-  #       name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       path: ./todo/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-  #       if-no-files-found: error
-  #       retention-days: 1          
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        path: ./todo/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        if-no-files-found: error
+        retention-days: 1          
 
-  #   - name: Release build artifact
-  #     env:
-  #       GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-  #     run: |
-  #       ls -la ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-  #       gh release create ${{env.VERSION_TAG}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
+    - name: Release build artifact
+      env:
+        GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: |
+        ls -la ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        gh release create ${{env.VERSION_TAG}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
 
-  #   - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
-  #     uses: azure/login@v1
-  #     with:
-  #       client-id: ${{secrets.AAD_CLIENT_ID}}
-  #       tenant-id: ${{secrets.AAD_TENANT_ID}}
-  #       subscription-id: ${{secrets.AKS_SUBSCRIPTION_ID}}        
+    - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+      uses: azure/login@v1
+      with:
+        client-id: ${{secrets.AAD_CLIENT_ID}}
+        tenant-id: ${{secrets.AAD_TENANT_ID}}
+        subscription-id: ${{secrets.AKS_SUBSCRIPTION_ID}}        
 
-  #   - name: Build a new container image
-  #     run: |
-  #       cd ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #       ls -la
-  #       az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}}--file ./Dockerfile
-  #       cd ..
+    - name: Build a new container image
+      run: |
+        cd ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        ls -la
+        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}}--file ./Dockerfile
+        cd ..
