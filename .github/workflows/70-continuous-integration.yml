@@ -308,8 +308,8 @@ jobs:
       env:
         GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       run: |
-        ls -la ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-        gh release create ${{env.VERSION_TAG}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
+        ls -la ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        gh release create ${{env.VERSION_TAG}} ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
 
     - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
       uses: azure/login@v1
