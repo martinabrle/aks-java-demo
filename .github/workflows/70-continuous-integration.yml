@@ -205,12 +205,14 @@ jobs:
           #   matrix='${matrix}${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}'
           #   delimiter=","
           # fi
-          echo $matrix
-          if [[ -z "${delimiter}" ]]; then
+          echo "delimiter: $delimiter"
+          echo "matrix: $matrix"
+          if [[ "$delimiter" == "" ]]; then
             matrix=""
           else
-            matrix="${matrix}]}"
+            matrix="$matrix]}"
           fi
+          echo "matrix: $matrix"
           echo 'matrix=${matrix}' >> $GITHUB_OUTPUT
   
   release_app:
