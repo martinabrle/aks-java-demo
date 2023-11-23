@@ -217,7 +217,7 @@ jobs:
           fi
           echo "matrix: $matrix"
           echo "matrix='${matrix}'"
-          echo "matrix='${matrix}'" >> $GITHUB_OUTPUT
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
   
   version_strategy_test:
     needs: [versions]
@@ -225,7 +225,9 @@ jobs:
     steps:
       - name: Matrix
         run: |
-          echo "${{needs.versions.outputs.matrix}}"
+          cat "${{needs.versions.outputs.matrix}}" > ./test.json
+          cat ./test.json
+          #echo "${{needs.versions.outputs.matrix}}"
 
   release_app:
     needs: [versions]
