@@ -291,7 +291,7 @@ jobs:
         fi
         mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         mv "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        cp -R ../${{env.ARTIFACT_NAME}}/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
         echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
@@ -300,7 +300,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        path: ./todo/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        path: ./${{env.ARTIFACT_NAME}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
         if-no-files-found: error
         retention-days: 1          
 
