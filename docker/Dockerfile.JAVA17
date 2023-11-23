@@ -3,7 +3,9 @@ FROM mcr.microsoft.com/openjdk/jdk:17-mariner as runtime
 
 ARG VERSION_ARG
 ARG ARTIFACT_NAME
+
 ENV VERSION=$VERSION_ARG
+ENV ARTIFACT_NAME=$ARTIFACT_NAME
 
 WORKDIR /
 
