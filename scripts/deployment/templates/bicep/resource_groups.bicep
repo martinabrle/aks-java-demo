@@ -3,6 +3,7 @@ param location string = deployment().location
 param aksRG string
 param aksTags string
 
+param containerRegistrySubscriptionId string
 param containerRegistryRG string
 param containerRegistryTags string
 
@@ -43,6 +44,7 @@ module pgsqlResourceGroup 'components/rg.bicep' = {
 
 module containerRegistryResourceGroup 'components/rg.bicep' = {
   name: 'container-registry-rg'
+  scope: subscription(containerRegistrySubscriptionId)
   params: {
     name: containerRegistryRG
     location: location
