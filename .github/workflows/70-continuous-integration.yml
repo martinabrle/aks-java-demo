@@ -238,7 +238,8 @@ jobs:
       run:
         working-directory: ${{matrix.artifact_name}}
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
