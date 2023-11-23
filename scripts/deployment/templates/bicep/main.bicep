@@ -59,6 +59,8 @@ var vnetName = '${aksName}-vnet'
 var aksSubnetName = 'aks-default'
 var appGatewaySubnetName = 'appgw-subnet'
 
+param deploymentClientIPAddress string
+
 param location string
 
 resource todoAppUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -146,10 +148,11 @@ module pgsql './components/pgsql.bicep' = {
     name: pgsqlName
     dbServerAADAdminGroupName: pgsqlAADAdminGroupName
     dbServerAADAdminGroupObjectId: pgsqlAADAdminGroupObjectId
-    incomingIpAddresses: aks.outputs.outboundIpAddresses
     location: location
     tagsArray: pgsqlTagsArray
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
+    incomingIpAddresses: aks.outputs.outboundIpAddresses
+    deploymentClientIPAddress: deploymentClientIPAddress
   }
 }
 
