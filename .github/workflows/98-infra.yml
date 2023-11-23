@@ -245,7 +245,7 @@ jobs:
               echo "Firewall rule: $firewallRuleName has been deleted"
             fi
           done
-          
+
       # Avoid token validity issues (previous step sometimes takes too long)
       - name: Azure re-login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v1
@@ -261,19 +261,19 @@ jobs:
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
       
-      - name: Create PET_CLINIC_CUSTS_SVC_DB Databases
+      - name: Create PET_CLINIC_CUSTS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
-      - name: Create PET_CLINIC_VETS_SVC_DB Databases
+      - name: Create PET_CLINIC_VETS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
-      - name: Create PET_CLINIC_VISITS_SVC_DB Databases
+      - name: Create PET_CLINIC_VISITS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
