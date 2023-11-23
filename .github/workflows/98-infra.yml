@@ -54,9 +54,16 @@ jobs:
             exit 1
           fi
 
+          if [[ -z "${{secrets.AKS_ADMIN_GROUP_NAME}}" ]]; then
+            echo "AKS Admin Group name is not set"
+            exit 1
+          fi
+
           dbaGroupId=`az ad group show --group "${{secrets.DBA_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "DBA_GROUP_ID=${dbaGroupId}" >> $GITHUB_OUTPUT
-          
+          aksGroupId=`az ad group show --group "${{secrets.AKS_ADMIN_GROUP_NAME}}" --query '[id]' -o tsv`
+          echo "AKS_ADMIN_GROUP_ID=${aksGroupId}" >> $GITHUB_OUTPUT
+
           echo "Deploying with the following parameters:"
           echo "DBA Group Name: '${{secrets.DBA_GROUP_NAME}}'"
           echo "DBA Group Id: $dbaGroupId"
@@ -67,8 +74,10 @@ jobs:
                                         --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
                                         --template-file ./main.bicep \
                                         --parameters aksName="${{secrets.AKS_NAME}}" \
+                                                     aksAdminGroupObjectId="${aksGroupId}" \
                                                      aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
                                                      containerRegistryName="${{secrets.CONTAINER_REGISTRY_NAME}}" \
+                                                     containerRegistrySubscriptionId="${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
                                                      containerRegistryRG="${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
                                                      containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
                                                      pgsqlName="${{secrets.PGSQL_NAME}}" \
