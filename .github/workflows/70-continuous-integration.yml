@@ -160,28 +160,28 @@ jobs:
       id: versions
       run: |
           echo "{\"include\":[" > ./matrix.json
-          if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\","version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
           fi
-          if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
-          if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}" != "false"]]; then
+          if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}" != "false" ]]; then
             echo "{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
           fi
           echo "]}" >> ./matrix.json
