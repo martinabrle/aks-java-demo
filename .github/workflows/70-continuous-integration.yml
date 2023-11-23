@@ -219,16 +219,6 @@ jobs:
           echo "matrix='${matrix}'"
           echo "matrix=${matrix}" >> $GITHUB_OUTPUT
   
-  version_strategy_test:
-    needs: [versions]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Matrix
-        run: |
-          cat "${{needs.versions.outputs.matrix}}" > ./test.json
-          cat ./test.json
-          #echo "${{needs.versions.outputs.matrix}}"
-
   release_app:
     needs: [versions]
     runs-on: ubuntu-latest
@@ -244,7 +234,9 @@ jobs:
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.version_tag }}
       JAVA_VERSION: ${{ matrix.java_version }}
-    
+    defaults:
+      run:
+        working-directory: ./${{matrix.artifact_name}}
     steps:
     - name: Display parameters
       run: |
@@ -255,7 +247,6 @@ jobs:
         echo "GITHUB_SHA=${{github.sha}}"
         echo "GITHUB_REF=${{github.ref}}"
         echo "GITHUB_EVENT_NAME=${{github.event_name}}"
-        echo "GITHUB_EVENT_PATH=${{github.event_path}}"
         
     - uses: actions/checkout@v3
       with:
