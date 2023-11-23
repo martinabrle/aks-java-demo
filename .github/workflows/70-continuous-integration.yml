@@ -325,5 +325,5 @@ jobs:
       run: |
         cd ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
-        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}} ARTIFACT_NAME=${{env.ARTIFACT_NAME}} --file ./Dockerfile
+        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.ARTIFACT_NAME}} --file ./Dockerfile
         cd ..
