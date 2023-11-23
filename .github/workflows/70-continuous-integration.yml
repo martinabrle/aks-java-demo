@@ -305,13 +305,14 @@ jobs:
         ls -la
         echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        path: ./${{env.ARTIFACT_NAME}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-        if-no-files-found: error
-        retention-days: 1          
+    # Only for troubleshooting, otherwise not needed
+    # - name: Upload build artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+    #     path: ./${{env.ARTIFACT_NAME}}/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+    #     if-no-files-found: error
+    #     retention-days: 1          
 
     - name: Release build artifact
       env:
