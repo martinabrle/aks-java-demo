@@ -151,7 +151,7 @@ module pgsql './components/pgsql.bicep' = {
     location: location
     tagsArray: pgsqlTagsArray
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    incomingIpAddresses: aks.outputs.outboundIpAddresses
+    // incomingIpAddresses: aks.outputs.outboundIpAddresses TODO: fix
     deploymentClientIPAddress: deploymentClientIPAddress
   }
 }

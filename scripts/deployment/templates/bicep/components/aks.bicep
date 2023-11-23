@@ -193,9 +193,16 @@ module aksNodePoolManagedIdentity 'user-assigned-identity.bicep' = {
   ]
 }
 
+// TODO: fix
+// resource publicIps 'Microsoft.Network/publicIPAddresses@2023-05-01' existing = [for publicIp in aksService.properties.networkProfile.loadBalancerProfile.effectiveOutboundIPs : {
+//   name: publicIp.id
+// }]
+
+// var publicIpsStringArray = [for publicIp in publicIps : publicIp.properties.ipAddress]
+
+
 output aksNodePoolIdentityPrincipalId string = aksNodePoolManagedIdentity.outputs.principalId // aksNodePoolManagedIdentity.properties.principalId
 output aksIngressApplicationGatewayPrincipalId string = aksService.properties.addonProfiles.ingressApplicationGateway.identity.objectId
-//perhaps aksService.properties.addonProfiles.azureKeyvaultSecretsProvider.identity.clientId
-output outboundIpAddresses string = '' //aksService.properties.apiServerAccessProfile.outboundIPs.ipAddresses
-
+// TODO: fix
+// output outboundIpAddresses string = concat(publicIpsStringArray)
 
