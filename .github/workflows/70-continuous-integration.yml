@@ -224,8 +224,9 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{needs.versions.outputs.something_to_deploy}} != ''
     permissions:
-      contents: read
+      contents: write
       packages: write
+
     strategy:
       max-parallel: 1
       matrix: ${{fromJson(needs.versions.outputs.matrix)}}
@@ -306,7 +307,7 @@ jobs:
 
     - name: Release build artifact
       env:
-        GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         ls -la ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
         gh release create ${{env.VERSION_TAG}} ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
