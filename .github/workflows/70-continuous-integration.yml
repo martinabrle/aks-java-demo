@@ -17,11 +17,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  new_versions:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    
   versions:
     runs-on: ubuntu-latest
     permissions:
