@@ -245,6 +245,7 @@ jobs:
               echo "Firewall rule: $firewallRuleName has been deleted"
             fi
           done
+          
       # Avoid token validity issues (previous step sometimes takes too long)
       - name: Azure re-login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v1
@@ -252,14 +253,30 @@ jobs:
           client-id: ${{ secrets.AAD_CLIENT_ID }}
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
-      - name: Create Databases
+      
+      - name: Create TODO_APP_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           # When the database gets created using a script, AAD accounts gets full permissions on public schema and can assign roles
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+      
+      - name: Create PET_CLINIC_CUSTS_SVC_DB Databases
+        working-directory: ./scripts/deployment/utils/
+        run: |
+          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+
+      - name: Create PET_CLINIC_VETS_SVC_DB Databases
+        working-directory: ./scripts/deployment/utils/
+        run: |
+          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+
+      - name: Create PET_CLINIC_VISITS_SVC_DB Databases
+        working-directory: ./scripts/deployment/utils/
+        run: |
+          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
       - name: Create TODO_APP_DB user(s)
@@ -284,17 +301,6 @@ jobs:
               -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_PRINCIPAL_ID}}"
     
-      - name: Create PET_CLINIC_VISITS_SVC_DB user(s)
-        working-directory: ./scripts/deployment/utils/
-        run: |
-            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-            ./create_aad_pgsql_user.sh \
-              -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_NAME}}" \
-              -a "${{secrets.DBA_GROUP_NAME}}" \
-              -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_PRINCIPAL_ID}}"
-
       - name: Create PET_CLINIC_VETS_SVC_DB user(s)
         working-directory: ./scripts/deployment/utils/
         run: |
@@ -306,6 +312,17 @@ jobs:
               -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_PRINCIPAL_ID}}"
           
+      - name: Create PET_CLINIC_VISITS_SVC_DB user(s)
+        working-directory: ./scripts/deployment/utils/
+        run: |
+            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+            ./create_aad_pgsql_user.sh \
+              -s "${{secrets.PGSQL_NAME}}" \
+              -d "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_NAME}}" \
+              -a "${{secrets.DBA_GROUP_NAME}}" \
+              -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
+              -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_PRINCIPAL_ID}}"
+
       - name: Remove DB Firewall exception used for DB setup
         run: |
           az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
