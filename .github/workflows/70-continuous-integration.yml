@@ -215,6 +215,15 @@ jobs:
           echo "matrix: $matrix"
           echo 'matrix=${matrix}' >> $GITHUB_OUTPUT
   
+  test:
+    needs: [versions]
+    runs-on: ubuntu-latest
+    if: ${{needs.versions.outputs.matrix}} != ''
+    steps:
+      - name: Checkout
+        run: |
+          echo ${{fromJson(needs.versions.outputs.matrix)}}
+          
   release_app:
     needs: [versions]
     runs-on: ubuntu-latest
