@@ -28,7 +28,8 @@ jobs:
     permissions:
       contents: read
     outputs:
-      matrix: ${{ steps.versions.outputs.matrix }}    
+      matrix: ${{ steps.versions.outputs.matrix }}
+      something_to_deploy: ${{ steps.versions.outputs.something_to_deploy }}    
     steps:
     - uses: actions/checkout@v3
       with:
@@ -165,6 +166,7 @@ jobs:
     - name: Set versions
       id: versions
       run: |
+          somethingToDeploy=false
           forceRelease=false
           if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
             if [[ "${{github.event.inputs.force_release}}" == "true" ]]; then
@@ -173,36 +175,48 @@ jobs:
           fi
           echo "{\"include\":[" > ./matrix.json
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\","version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
+            echo "{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\","version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            echo "{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            echo "{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\","version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}" >> ./matrix.json
+            somethingToDeploy=true
           fi
           echo "]}" >> ./matrix.json
           cat ./matrix.json
-          echo '::set-output name=matrix::$(cat ./matrix.json)'
+          matrix=`cat ./matrix.json`
+          echo $matrix
+          echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+          echo "something_to_deploy=${somethingToDeploy}" >> $GITHUB_OUTPUT
   
   release_app:
     needs: [versions]
     runs-on: ubuntu-latest
+    if: ${{needs.versions.outputs.something_to_deploy}} == 'true'
     permissions:
       contents: read
       packages: write
