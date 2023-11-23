@@ -244,7 +244,19 @@ jobs:
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.version_tag }}
       JAVA_VERSION: ${{ matrix.java_version }}
+    
     steps:
+    - name: Display parameters
+      run: |
+        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
+        echo "VERSION=${{env.VERSION}}"
+        echo "VERSION_TAG=${{env.VERSION_TAG}}"
+        echo "JAVA_VERSION=${{env.JAVA_VERSION}}"
+        echo "GITHUB_SHA=${{github.sha}}"
+        echo "GITHUB_REF=${{github.ref}}"
+        echo "GITHUB_EVENT_NAME=${{github.event_name}}"
+        echo "GITHUB_EVENT_PATH=${{github.event_path}}"
+        
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
@@ -254,13 +266,13 @@ jobs:
       with:
         java-version: ${{env.JAVA_VERSION}}
         distribution: 'microsoft'
-    
+
     - name: Set the release version
       run: |
         mv ./pom.xml ./pom.xml.bak
         ls -la
         java ../scripts/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
-    
+
     - name: Set the git commit id
       run: |
         mv ./pom.xml ./pom.xml.bak
