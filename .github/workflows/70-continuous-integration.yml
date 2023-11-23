@@ -205,9 +205,10 @@ jobs:
             matrix='${matrix}${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}'
             delimiter=","
           fi
-          matrix='${matrix}]}'
           echo $matrix
-          if [[ -z "$delimiter" ]]; then
+          if [[ ! -z "$delimiter" ]]; then
+            matrix='${matrix}]}'
+          else
             matrix=""
           fi
           echo "matrix=${matrix}" >> $GITHUB_OUTPUT
