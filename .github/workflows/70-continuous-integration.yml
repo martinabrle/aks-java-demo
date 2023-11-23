@@ -218,11 +218,10 @@ jobs:
   test_version:
     needs: [versions]
     runs-on: ubuntu-latest
-    if: ${{needs.versions.outputs.matrix}} != ''
     steps:
       - name: Checkout
         run: |
-          echo ${{needs.versions.outputs.matrix}}
+          echo "${{needs.versions.outputs.matrix}}"
 
   # release_app:
   #   needs: [versions]
