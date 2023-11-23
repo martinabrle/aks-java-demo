@@ -236,7 +236,7 @@ jobs:
       JAVA_VERSION: ${{ matrix.java_version }}
     defaults:
       run:
-        working-directory: ./${{matrix.artifact_name}}
+        working-directory: ${{matrix.artifact_name}}
     steps:
     - name: Display parameters
       run: |
