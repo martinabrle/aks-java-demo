@@ -35,6 +35,15 @@ jobs:
       with:
         fetch-depth: 0
     
+    # Not very nice to have to repeat this for each service, but
+    # in case of no change in a service, only this job will run,
+    # in case of a change in one servive, this job (+ one release job)
+    # will run etc (n+1 jobs for n services changed)
+    # And on top of that, this can be used as a demo for a dynamically
+    # generated matrix.
+    # However, the best solution would be to split this monorepo into
+    # multiple repos, one for each service, and let each of these re-
+    # pos to take care of their own release and deployment needs. 
     - name: Semver for TODO-APP
       uses: PaulHatch/semantic-version@v5.3.0
       id: semver_todo_app_version
