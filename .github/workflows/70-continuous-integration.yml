@@ -172,15 +172,15 @@ jobs:
             fi
           fi
           delimiter=""
-          matrix="{\'include\':["
+          matrix="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\'artifact_name\':\'todo-app\',\'version\':\'${{steps.semver_todo_app_version.outputs.version}}\',\'version_tag\':\'${{steps.semver_todo_app_version.outputs.version_tag}}\',\'java_version\':\'11\'}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
             delimiter=","
           fi
-          # if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
-          #   matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
-          #   delimiter=","
-          # fi
+          if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            delimiter=","
+          fi
           # if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}" != "false" || "$forceRelease" == "true" ]]; then
           #   matrix='${matrix}${delimiter}{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}'
           #   delimiter=","
@@ -213,13 +213,14 @@ jobs:
             matrix="$matrix]}"
           fi
           echo "matrix: $matrix"
-          echo 'matrix=${matrix}' >> $GITHUB_OUTPUT
+          echo "matrix=\'${matrix}\'"
+          echo "matrix=\'${matrix}\'" >> $GITHUB_OUTPUT
   
-  test_matrix:
+  test_version:
     needs: [versions]
     runs-on: ubuntu-latest
     steps:
-      - name: Test Matrix Strategy
+      - name: Checkout
         run: |
           echo "${{needs.versions.outputs.matrix}}"
 
