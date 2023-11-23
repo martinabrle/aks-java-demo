@@ -7,6 +7,8 @@
     <artifactId>spring-petclinic-api-gateway</artifactId>
     <packaging>jar</packaging>
     <description>Spring PetClinic API Gateway</description>
+    <version>0.0.1</version>
+    <!--GIT_COMMIT_ID:XXXXXXXXX-->
 
     <parent>
         <groupId>org.springframework.samples</groupId>

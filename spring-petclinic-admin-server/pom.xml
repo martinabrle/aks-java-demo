@@ -8,13 +8,15 @@
     <artifactId>spring-petclinic-admin-server</artifactId>
     <packaging>jar</packaging>
     <description>Spring Boot Admin server</description>
+    <version>0.0.1</version>
+    <!--GIT_COMMIT_ID:XXXXXXXXX-->
 
     <parent>
         <groupId>org.springframework.samples</groupId>
         <artifactId>spring-petclinic-microservices</artifactId>
         <version>3.0.9</version>
     </parent>
-
+    
     <properties>
         <spring-boot-admin.version>3.0.4</spring-boot-admin.version>
         <docker.image.exposed.port>9090</docker.image.exposed.port>
