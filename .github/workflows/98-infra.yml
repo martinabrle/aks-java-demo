@@ -417,7 +417,6 @@ jobs:
         with:
           resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
           cluster-name: '${{secrets.AKS_NAME}}'
-          use-kubelogin: 'true'
 
       - name: Deploy Namespaces
         uses: Azure/k8s-deploy@v4
