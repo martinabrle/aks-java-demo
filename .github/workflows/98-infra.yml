@@ -390,6 +390,14 @@ jobs:
       - name: Remove DB Firewall exception used for DB setup
         run: |
             az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
+
+      # Switch the subscription back to AKS subscription
+      - name: Azure re-login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AAD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AAD_TENANT_ID }}
+          subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
       
       - name: Get access credentials for AKS cluster (merged into local .kube/config file)
         working-directory: ./scripts/deployment/templates/k8s/
