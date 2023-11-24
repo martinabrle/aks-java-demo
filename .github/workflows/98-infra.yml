@@ -399,15 +399,16 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
       
-      - name: Install kubectl and get AKS access credentials (merged into local .kube/config file)
+      - name: Install kubectl
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
             az aks install-cli
-            az aks get-credentials -g aks_development_rg -n aks-development
 
       - name: Deploy K8S Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
+            az aks get-credentials -g aks_development_rg -n aks-development
+            kubectl get pods
             kubectl apply -f ./01-namespaces.yaml
 
       - name: Deploy K8S role bindings for TODO_APP
@@ -445,3 +446,11 @@ jobs:
         run: |
             cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
             kubectl apply -f ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
+
+      - name: Deploy workload identity for TODO_APP
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
+        run: |
+            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${env.TODO_APP_USER_MI_CLIENT_ID} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+            kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp
