@@ -37,8 +37,14 @@ jobs:
         with:
           resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
           cluster-name: '${{secrets.AKS_NAME}}'
-      
-      # - name: Get credentials
+
+      - name: Test
+        run: |
+          az aks command invoke \
+           --resource-group aks_development_rg \
+           --name aks-development \
+           --command "kubectl get pods -n --all-namespaces"
+        # - name: Get credentials
       #   run: az aks get-credentials -n aks-development -g aks_development_rg --overwrite-existing
       
       - name: Test AKS connection
