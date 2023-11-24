@@ -398,17 +398,27 @@ jobs:
           client-id: ${{ secrets.AAD_CLIENT_ID }}
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        
+      - name: Setup kubelogin
+        uses: azure/use-kubelogin@v1
+
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
+          cluster-name: '${{secrets.AKS_NAME}}'
       
-      - name: Install kubectl
-        working-directory: ./scripts/deployment/templates/k8s/
+      - name: Run kubectl
         run: |
-            az aks install-cli
+          kubectl get pods -A
 
       - name: Deploy K8S Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-            az aks get-credentials -g aks_development_rg -n aks-development
-            kubectl get pods
             kubectl apply -f ./01-namespaces.yaml
 
       - name: Deploy K8S role bindings for TODO_APP
