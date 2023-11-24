@@ -399,14 +399,10 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
       
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: latest
-      
-      - name: Get access credentials for AKS cluster (merged into local .kube/config file)
+      - name: Install kubectl and get AKS access credentials (merged into local .kube/config file)
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
+            az aks install-cli
             az aks get-credentials -g aks_development_rg -n aks-development
 
       - name: Deploy K8S Namespaces
