@@ -417,7 +417,12 @@ jobs:
         with:
           resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
           cluster-name: '${{secrets.AKS_NAME}}'
-
+      
+      - name: Test AKS connection
+        run: |
+          kubectl get nodes
+          kubectl get pods --all-namespaces
+      
       - name: Deploy Namespaces
         uses: Azure/k8s-deploy@v4
         with:
