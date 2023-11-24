@@ -411,13 +411,15 @@ jobs:
         with:
           kubelogin-version: 'latest'
           
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
-          cluster-name: '${{secrets.AKS_NAME}}'
+      # - name: Set AKS context
+      #   id: set-context
+      #   uses: azure/aks-set-context@v3
+      #   with:
+      #     resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
+      #     cluster-name: '${{secrets.AKS_NAME}}'
       
+      - name: Get credentials
+        run: az aks get-credentials -n aks-development -g aks_development_rg --overwrite-existing
       - name: Test AKS connection
         run: |
           kubectl get nodes
