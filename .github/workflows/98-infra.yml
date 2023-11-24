@@ -420,6 +420,7 @@ jobs:
       
       - name: Get credentials
         run: az aks get-credentials -n aks-development -g aks_development_rg --overwrite-existing
+      
       - name: Test AKS connection
         run: |
           kubectl get nodes
