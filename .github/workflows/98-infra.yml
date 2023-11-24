@@ -394,7 +394,7 @@ jobs:
       - name: Get access credentials for AKS cluster (merged into local .kube/config file)
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-            az aks get-credentials -n ${{secrets.AKS_NAME}} -g ${{secrets.AKS_RESOURCE_GROUP}}
+            az aks get-credentials -n aks-development -g aks_development_rg
 
       - name: Deploy K8S Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
