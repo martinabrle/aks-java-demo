@@ -418,7 +418,7 @@ jobs:
           resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
           cluster-name: '${{secrets.AKS_NAME}}'
           admin: 'true'
-          #use-kubelogin: 'true'
+          use-kubelogin: 'true'
 
       - name: Deploy Namespaces
         uses: Azure/k8s-deploy@v4
@@ -427,37 +427,69 @@ jobs:
           manifests: scripts/deployment/templates/k8s/01-namespaces.yml
           pull-images: false           
 
-      - name: Prepare manifests
+      - name: Prepare TODO_APP role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           TODO_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_VIEW_AD_GROUP_ID}}
           TODO_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_EDIT_AD_GROUP_ID}}
-          PET_CLINIC_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_VIEW_AD_GROUP_ID}}
-          PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
-          IAAS_PGSQL_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_VIEW_AD_GROUP_ID}}
-          IAAS_PGSQL_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}}
-          IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}}
-          IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}}
-          TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
         run: |
             cat ./02a-rolebinding-todo-api.yml | TODO_APP_EDIT_AD_GROUP_ID=${env.TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${env.TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo-api.yml.tmp
-            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${env.PET_CLINIC_APP_EDIT_AD_GROUP_ID} PET_CLINIC_VIEW_AD_GROUP_ID=${env.PET_CLINIC_VIEW_AD_GROUP_ID} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
-            cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID} IAAS_PGSQL_VIEW_AD_GROUP_ID=${env.IAAS_PGSQL_VIEW_AD_GROUP_ID} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
-            cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
-            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${env.TODO_APP_USER_MI_CLIENT_ID} envsubst > ./06a-workload-identity-todo-app.yml.tmp
 
-      - name: Deploy TODO_APP rolebinding to AKS
+      - name: Deploy K8S role bindings for TODO_APP
         uses: Azure/k8s-deploy@v4
         with:
           namespace: 'default'
-          manifests: |
-             ./scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
-          pull-images: false           
+          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
+          pull-images: false
 
-      - name: Deploy K8S role bindings for PET_CLINIC
+      - name: Prepare PET_CLINIC role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           PET_CLINIC_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_VIEW_AD_GROUP_ID}}
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
-            kubectl apply -f ./02b-rolebinding-petclinic-api.yml.tmp
+            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${env.PET_CLINIC_APP_EDIT_AD_GROUP_ID} PET_CLINIC_VIEW_AD_GROUP_ID=${env.PET_CLINIC_VIEW_AD_GROUP_ID} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
+
+      - name: Deploy K8S role bindings for PET_CLINIC
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
+          pull-images: false
+
+      - name: Prepare IAAS_PGSQL role binding manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          IAAS_PGSQL_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_VIEW_AD_GROUP_ID}}
+          IAAS_PGSQL_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}}
+        run: |
+            cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID} IAAS_PGSQL_VIEW_AD_GROUP_ID=${env.IAAS_PGSQL_VIEW_AD_GROUP_ID} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
+
+      - name: Deploy K8S role bindings for IAAS_PGSQL
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
+          pull-images: false
+
+      - name: Prepare IAAS_RABBIT_MQ role binding manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}}
+          IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}}
+        run: |
+            cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
+
+      - name: Deploy K8S role bindings for IAAS_RABBIT_MQ
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: 'default'
+          manifests: scripts/deployment/templates/k8s/
+          pull-images: false
+
+      - name: Prepare TODO_APP workload identity manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
+        run: |
+            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${env.TODO_APP_USER_MI_CLIENT_ID} envsubst > ./06a-workload-identity-todo-app.yml.tmp
