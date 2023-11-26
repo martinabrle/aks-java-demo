@@ -515,6 +515,5 @@ jobs:
           DISCO_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_DISCO_SVC_USER_MI_CLIENT_ID}}
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
-
         run: |
             cat ./06b-workload-identity-pet-clinic-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp

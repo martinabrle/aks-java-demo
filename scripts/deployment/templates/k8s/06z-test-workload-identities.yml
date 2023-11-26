@@ -2,8 +2,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: quick-start
-  namespace: "todo-api"
+  namespace: "todo-app"
   labels:
     azure.workload.identity/use: "true"
 spec:
-  serviceAccountName: "todo-api-service-account"
+  serviceAccountName: "todo-app-service-account"
