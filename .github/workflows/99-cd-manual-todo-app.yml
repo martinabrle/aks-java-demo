@@ -1,0 +1,88 @@
+name: 99-CD-Manual-TODO-APP
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'TODO_APP Version to deploy (i.e. 1.5.3)'
+        required: true
+      deployment_suffix:
+        description: 'K8S Deployment Suffix'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+        id-token: write
+        contents: read
+    env:
+      NAMESPACE: 'todo'
+      APP_NAME: 'todo-app'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Init
+        id: init
+        run: |
+          releaseVersion=""
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            releaseVersion="${{ github.event.inputs.version }}"
+            deploymentSuffix="${{ github.event.inputs.deployment_suffix }}"
+          fi
+          if [[ -z "$releaseVersion" ]]; then
+            echo "RELEASE_VERSION is not set. Exiting..."
+            exit 1
+          fi
+          echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_DIR_NAME=${{env.APP_NAME}}v${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ARCHIVE_NAME=${{env.APP_NAME}}${releaseVersion}.zip" >> $GITHUB_OUTPUT
+          echo "DEPLOYMENT_SUFFIX=$deploymentSuffix" >> $GITHUB_OUTPUT
+      
+      - uses: robinraju/release-downloader@v1.7
+        with:
+          tag: ${{steps.init.outputs.RELEASE_VERSION}}
+          fileName: "${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}"
+
+      - name: Check downloaded files
+        run: |
+          pwd
+          ls -la
+          if [[ ! -f "${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}" ]]; then
+            echo "'${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}' does not exist."
+            exit 1
+          fi
+      
+      - name: Unzip archive
+        run: |
+          echo "Unzipping the release archive file: ${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}"
+          unzip ${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}
+          if [[ ! -f "${{steps.init.outputs.RELEASE_DIR_NAME}}/${{steps.init.outputs.RELEASE_FILE_NAME}}" ]]; then
+            echo "'${{steps.init.outputs.RELEASE_DIR_NAME}}/${{steps.init.outputs.RELEASE_FILE_NAME}}' does not exist."
+            exit 1
+          fi
+
+      - name: Prepare deployment manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{env.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
+        run: |
+          cat ./${{env.RELEASE_DIR_NAME}}/deployment.yml | CONTAINER_IMAGE=${env.CONTAINER_IMAGE} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+          cat ./deployment.yml.tmp
+      
+      - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+        uses: azure/login@v1
+        with:
+          client-id: "${{secrets.AAD_CLIENT_ID}}"
+          tenant-id: "${{secrets.AAD_TENANT_ID}}"
+          subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
+
+      - name: Deploy app to AKS
+        run: |
+          az aks command invoke \
+           --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+           --name ${{secrets.AKS_NAME}} \
+           --command "kubectl apply -f ./deployment.yml.tmp -n ${{env.NAMESPACE}}"
+      

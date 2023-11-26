@@ -301,6 +301,7 @@ jobs:
         mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         mv ./target/ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+        cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
         echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT

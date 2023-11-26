@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todoapp
+  namespace: todo
+  labels:
+    deploy: todoapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todoapp
+  template:
+    metadata:
+      labels:
+        app: todoapp
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: "todo-app-service-account"
+      containers:
+      - image: "$CONTAINER_IMAGE"
+        imagePullPolicy: Always
+        name: todoapp
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.3"
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        env:
+        - name: PORT
+          value: "80"
+        - name: LOAD_DEMO_DATA
+          value: "TRUE"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "azure"
+        - name: SPRING_DATASOURCE_SHOW_SQL
+          value: "true"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-api
+              key: TODO-APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-api
+              key: TODO-APP-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-api
+              key: TODO-SPRING-DATASOURCE-URL
+              optional: false
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-todo-api
+              key: TODO-SPRING-DATASOURCE-USERNAME
+              optional: false
+        volumeMounts:
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
+      volumes:
+        - name: secrets-store01-inline
+          csi: 
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-secrets-todo-api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoapp
+  namespace: todo
+spec:
+  type: ClusterIP
+  selector:
+    app: todoapp
+  ports:
+  - protocol: TCP
+    name: http
+    port: 80
+    targetPort: 80
+  - protocol: TCP
+    name: https
+    port: 443
+    targetPort: 443
