@@ -1,4 +1,4 @@
-name: 99-CD-Manual-TODO-APP
+name: 99-CD-manual-TODO-APP
 
 on:
   workflow_dispatch:
