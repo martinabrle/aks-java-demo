@@ -399,17 +399,17 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
+      # - name: Setup kubectl
+      #   uses: azure/setup-kubectl@v3
+      #   with:
+      #     version: 'latest'
         
-      - name: Setup kubelogin
-        uses: azure/use-kubelogin@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          kubelogin-version: 'latest'
+      # - name: Setup kubelogin
+      #   uses: azure/use-kubelogin@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     kubelogin-version: 'latest'
           
       # - name: Set AKS context
       #   id: set-context
@@ -418,20 +418,21 @@ jobs:
       #     resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
       #     cluster-name: '${{secrets.AKS_NAME}}'
       
-      - name: Get credentials
-        run: az aks get-credentials -n aks-development -g aks_development_rg --overwrite-existing
+      # - name: Get credentials
+      #   run: az aks get-credentials -n ${{secrets.AKS_NAME}} -g ${{secrets.AKS_RESOURCE_GROUP}} --overwrite-existing
       
-      - name: Test AKS connection
-        run: |
-          kubectl get nodes
-          kubectl get pods --all-namespaces
+      # - name: Test AKS connection
+      #   run: |
+      #     kubectl get nodes
+      #     kubectl get pods --all-namespaces
       
       - name: Deploy Namespaces
-        uses: Azure/k8s-deploy@v4
-        with:
-          namespace: 'default'
-          manifests: scripts/deployment/templates/k8s/01-namespaces.yml
-          pull-images: false           
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./01-namespaces.yml"
 
       - name: Prepare TODO_APP role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -442,11 +443,12 @@ jobs:
             cat ./02a-rolebinding-todo-api.yml | TODO_APP_EDIT_AD_GROUP_ID=${env.TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${env.TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo-api.yml.tmp
 
       - name: Deploy K8S role bindings for TODO_APP
-        uses: Azure/k8s-deploy@v4
-        with:
-          namespace: 'default'
-          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
-          pull-images: false
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp"
 
       - name: Prepare PET_CLINIC role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -457,11 +459,12 @@ jobs:
             cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${env.PET_CLINIC_APP_EDIT_AD_GROUP_ID} PET_CLINIC_VIEW_AD_GROUP_ID=${env.PET_CLINIC_VIEW_AD_GROUP_ID} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
 
       - name: Deploy K8S role bindings for PET_CLINIC
-        uses: Azure/k8s-deploy@v4
-        with:
-          namespace: 'default'
-          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
-          pull-images: false
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./02b-rolebinding-petclinic.yml.tmp"
 
       - name: Prepare IAAS_PGSQL role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -472,11 +475,12 @@ jobs:
             cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID} IAAS_PGSQL_VIEW_AD_GROUP_ID=${env.IAAS_PGSQL_VIEW_AD_GROUP_ID} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
 
       - name: Deploy K8S role bindings for IAAS_PGSQL
-        uses: Azure/k8s-deploy@v4
-        with:
-          namespace: 'default'
-          manifests: scripts/deployment/templates/k8s/02a-rolebinding-todo.yml.tmp
-          pull-images: false
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./02c-rolebinding-iaas-pgsql-api.yml.tmp"
 
       - name: Prepare IAAS_RABBIT_MQ role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -487,11 +491,12 @@ jobs:
             cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
 
       - name: Deploy K8S role bindings for IAAS_RABBIT_MQ
-        uses: Azure/k8s-deploy@v4
-        with:
-          namespace: 'default'
-          manifests: scripts/deployment/templates/k8s/
-          pull-images: false
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp"
 
       - name: Prepare TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
