@@ -440,7 +440,7 @@ jobs:
           TODO_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_VIEW_AD_GROUP_ID}}
           TODO_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${env.TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${env.TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo.yml.tmp
+            cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${{env.TODO_APP_EDIT_AD_GROUP_ID}} TODO_APP_VIEW_AD_GROUP_ID=${{env.TODO_APP_VIEW_AD_GROUP_ID}} envsubst > ./02a-rolebinding-todo.yml.tmp
 
       - name: Deploy K8S role bindings for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
@@ -456,7 +456,7 @@ jobs:
           PET_CLINIC_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_VIEW_AD_GROUP_ID}}
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${env.PET_CLINIC_APP_EDIT_AD_GROUP_ID} PET_CLINIC_VIEW_AD_GROUP_ID=${env.PET_CLINIC_VIEW_AD_GROUP_ID} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
+            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
 
       - name: Deploy K8S role bindings for PET_CLINIC
         working-directory: ./scripts/deployment/templates/k8s/
@@ -472,7 +472,7 @@ jobs:
           IAAS_PGSQL_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_VIEW_AD_GROUP_ID}}
           IAAS_PGSQL_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID} IAAS_PGSQL_VIEW_AD_GROUP_ID=${env.IAAS_PGSQL_VIEW_AD_GROUP_ID} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
+            cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${{env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}} IAAS_PGSQL_VIEW_AD_GROUP_ID=${{env.IAAS_PGSQL_VIEW_AD_GROUP_ID}} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
 
       - name: Deploy K8S role bindings for IAAS_PGSQL
         working-directory: ./scripts/deployment/templates/k8s/
@@ -488,7 +488,7 @@ jobs:
           IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}}
           IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
+            cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${{env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${{env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
 
       - name: Deploy K8S role bindings for IAAS_RABBIT_MQ
         working-directory: ./scripts/deployment/templates/k8s/
@@ -503,4 +503,4 @@ jobs:
         env:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
         run: |
-            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${env.TODO_APP_USER_MI_CLIENT_ID} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
