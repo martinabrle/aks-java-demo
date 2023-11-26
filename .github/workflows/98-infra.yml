@@ -440,7 +440,7 @@ jobs:
           TODO_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_VIEW_AD_GROUP_ID}}
           TODO_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02a-rolebinding-todo-api.yml | TODO_APP_EDIT_AD_GROUP_ID=${env.TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${env.TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo-api.yml.tmp
+            cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${env.TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${env.TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo.yml.tmp
 
       - name: Deploy K8S role bindings for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
