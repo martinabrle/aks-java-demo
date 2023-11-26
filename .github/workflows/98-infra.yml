@@ -161,6 +161,9 @@ jobs:
                                                      location="${{secrets.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
+          AKS_SECRETS_IDENTITY_CLIENT_ID=`az aks show -g ${{secrets.AKS_RESOURCE_GROUP}} -n "${{secrets.AKS_NAME}}" --query 'addonProfiles.azureKeyvaultSecretsProvider.identity.clientId' -o tsv`
+          echo "AKS_SECRETS_IDENTITY_CLIENT_ID=${AKS_SECRETS_IDENTITY_CLIENT_ID}" >> $GITHUB_OUTPUT
+
           todoAppUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityName.value"`
           todoAppUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityPrincipalId.value"`
           todoAppUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityClientId.value"`
@@ -498,12 +501,54 @@ jobs:
             --name ${{secrets.AKS_NAME}} \
             --command "kubectl apply -f ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp"
 
+      - name: Prepare TODO_APP KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          AKS_SECRETS_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} AKS_SECRETS_IDENTITY_CLIENT_ID=${{env.AKS_SECRETS_IDENTITY_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
+
+      - name: Deploy TODO_APP KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp"
+
+      - name: Prepare PET_CLINIC_APP KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          AKS_SECRETS_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AKS_SECRETS_IDENTITY_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} AKS_SECRETS_IDENTITY_CLIENT_ID=${{env.AKS_SECRETS_IDENTITY_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+
+      - name: Deploy TODO_APP KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp"
+
       - name: Prepare TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
         run: |
             cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+
+      - name: Deploy K8S workload identity for TODO_APP
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp"
 
       - name: Prepare PET_CLINIC_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -516,4 +561,13 @@ jobs:
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
         run: |
-            cat ./06b-workload-identity-pet-clinic-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
+           cat ./06b-workload-identity-pet-clinic-app.yml | API_GW_SVC_CLIENT_ID=${{env.API_GW_SVC_CLIENT_ID}} ADMIN_SVC_CLIENT_ID=${{env.ADMIN_SVC_CLIENT_ID}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} DISCO_SVC_CLIENT_ID=${{env.DISCO_SVC_CLIENT_ID}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
+
+      - name: Deploy K8S workload identity for PET_CLINIC_APP
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp"
+
