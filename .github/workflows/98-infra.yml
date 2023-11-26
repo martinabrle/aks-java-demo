@@ -68,7 +68,7 @@ jobs:
             echo "TODO_APP Admin Group name is not set"
             exit 1
           fi
-          if [[ -z "${{secrets.PET_CLINIC_VIEW_AD_GROUP_NAME}}" ]]; then
+          if [[ -z "${{secrets.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" ]]; then
             echo "PET_CLINIC Viewer Group name is not set"
             exit 1
           fi
@@ -105,8 +105,8 @@ jobs:
           TODO_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.TODO_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "TODO_APP_EDIT_AD_GROUP_ID=${TODO_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          PET_CLINIC_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
-          echo "PET_CLINIC_VIEW_AD_GROUP_ID=${PET_CLINIC_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
+          PET_CLINIC_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
+          echo "PET_CLINIC_APP_VIEW_AD_GROUP_ID=${PET_CLINIC_APP_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
           PET_CLINIC_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "PET_CLINIC_APP_EDIT_AD_GROUP_ID=${PET_CLINIC_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
@@ -453,10 +453,10 @@ jobs:
       - name: Prepare PET_CLINIC role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          PET_CLINIC_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_VIEW_AD_GROUP_ID}}
+          PET_CLINIC_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_VIEW_AD_GROUP_ID}}
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
+            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
 
       - name: Deploy K8S role bindings for PET_CLINIC
         working-directory: ./scripts/deployment/templates/k8s/
@@ -504,3 +504,17 @@ jobs:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
         run: |
             cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+
+      - name: Prepare PET_CLINIC_APP workload identity manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          API_GW_SVC_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
+          ADMIN_SVC_CLIENT_ID:  ${{steps.deployment.outputs.PET_CLINIC_ADMIN_SVC_USER_MI_CLIENT_ID}}
+          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
+          CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
+          DISCO_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_DISCO_SVC_USER_MI_CLIENT_ID}}
+          VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
+          VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
+
+        run: |
+            cat ./06b-workload-identity-pet-clinic-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp

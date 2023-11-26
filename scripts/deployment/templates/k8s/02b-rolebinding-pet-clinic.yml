@@ -23,5 +23,5 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 subjects:
 - kind: Group
-  name: "$PET_CLINIC_VIEW_AD_GROUP_ID"
+  name: "$PET_CLINIC_APP_VIEW_AD_GROUP_ID"
   apiGroup: rbac.authorization.k8s.io
