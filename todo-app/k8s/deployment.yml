@@ -86,7 +86,8 @@ metadata:
   name: todoapp
   namespace: todo
 spec:
-  type: ClusterIP
+  type: LoadBalancer
+  # type: ClusterIP
   selector:
     app: todoapp
   ports:
