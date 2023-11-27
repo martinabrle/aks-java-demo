@@ -17,7 +17,7 @@ param pgsqlSubscriptionId string
 param pgsqlRG string
 param pgsqlTags string
 
-param todoAppUserManagedIdentityName string = '${aksName}-todo-api-identity'
+param todoAppUserManagedIdentityName string = '${aksName}-todo-app-identity'
 param petClinicAdminSvcUserManagedIdentityName string = '${aksName}-pet-clinic-admin-identity'
 param petClinicApiGWSvcUserManagedIdentityName string = '${aksName}-pet-clinic-api-gw-identity'
 param petClinicConfigSvcUserManagedIdentityName string = '${aksName}-pet-clinic-config-identity'
