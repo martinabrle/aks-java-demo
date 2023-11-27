@@ -45,11 +45,22 @@ jobs:
             echo "RELEASE_VERSION is not set. Exiting..."
             exit 1
           fi
+          dbName=""
+          if [[ "${{ github.event.inputs.app_name }}" == "todo-app" ]]; then
+            dbName="tododb"
+          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-customers-service" ]]; then
+            dbName="petcliniccustomersdb"
+          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-vets-service" ]]; then
+            dbName="petclinicvetssdb"
+          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-visits-service" ]]; then
+            dbName="petclinicvisitsdb"
+          fi
           echo "APP_NAME=${{github.event.inputs.app_name}}" >> $GITHUB_OUTPUT
           echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
           echo "RELEASE_DIR_NAME=${{github.event.inputs.app_name}}v${releaseVersion}" >> $GITHUB_OUTPUT
           echo "RELEASE_ARCHIVE_NAME=${{github.event.inputs.app_name}}${releaseVersion}.zip" >> $GITHUB_OUTPUT
           echo "DEPLOYMENT_SUFFIX=$deploymentSuffix" >> $GITHUB_OUTPUT
+          echo "DB_NAME=$dbName" >> $GITHUB_OUTPUT
       
       - uses: robinraju/release-downloader@v1.7
         with:
@@ -83,6 +94,30 @@ jobs:
         run: |
           cat ./${{env.RELEASE_DIR_NAME}}/deployment.yml | CONTAINER_IMAGE=${env.CONTAINER_IMAGE} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
           cat ./deployment.yml.tmp
+
+      - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+        uses: azure/login@v1
+        with:
+          client-id: "${{secrets.AAD_CLIENT_ID}}"
+          tenant-id: "${{secrets.AAD_TENANT_ID}}"
+          subscription-id: "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
+
+      - name: Add DB Firewall exception used for Schema sync
+        if: ${{steps.init.outputs.DB_NAME}} != ''
+        run: |
+          deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
+          az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} -s ${{secrets.PGSQL_SUBSCRIPTION_ID}}
+      
+      - name: Synchronize DB Schema
+        if: ${{steps.init.outputs.DB_NAME}} != ''
+        env:
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          PGSQL_SERVER_NAME: '${{secrets.PGSQL_NAME}}.postgres.database.azure.com'
+          DB_NAME: ${{steps.init.outputs.DB_NAME}}
+        run: |
+          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+          psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.RELEASE_DIR_NAME}}/db/pgsql/schema.sql -v ON_ERROR_STOP=1
+          psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.RELEASE_DIR_NAME}}/db/pgsql/data.sql -v ON_ERROR_STOP=1
       
       - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v1
@@ -97,4 +132,9 @@ jobs:
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
            --name ${{secrets.AKS_NAME}} \
            --command "kubectl apply -f ./deployment.yml.tmp"
+      
+      - name: Remove DB Firewall exception used for Schema sync
+        if: ${{steps.init.outputs.DB_NAME}} != ''
+        run: |
+          az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
       
