@@ -86,15 +86,6 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare deployment manifest
-        env:
-          DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
-          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
-          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
-        run: |
-          cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
-          cat ./deployment.yml.tmp
-
       - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v1
         with:
@@ -125,6 +116,15 @@ jobs:
           client-id: "${{secrets.AAD_CLIENT_ID}}"
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
+
+      - name: Prepare deployment manifest
+        env:
+          DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
+        run: |
+          cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+          cat ./deployment.yml.tmp
 
       - name: Test connection to AKS
         run: |
