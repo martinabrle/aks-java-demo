@@ -107,7 +107,7 @@ jobs:
         if: ${{steps.init.outputs.DB_NAME}} != ''
         run: |
           deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
-          az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} -s ${{secrets.PGSQL_SUBSCRIPTION_ID}}
+          az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
       
       - name: Synchronize DB Schema
         if: ${{steps.init.outputs.DB_NAME}} != ''
