@@ -78,27 +78,6 @@ jobs:
             exit 1
           fi
 
-          if [[ -z "${{secrets.IAAS_PGSQL_VIEW_AD_GROUP_NAME}}" ]]; then
-            echo "IaaS PGSQL Viewer Group name is not set"
-            exit 1
-          fi
-
-          if [[ -z "${{secrets.IAAS_PGSQL_APP_EDIT_AD_GROUP_NAME}}" ]]; then
-            echo "IaaS PGSQL Admin Group name is not set"
-            exit 1
-          fi
-
-          if [[ -z "${{secrets.IAAS_RABBIT_MQ_VIEW_AD_GROUP_NAME}}" ]]; then
-            echo "IaaS PGSQL_MQ Viewer Group name is not set"
-            exit 1
-          fi
-
-          if [[ -z "${{secrets.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_NAME}}" ]]; then
-            echo "IaaS PGSQL_MQ Admin Group name is not set"
-            exit 1
-          fi
-
-
           TODO_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.TODO_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "TODO_APP_VIEW_AD_GROUP_ID=${TODO_APP_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
@@ -111,18 +90,6 @@ jobs:
           PET_CLINIC_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "PET_CLINIC_APP_EDIT_AD_GROUP_ID=${PET_CLINIC_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          IAAS_PGSQL_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.IAAS_PGSQL_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
-          echo "IAAS_PGSQL_VIEW_AD_GROUP_ID=${IAAS_PGSQL_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
-          
-          IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.IAAS_PGSQL_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
-          echo "IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
-          
-          IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.IAAS_RABBIT_MQ_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
-          echo "IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
-          
-          IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
-          echo "IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
-
           dbaGroupId=`az ad group show --group "${{secrets.DBA_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "DBA_GROUP_ID=${dbaGroupId}" >> $GITHUB_OUTPUT
           aksGroupId=`az ad group show --group "${{secrets.AKS_ADMIN_GROUP_NAME}}" --query '[id]' -o tsv`
@@ -402,40 +369,14 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
 
-      # - name: Setup kubectl
-      #   uses: azure/setup-kubectl@v3
-      #   with:
-      #     version: 'latest'
-        
-      # - name: Setup kubelogin
-      #   uses: azure/use-kubelogin@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     kubelogin-version: 'latest'
-          
-      # - name: Set AKS context
-      #   id: set-context
-      #   uses: azure/aks-set-context@v3
-      #   with:
-      #     resource-group: '${{secrets.AKS_RESOURCE_GROUP}}'
-      #     cluster-name: '${{secrets.AKS_NAME}}'
-      
-      # - name: Get credentials
-      #   run: az aks get-credentials -n ${{secrets.AKS_NAME}} -g ${{secrets.AKS_RESOURCE_GROUP}} --overwrite-existing
-      
-      # - name: Test AKS connection
-      #   run: |
-      #     kubectl get nodes
-      #     kubectl get pods --all-namespaces
-      
       - name: Deploy Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./01-namespaces.yml"
+            --command "kubectl apply -f ./01-namespaces.yml" \
+            --file ./01-namespaces.yml
 
       - name: Prepare TODO_APP role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -451,7 +392,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp"
+            --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp" \
+            --file ./02a-rolebinding-todo.yml.tmp
 
       - name: Prepare PET_CLINIC role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -467,39 +409,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02b-rolebinding-petclinic.yml.tmp"
-
-      - name: Prepare IAAS_PGSQL role binding manifest
-        working-directory: ./scripts/deployment/templates/k8s/
-        env:
-          IAAS_PGSQL_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_VIEW_AD_GROUP_ID}}
-          IAAS_PGSQL_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}}
-        run: |
-            cat ./02c-rolebinding-iaas-pgsql-api.yml | IAAS_PGSQL_APP_EDIT_AD_GROUP_ID=${{env.IAAS_PGSQL_APP_EDIT_AD_GROUP_ID}} IAAS_PGSQL_VIEW_AD_GROUP_ID=${{env.IAAS_PGSQL_VIEW_AD_GROUP_ID}} envsubst > ./02c-rolebinding-iaas-pgsql-api.yml.tmp
-
-      - name: Deploy K8S role bindings for IAAS_PGSQL
-        working-directory: ./scripts/deployment/templates/k8s/
-        run: |
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02c-rolebinding-iaas-pgsql-api.yml.tmp"
-
-      - name: Prepare IAAS_RABBIT_MQ role binding manifest
-        working-directory: ./scripts/deployment/templates/k8s/
-        env:
-          IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}}
-          IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}}
-        run: |
-            cat ./02d-rolebinding-iaas-rabbitmq-api.yml | IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID=${{env.IAAS_RABBIT_MQ_APP_EDIT_AD_GROUP_ID}} IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID=${{env.IAAS_RABBIT_MQ_VIEW_AD_GROUP_ID}} envsubst > ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp
-
-      - name: Deploy K8S role bindings for IAAS_RABBIT_MQ
-        working-directory: ./scripts/deployment/templates/k8s/
-        run: |
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02d-rolebinding-iaas-rabbitmq-api.yml.tmp"
+            --command "kubectl apply -f ./02b-rolebinding-petclinic.yml.tmp" \
+            --file ./02b-rolebinding-petclinic.yml.tmp
 
       - name: Prepare TODO_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -516,7 +427,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp"
+            --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp" \
+            --file ./04a-kv-secrets-todo-app.yml.tmp
 
       - name: Prepare PET_CLINIC_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -533,7 +445,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp"
+            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp" \
+            --file ./04b-kv-secrets-pet-clinic-app.yml.tmp
 
       - name: Prepare TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -548,7 +461,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp"
+            --command "kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp" \
+            --file ./06a-workload-identity-todo-app.yml.tmp
 
       - name: Prepare PET_CLINIC_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -569,5 +483,6 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp"
+            --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp" \
+            --file ./06b-workload-identity-pet-clinic-app.yml.tmp
 
