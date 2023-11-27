@@ -126,9 +126,15 @@ jobs:
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
+      - name: Test connection to AKS
+        run: |
+          az aks command invoke \
+           --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+           --name ${{secrets.AKS_NAME}} \
+           --command "kubectl get ns"
+
       - name: Deploy app into AKS
         run: |
-          ls -la
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
            --name ${{secrets.AKS_NAME}} \
