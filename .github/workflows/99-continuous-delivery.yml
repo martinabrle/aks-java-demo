@@ -87,13 +87,12 @@ jobs:
           fi
 
       - name: Prepare deployment manifest
-        working-directory: ./scripts/deployment/templates/k8s/
         env:
           DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
           RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
           CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
         run: |
-          cat ./${{env.RELEASE_DIR_NAME}}/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+          cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
           cat ./deployment.yml.tmp
 
       - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
@@ -128,7 +127,6 @@ jobs:
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
       - name: Deploy app into AKS
-        working-directory: ./scripts/deployment/templates/k8s/
         run: |
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
