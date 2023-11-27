@@ -57,7 +57,7 @@ jobs:
           fi
           echo "APP_NAME=${{github.event.inputs.app_name}}" >> $GITHUB_OUTPUT
           echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
-          echo "RELEASE_DIR_NAME=${{github.event.inputs.app_name}}v${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_DIR_NAME=${{github.event.inputs.app_name}}-${releaseVersion}" >> $GITHUB_OUTPUT
           echo "RELEASE_ARCHIVE_NAME=${{github.event.inputs.app_name}}-${releaseVersion}.zip" >> $GITHUB_OUTPUT
           echo "DEPLOYMENT_SUFFIX=$deploymentSuffix" >> $GITHUB_OUTPUT
           echo "DB_NAME=$dbName" >> $GITHUB_OUTPUT
