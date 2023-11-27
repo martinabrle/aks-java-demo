@@ -1,10 +1,24 @@
-name: 99-CD-manual-TODO-APP
+name: 99-Continuous-Delivery
 
 on:
   workflow_dispatch:
     inputs:
+      app_name:
+        description: 'Application to deploy'
+        required: true
+        type: choice
+        options:
+          - 'todo-app'
+          - 'spring-petclinic-admin-server'
+          - 'spring-petclinic-api-gateway'
+          - 'spring-petclinic-config-server'
+          - 'spring-petclinic-customers-service'
+          - 'spring-petclinic-discovery-server'
+          - 'spring-petclinic-vets-service'
+          - 'spring-petclinic-visits-service'
+        default: 'todo-app'
       version:
-        description: 'TODO_APP Version to deploy (i.e. 1.5.3)'
+        description: 'App Version to deploy (i.e. 1.5.3)'
         required: true
       deployment_suffix:
         description: 'K8S Deployment Suffix'
@@ -15,9 +29,6 @@ jobs:
     permissions:
         id-token: write
         contents: read
-    env:
-      NAMESPACE: 'todo'
-      APP_NAME: 'todo-app'
     
     steps:
       - uses: actions/checkout@v4
@@ -34,14 +45,15 @@ jobs:
             echo "RELEASE_VERSION is not set. Exiting..."
             exit 1
           fi
+          echo "APP_NAME=${{github.event.inputs.app_name}}" >> $GITHUB_OUTPUT
           echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
-          echo "RELEASE_DIR_NAME=${{env.APP_NAME}}v${releaseVersion}" >> $GITHUB_OUTPUT
-          echo "RELEASE_ARCHIVE_NAME=${{env.APP_NAME}}${releaseVersion}.zip" >> $GITHUB_OUTPUT
+          echo "RELEASE_DIR_NAME=${{github.event.inputs.app_name}}v${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ARCHIVE_NAME=${{github.event.inputs.app_name}}${releaseVersion}.zip" >> $GITHUB_OUTPUT
           echo "DEPLOYMENT_SUFFIX=$deploymentSuffix" >> $GITHUB_OUTPUT
       
       - uses: robinraju/release-downloader@v1.7
         with:
-          tag: ${{steps.init.outputs.RELEASE_VERSION}}
+          tag: 'v${{steps.init.outputs.RELEASE_VERSION}}-${{steps.init.outputs.APP_NAME}}'
           fileName: "${{steps.init.outputs.RELEASE_ARCHIVE_NAME}}"
 
       - name: Check downloaded files
@@ -67,7 +79,7 @@ jobs:
         env:
           DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
           RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
-          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{env.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
+          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
         run: |
           cat ./${{env.RELEASE_DIR_NAME}}/deployment.yml | CONTAINER_IMAGE=${env.CONTAINER_IMAGE} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
           cat ./deployment.yml.tmp
@@ -84,5 +96,5 @@ jobs:
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
            --name ${{secrets.AKS_NAME}} \
-           --command "kubectl apply -f ./deployment.yml.tmp -n ${{env.NAMESPACE}}"
+           --command "kubectl apply -f ./deployment.yml.tmp"
       
