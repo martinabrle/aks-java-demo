@@ -127,7 +127,8 @@ jobs:
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
-      - name: Deploy app to AKS
+      - name: Deploy app into AKS
+        working-directory: ./scripts/deployment/templates/k8s/
         run: |
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
