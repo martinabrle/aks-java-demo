@@ -128,10 +128,11 @@ jobs:
 
       - name: Deploy app into AKS
         run: |
+          ls -la
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
            --name ${{secrets.AKS_NAME}} \
-           --command "kubectl apply -f ./deployment.yml.tmp"
+           --command "kubectl apply -f deployment.yml.tmp"
            --file deployment.yaml.tmp
       
       - name: Remove DB Firewall exception used for Schema sync
