@@ -40,9 +40,9 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
       {
         name: 'agentpool'
         osDiskSizeGB: 0 //pick VMs default 
-        count: 1
+        count: 3
         enableAutoScaling: false
-        vmSize: 'Standard_B2s_v2' //'Standard_F4s_v2' //Standard_F2s_v2 would be the cheapest non-burstable VM - but that does not have enough memory
+        vmSize: 'Standard_D4s_v4' //'Standard_F4s_v2' //Standard_F2s_v2 would be the cheapest non-burstable VM - but that does not have enough memory
         osType: 'Linux'
         osDiskType: 'Managed'
         //osDiskType: 'Ephemeral' - does not work, temp disk too small
