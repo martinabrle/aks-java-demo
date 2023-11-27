@@ -401,7 +401,7 @@ jobs:
           PET_CLINIC_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_VIEW_AD_GROUP_ID}}
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
-            cat ./02b-rolebinding-petclinic-api.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-petclinic-api.yml.tmp
+            cat ./02b-rolebinding-pet-clinic.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-pet-clinic.yml.tmp
 
       - name: Deploy K8S role bindings for PET_CLINIC
         working-directory: ./scripts/deployment/templates/k8s/
@@ -409,8 +409,8 @@ jobs:
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02b-rolebinding-petclinic.yml.tmp" \
-            --file ./02b-rolebinding-petclinic.yml.tmp
+            --command "kubectl apply -f ./02b-rolebinding-pet-clinic.yml.tmp" \
+            --file ./02b-rolebinding-pet-clinic.yml.tmp
 
       - name: Prepare TODO_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
