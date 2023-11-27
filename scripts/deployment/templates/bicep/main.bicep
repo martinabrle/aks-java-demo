@@ -351,7 +351,7 @@ module aks 'components/aks.bicep' = {
 
 module rbacContainerRegistryACRPull 'components/role-assignment-container-registry.bicep' = {
   name: 'deployment-rbac-container-registry-acr-pull'
-  scope: resourceGroup(containerRegistryRG)
+  scope: resourceGroup(containerRegistrySubscriptionId, containerRegistryRG)
   params: {
     containerRegistryName: containerRegistryName
     roleDefinitionId: acrPullRole.id
