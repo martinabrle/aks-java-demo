@@ -139,7 +139,7 @@ jobs:
           RELEASE_DIR_NAME: '${{env.RELEASE_DIR_NAME}}'
         run: |
           cd ./${{env.RELEASE_DIR_NAME}}
-          az acr build --registry ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --file ./Dockerfile .
+          az acr build --registry ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --file ./Dockerfile --subscription ${{secrets.AKS_SUBSCRIPTION_ID}}
           cd ..
       
       - name: Prepare deployment manifest
