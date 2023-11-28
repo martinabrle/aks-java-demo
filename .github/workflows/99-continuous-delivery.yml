@@ -125,7 +125,7 @@ jobs:
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
           RELEASE_VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
         run: |
-          repoName=`az acr repository list -n martinabrle --query "[?contains(@, '${{env.APP_NAME}}}}')]" -o tsv`
+          repoName=`az acr repository list -n martinabrle --query "[?contains(@, '${{env.APP_NAME}}')]" -o tsv`
           echo "Repo name: $repoName"
           if [[ -z "${repoName}" ]]; then
             echo "Repo '${{env.APP_NAME}}' does not exist."
