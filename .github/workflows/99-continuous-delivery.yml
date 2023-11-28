@@ -117,6 +117,17 @@ jobs:
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
+      - name: Check if the container image exists
+        env:
+          IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
+          CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
+        run: |
+          imageName=´az acr repository show --name ${{env.CONTAINER_REGISTRY_NAME}} --image "${{env.IMAGE_NAME}}" --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}" --output tsv´
+          echo "Image name: $imageName"
+          if [[ -z "${imageName}" ]]; then
+            echo "Container image '${{env.IMAGE_NAME}}' does not exist in the container registry '${{env.CONTAINER_REGISTRY_NAME}}'."
+            exit 1
+          fi
       - name: Prepare deployment manifest
         env:
           DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
