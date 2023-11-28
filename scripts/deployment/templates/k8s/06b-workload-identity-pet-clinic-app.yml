@@ -3,7 +3,7 @@ kind: ServiceAccount
 metadata:
   annotations:
     azure.workload.identity/client-id: "${API_GW_SVC_CLIENT_ID}"
-  name: "pet-clinic-admin-gw-service-account"
+  name: "pet-clinic-api-gw-service-account"
   namespace: "pet-clinic"
 ---
 apiVersion: v1

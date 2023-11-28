@@ -15,28 +15,10 @@ spec:
         app: customers-service
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: workload-identity-sa
+      serviceAccountName: pet-clinic-custs-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
         name: customers-service
-        env:
-        - name: "CONFIG_SERVER_URL"
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: CONFIG_SERVER_URL
-        - name: "APPLICATIONINSIGHTS_CONNECTION_STRING"
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: APPLICATIONINSIGHTS_CONNECTION_STRING
-        - name: "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"
-          value: >-
-            {
-                "role": {   
-                    "name": "customers-service"
-                  }
-            }
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -66,8 +48,56 @@ spec:
           protocol: TCP
         securityContext:
           privileged: false
-   
-   
+        env:
+        - name: "CONFIG_SERVER_URL"
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: CONFIG_SERVER_URL
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
+        - name: "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"
+          value: >-
+            {
+                "role": {   
+                    "name": "customers-service"
+                  }
+            }
+        - name: SPRING_DATASOURCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-CUST-SVC-SPRING-DATASOURCE-URL
+              optional: false
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-CUST-SVC-SPRING-DS-USER
+              optional: false
+        - name: ENVIRONMENT
+          value: "AKS"
+        volumeMounts:
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
+      volumes:
+        - name: secrets-store01-inline
+          csi: 
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-secrets-pet-clinic-app
 ---
 apiVersion: v1
 kind: Service
