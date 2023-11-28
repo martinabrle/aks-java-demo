@@ -126,8 +126,10 @@ jobs:
           imageName=`az acr repository show --name ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --subscription ${{secrets.AKS_SUBSCRIPTION_ID}} --query "name" --output tsv`
           echo "Image name: $imageName"
           if [[ -z "${imageName}" ]]; then
+            echo "Image '${{env.IMAGE_NAME}}' does not exist."
             echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
           else
+            echo "Image '${{env.IMAGE_NAME}}' already exist."
             echo "CONTAINER_IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
           fi
       
