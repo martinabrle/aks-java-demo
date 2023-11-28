@@ -120,17 +120,26 @@ jobs:
       - name: Check if the container image exists
         id: container_image_validation
         env:
+          APP_NAME: ${{steps.init.outputs.APP_NAME}}
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
+          RELEASE_VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
         run: |
-          imageName=`az acr repository show --name ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --subscription ${{secrets.AKS_SUBSCRIPTION_ID}} --query "name" --output tsv`
-          echo "Image name: $imageName"
-          if [[ -z "${imageName}" ]]; then
-            echo "Image '${{env.IMAGE_NAME}}' does not exist."
+          repoName=`az acr repository list -n martinabrle --query "[?contains(@, '${{env.APP_NAME}}}}')]" -o tsv`
+          echo "Repo name: $repoName"
+          if [[ -z "${repoName}" ]]; then
+            echo "Repo '${{env.APP_NAME}}' does not exist."
             echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
           else
-            echo "Image '${{env.IMAGE_NAME}}' already exist."
-            echo "CONTAINER_IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
+            echo "Repo '${{env.APP_NAME}}' already exist."
+            tagName=`az acr repository show-tags -n ${{env.CONTAINER_REGISTRY_NAME}} --repository ${{env.APP_NAME}} --query "[?contains(@, '${{env.RELEASE_VERSION}}')]" -o tsv`
+            if [[ -z "${tagName}" ]]; then
+              echo "Tag '${{env.RELEASE_VERSION}}' does not exist."
+              echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
+            else
+              echo "Tag '${{env.RELEASE_VERSION}}' already exist."
+              echo "CONTAINER_IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
+            fi
           fi
       
       - name: Build and push container image if needed
