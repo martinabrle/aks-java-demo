@@ -122,7 +122,7 @@ jobs:
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
         run: |
-          az acr repository show -g container_registry_rg --image todo-app:0.0.7 --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
+          az acr repository show --name ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --subscription ${{secrets.AKS_SUBSCRIPTION_ID}}
           imageName=´az acr repository show --name ${{env.CONTAINER_REGISTRY_NAME}} --image "${{env.IMAGE_NAME}}" --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}" --output tsv´
           echo "Image name: $imageName"
           if [[ -z "${imageName}" ]]; then
