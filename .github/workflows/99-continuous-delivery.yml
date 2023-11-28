@@ -118,6 +118,7 @@ jobs:
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
       - name: Check if the container image exists
+        id: container_image_validation
         env:
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
@@ -128,9 +129,22 @@ jobs:
             # Image does not exist, but we have a release in GitHub; this may well happen since this
             # is a demo environment, let's build the image and push it to the container registry
             echo "Container image '${{env.IMAGE_NAME}}' does not exist in the container registry '${{env.CONTAINER_REGISTRY_NAME}}'."
-            exit 1
+            echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
+          elif
+            echo "CONTAINER_IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
           fi
-
+      
+      - name: Build and push container image if needed
+        if: ${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}} != 'true'
+        env:
+          IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
+          CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
+          RELEASE_DIR_NAME: '${{env.RELEASE_DIR_NAME}}'
+        run: |
+          cd ./${{env.RELEASE_DIR_NAME}}
+          az acr build --registry ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --file ./Dockerfile .
+          cd ..
+      
       - name: Prepare deployment manifest
         env:
           DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
