@@ -378,6 +378,15 @@ jobs:
             --command "kubectl apply -f ./01-namespaces.yml" \
             --file ./01-namespaces.yml
 
+      - name: Deploy Config Maps for PET_CLINIC_APP and TODO_APP
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./07-config-map.yml" \
+            --file ./07-config-map.yml
+
       - name: Prepare TODO_APP role binding manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:

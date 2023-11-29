@@ -42,8 +42,6 @@ spec:
           value: "TRUE"
         - name: SPRING_PROFILES_ACTIVE
           value: "azure"
-        - name: SPRING_DATASOURCE_SHOW_SQL
-          value: "true"
         - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
@@ -68,6 +66,11 @@ spec:
               name: kv-secrets-todo-api
               key: TODO-SPRING-DATASOURCE-USERNAME
               optional: false
+        - name: SPRING_DATASOURCE_SHOW_SQL
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: SPRING_DATASOURCE_SHOW_SQL              
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
