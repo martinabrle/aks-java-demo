@@ -32,6 +32,8 @@ jobs:
     outputs:
       matrix: ${{ steps.versions.outputs.matrix }}
       something_to_deploy: ${{ steps.versions.outputs.something_to_deploy }}
+      matrix_utils: ${{ steps.versions.outputs.matrix_utils }}
+      something_to_deploy_utils: ${{ steps.versions.outputs.something_to_deploy_utils }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -173,7 +175,55 @@ jobs:
         bump_each_commit: true
         search_commit_body: true
         user_format_type: "csv"
-    
+ 
+    - name: Semver for GRAFANA
+      uses: PaulHatch/semantic-version@v5.3.0
+      id: semver_grafana_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: docker/grafana
+        namespace: grafana
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+  
+    - name: Semver for PROMETHEUS
+      uses: PaulHatch/semantic-version@v5.3.0
+      id: semver_prometheus_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: docker/prometheus
+        namespace: prometheus
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Semver for PROMETHEUS
+      uses: PaulHatch/semantic-version@v5.3.0
+      id: semver_zipkin_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: docker/zipkin
+        namespace: zipkin
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
     - name: Set versions
       id: versions
       run: |
@@ -184,7 +234,9 @@ jobs:
             fi
           fi
           delimiter=""
+          delimiter_utils=""
           matrix="{\"include\":["
+          matrix_utils="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
             matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
             delimiter=","
@@ -217,6 +269,18 @@ jobs:
             matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
             delimiter=","
           fi
+          if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\"}"
+            delimiter_utils=","
+          fi
+          if [[ "${{steps.semver_prometheus_version.outputs.changed}}" == "true" && "${{steps.semver_prometheus_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\"}"
+            delimiter_utils=","
+          fi
+          if [[ "${{steps.semver_zipkin_version.outputs.changed}}" == "true" && "${{steps.semver_zipkin_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\"}"
+            delimiter_utils=","
+          fi
           if [[ "$delimiter" == "" ]]; then
             matrix=""
             echo "matrix=\"\"" >> $GITHUB_OUTPUT
@@ -226,6 +290,16 @@ jobs:
             echo "matrix=${matrix}" >> $GITHUB_OUTPUT
             echo "something_to_deploy=true" >> $GITHUB_OUTPUT
           fi
+          if [[ "$delimiter_utils" == "" ]]; then
+            matrix_utils=""
+            echo "matrix_utils=\"\"" >> $GITHUB_OUTPUT
+            echo "something_to_deploy_utils=false" >> $GITHUB_OUTPUT
+          else
+            matrix_utils="$matrix_utils]}"
+            echo "matrix_utils=${matrix_utils}" >> $GITHUB_OUTPUT
+            echo "something_to_deploy_utils=true" >> $GITHUB_OUTPUT
+          fi  
+
   
   release_app:
     needs: [versions]
@@ -340,3 +414,75 @@ jobs:
         ls -la
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.ARTIFACT_NAME}} --file ./Dockerfile
         cd ..
+
+  release_utils:
+    needs: [versions]
+    runs-on: ubuntu-latest
+    if: ${{needs.versions.outputs.something_to_deploy_utils}} != ''
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+
+    strategy:
+      max-parallel: 0
+      matrix: ${{fromJson(needs.versions.outputs.matrix_utils)}}
+    env:
+      ARTIFACT_NAME: ${{ matrix.artifact_name }}
+      VERSION: ${{ matrix.version }}
+      VERSION_TAG: ${{ matrix.version_tag }}
+    defaults:
+      run:
+        working-directory: docker/${{matrix.artifact_name}}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Display parameters
+      run: |
+        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
+        echo "VERSION=${{env.VERSION}}"
+        echo "VERSION_TAG=${{env.VERSION_TAG}}"
+        echo "GITHUB_SHA=${{github.sha}}"
+        echo "GITHUB_REF=${{github.ref}}"
+        echo "GITHUB_EVENT_NAME=${{github.event_name}}"
+    
+    - name: Build release ZIP archive
+      id: create_archive
+      run: |
+        ls -la
+        zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./
+        ls -la
+        echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
+
+    # Only for troubleshooting, otherwise not needed
+    # - name: Upload build artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+    #     path: ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+    #     if-no-files-found: error
+    #     retention-days: 1          
+
+    - name: Release build artifact
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        ls -la ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        gh release create ${{env.VERSION_TAG}} ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
+
+    - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+      uses: azure/login@v1
+      with:
+        client-id: ${{secrets.AAD_CLIENT_ID}}
+        tenant-id: ${{secrets.AAD_TENANT_ID}}
+        subscription-id: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}        
+
+    - name: Build a new container image
+      run: |
+        rm ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
+        ls -la
+        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.ARTIFACT_NAME}} --file ./Dockerfile
+
