@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tracing-server
+  name: tracing-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tracing-server
+  template:
+    metadata:
+      labels:
+        app: tracing-server
+    spec:
+      containers:
+      - image: "$CONTAINER_IMAGE"
+        name: tracing-server
+        env:
+        - name: "CONFIG_SERVER_URL"
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: CONFIG_SERVER_URL
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 9091
+            scheme: HTTP
+          initialDelaySeconds: 180
+          successThreshold: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 9091
+            scheme: HTTP
+          initialDelaySeconds: 10
+          successThreshold: 1
+        ports:
+        - containerPort: 9091
+          name: http
+          protocol: TCP
+        securityContext:
+          privileged: false
+        env:
+        - name: "CONFIG_SERVER_URL"
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: CONFIG_SERVER_URL
+        - name: ENVIRONMENT
+          value: "AKS"
+        volumeMounts:
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
+      volumes:
+        - name: secrets-store01-inline
+          csi: 
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: kv-secrets-pet-clinic-app
+   
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prometheus-server
+  name: prometheus-server
+spec:
+  ports:
+  - port: 9091
+    protocol: TCP
+    targetPort: 9091
+  selector:
+    app: prometheus-server
+  type: ClusterIP

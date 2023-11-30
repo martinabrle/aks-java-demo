@@ -2,49 +2,41 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: visits-service
-  name: visits-service
+    app: tracing-server
+  name: tracing-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: visits-service
+      app: tracing-server
   template:
     metadata:
       labels:
-        app: visits-service
-        azure.workload.identity/use: "true"
+        app: tracing-server
     spec:
-      serviceAccountName: pet-clinic-visits-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: visits-service
+        name: tracing-server
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /actuator/health
-            port: 8080
+            path: /health
+            port: 9411
             scheme: HTTP
           initialDelaySeconds: 180
           successThreshold: 1
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /actuator/health
-            port: 8080
+            path: /health
+            port: 9411
             scheme: HTTP
           initialDelaySeconds: 10
           successThreshold: 1
         ports:
-        - containerPort: 8080
+        - containerPort: 9411
           name: http
-          protocol: TCP
-        - containerPort: 9779
-          name: prometheus
-          protocol: TCP
-        - containerPort: 8778
-          name: jolokia
           protocol: TCP
         securityContext:
           privileged: false
@@ -54,37 +46,27 @@ spec:
             configMapKeyRef:
               name: config-server
               key: CONFIG_SERVER_URL
-        - name: "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: APPLICATIONINSIGHTS_CONNECTION_STRING
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: PET-CLINIC-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
         - name: "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"
           value: >-
             {
                 "role": {   
-                    "name": "visits-service"
+                    "name": "tracing-server"
                   }
             }
-        - name: SPRING_DATASOURCE_URL
-          valueFrom:
-            secretKeyRef:
-              name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-VISIT-SVC-SPRING-DATASOURCE-URL
-              optional: false
-        - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-VISIT-SVC-SPRING-DS-USER
-              optional: false
         - name: ENVIRONMENT
           value: "AKS"
-        - name: SPRING_DATASOURCE_SHOW_SQL
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: SPRING_DATASOURCE_SHOW_SQL
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
@@ -95,20 +77,20 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: kv-secrets-pet-clinic-app      
+              secretProviderClass: kv-secrets-pet-clinic-app
    
 ---
 apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: visits-service
-  name: visits-service
+    app: tracing-server
+  name: tracing-server
 spec:
   ports:
-  - port: 8080
+  - port: 9411
     protocol: TCP
-    targetPort: 8080
+    targetPort: 9411
   selector:
-    app: visits-service
+    app: tracing-server
   type: ClusterIP

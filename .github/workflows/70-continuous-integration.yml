@@ -13,6 +13,8 @@ on:
      - 'spring-petclinic-discovery-server/**'
      - 'spring-petclinic-vets-service/**'
      - 'spring-petclinic-visits-service/**'
+     - 'docker/grafana/**'
+     - 'docker/prometheus/**'
 
   workflow_dispatch:
     inputs:
