@@ -485,4 +485,4 @@ jobs:
         rm ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
         ls -la
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg BUILD_VERSION_ARG=${{env.VERSION}} --file ./Dockerfile
-
+        
