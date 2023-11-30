@@ -304,7 +304,7 @@ jobs:
   release_app:
     needs: [versions]
     runs-on: ubuntu-latest
-    if: ${{needs.versions.outputs.something_to_deploy}} != ''
+    if: ${{needs.versions.outputs.something_to_deploy}} == 'true'
     permissions:
       contents: write
       packages: write
@@ -418,7 +418,7 @@ jobs:
   release_utils:
     needs: [versions]
     runs-on: ubuntu-latest
-    if: ${{needs.versions.outputs.something_to_deploy_utils}} != ''
+    if: ${{needs.versions.outputs.something_to_deploy_utils}} == 'true'
     permissions:
       contents: write
       packages: write
@@ -485,4 +485,3 @@ jobs:
         rm ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
         ls -la
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg BUILD_VERSION_ARG=${{env.VERSION}} --file ./Dockerfile
-        
