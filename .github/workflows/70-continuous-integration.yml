@@ -304,7 +304,7 @@ jobs:
   release_app:
     needs: [versions]
     runs-on: ubuntu-latest
-    if: contains(${{needs.versions.outputs.something_to_deploy}}, 'true')
+    if: ${{ contains(needs.versions.outputs.something_to_deploy, 'true') }}
     permissions:
       contents: write
       packages: write
@@ -418,7 +418,7 @@ jobs:
   release_utils:
     needs: [versions]
     runs-on: ubuntu-latest
-    if: contains(${{needs.versions.outputs.something_to_deploy_utils}}, 'true')
+    if: ${{ contains(needs.versions.outputs.something_to_deploy_utils, 'true') }}
     permissions:
       contents: write
       packages: write
