@@ -125,21 +125,22 @@ jobs:
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
           RELEASE_VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
         run: |
+          imageExists=true
           repoName=`az acr repository list -n martinabrle --query "[?contains(@, '${{env.APP_NAME}}')]" -o tsv`
           echo "Repo name: $repoName"
           if [[ -z "${repoName}" ]]; then
             echo "Repo '${{env.APP_NAME}}' does not exist."
-            echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
+            imageExists=false
           else
             echo "Repo '${{env.APP_NAME}}' already exist."
             tagName=`az acr repository show-tags -n ${{env.CONTAINER_REGISTRY_NAME}} --repository ${{env.APP_NAME}} --query "[?contains(@, '${{env.RELEASE_VERSION}}')]" -o tsv`
             if [[ -z "${tagName}" ]]; then
               echo "Tag '${{env.RELEASE_VERSION}}' does not exist."
-              echo "CONTAINER_IMAGE_EXISTS=false" >> $GITHUB_OUTPUT
+              imageExists=false
             else
               echo "Tag '${{env.RELEASE_VERSION}}' already exist."
-              echo "CONTAINER_IMAGE_EXISTS=true" >> $GITHUB_OUTPUT
             fi
+            echo "CONTAINER_IMAGE_EXISTS=$imageExists" >> $GITHUB_OUTPUT
           fi
       
       - name: Build and push container image if needed
