@@ -144,7 +144,11 @@ jobs:
           fi
           if [[ "${imageExists}" == "false" ]]; then
             cd ./${{env.RELEASE_DIR_NAME}}
-            az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.APP_NAME}} --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
+            mv ./Dockerfile ./Dockerfile.tmp
+            # Dockerfile syntax is driving me bonkers. This should work...
+            cat ./Dockerfile.tmp | ARTIFACT_NAME_ARG=${{env.APP_NAME}} VERSION_ARG=${{env.VERSION}} envsubst > ./Dockerfile
+            cat ./Dockerfile
+            az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
             cd ..
           fi
       
