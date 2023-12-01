@@ -497,7 +497,6 @@ jobs:
 
       - name: Create federated identity for TODO-APP on AKS
         env:
-          TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}
           RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{secrets.AKS_NAME}}-fi-todo-app
@@ -505,8 +504,8 @@ jobs:
           SERVICE_ACCOUNT_NAME: "todo-app-service-account"
           AKS_NAME: ${{secrets.AKS_NAME}}
         run: |
-            export USER_ASSIGNED_CLIENT_ID="$(az identity show -g ${{env.RESOURCE_GROUP}} --name $TODO_APP_MI_NAME --query 'clientId' -o tsv)"
-            echo $USER_ASSIGNED_CLIENT_ID
+            # export USER_ASSIGNED_CLIENT_ID="$(az identity show -g ${{env.RESOURCE_GROUP}} --name $TODO_APP_MI_NAME --query 'clientId' -o tsv)"
+            # echo "USER_ASSIGNED_CLIENT_ID: $USER_ASSIGNED_CLIENT_ID"
             export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
-            echo $AKS_OIDC_ISSUER
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_CLIENT_ID}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
