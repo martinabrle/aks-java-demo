@@ -425,10 +425,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          AKS_SECRETS_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
+          TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} AKS_SECRETS_IDENTITY_CLIENT_ID=${{env.AKS_SECRETS_IDENTITY_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
+            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
 
       - name: Deploy TODO_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
