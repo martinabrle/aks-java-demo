@@ -147,11 +147,9 @@ jobs:
         env:
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
-          RELEASE_DIR_NAME: '${{env.RELEASE_DIR_NAME}}'
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
         run: |
-          ls -la
           cd ./${{env.RELEASE_DIR_NAME}}
-          ls -la
           az acr build --registry ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --file ./Dockerfile . --subscription ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}
           cd ..
       
