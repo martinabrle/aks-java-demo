@@ -203,6 +203,13 @@ module aksNodePoolManagedIdentity 'user-assigned-identity.bicep' = {
 
 output aksNodePoolIdentityPrincipalId string = aksNodePoolManagedIdentity.outputs.principalId // aksNodePoolManagedIdentity.properties.principalId
 output aksIngressApplicationGatewayPrincipalId string = aksService.properties.addonProfiles.ingressApplicationGateway.identity.objectId
+@description('This output can be directly leveraged when creating a ManagedId Federated Identity')
+output aksOidcFedIdentityProperties object = {
+  issuer: aksService.properties.oidcIssuerProfile.issuerURL
+  audiences: ['api://AzureADTokenExchange']
+  subject: 'system:serviceaccount:ns:svcaccount'
+}
+
 // TODO: fix
 // output outboundIpAddresses string = concat(publicIpsStringArray)
 
