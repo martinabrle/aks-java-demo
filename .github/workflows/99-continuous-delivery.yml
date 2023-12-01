@@ -117,13 +117,14 @@ jobs:
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
-      - name: Check if the container image exists
-        id: container_image_validation
+      - name: Re-generate container image if needed
         env:
           APP_NAME: ${{steps.init.outputs.APP_NAME}}
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
           RELEASE_VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
         run: |
           imageExists=true
           repoName=`az acr repository list -n martinabrle --query "[?contains(@, '${{env.APP_NAME}}')]" -o tsv`
@@ -140,22 +141,12 @@ jobs:
             else
               echo "Tag '${{env.RELEASE_VERSION}}' already exist."
             fi
-            echo "CONTAINER_IMAGE_EXISTS=$imageExists" >> $GITHUB_OUTPUT
           fi
-      
-      - name: Build and push container image if needed
-        if: contains(${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}}, 'false' )
-        env:
-          IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
-          CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
-          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
-          VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
-          APP_NAME: ${{steps.init.outputs.APP_NAME}}
-        run: |
-          echo "IMAGE_EXISTS: ${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}}"
-          cd ./${{env.RELEASE_DIR_NAME}}
-          az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.APP_NAME}} --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
-          cd ..
+          if [[ "${imageExists}" == "false" ]]; then
+            cd ./${{env.RELEASE_DIR_NAME}}
+            az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.APP_NAME}} --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
+            cd ..
+          fi
       
       - name: Prepare deployment manifest
         env:
