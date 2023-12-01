@@ -509,4 +509,4 @@ jobs:
             echo $USER_ASSIGNED_CLIENT_ID
             export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo $AKS_OIDC_ISSUER
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_CLIENT_ID}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}}
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_CLIENT_ID}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
