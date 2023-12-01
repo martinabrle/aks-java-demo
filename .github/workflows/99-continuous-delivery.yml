@@ -144,7 +144,7 @@ jobs:
           fi
       
       - name: Build and push container image if needed
-        if: ( ${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}} == 'false' )
+        if: contains(${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}}, 'false' )
         env:
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
