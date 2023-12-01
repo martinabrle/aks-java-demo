@@ -148,9 +148,11 @@ jobs:
           IMAGE_NAME: '${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}'
           CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
           RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
+          APP_NAME: ${{steps.init.outputs.APP_NAME}}
         run: |
           cd ./${{env.RELEASE_DIR_NAME}}
-          az acr build --registry ${{env.CONTAINER_REGISTRY_NAME}} --image ${{env.IMAGE_NAME}} --file ./Dockerfile . --subscription ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}
+          az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.APP_NAME}} --file ./Dockerfile
           cd ..
       
       - name: Prepare deployment manifest
