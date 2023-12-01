@@ -152,6 +152,7 @@ jobs:
           VERSION: ${{steps.init.outputs.RELEASE_VERSION}}
           APP_NAME: ${{steps.init.outputs.APP_NAME}}
         run: |
+          echo "IMAGE_EXISTS: ${{steps.container_image_validation.outputs.CONTAINER_IMAGE_EXISTS}}"
           cd ./${{env.RELEASE_DIR_NAME}}
           az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --build-arg VERSION_ARG=${{env.VERSION}} --build-arg ARTIFACT_NAME=${{env.APP_NAME}} --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
           cd ..
