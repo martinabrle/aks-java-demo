@@ -2,17 +2,17 @@
 FROM mcr.microsoft.com/openjdk/jdk:17-mariner as runtime
 
 ARG VERSION_ARG
-ARG ARTIFACT_NAME
+ARG ARTIFACT_NAME_ARG
 
 ENV VERSION=$VERSION_ARG
-ENV ARTIFACT_NAME=$ARTIFACT_NAME
+ENV ARTIFACT_NAME=$ARTIFACT_NAME_ARG
 
 WORKDIR /
 
-COPY ./${ARTIFACT_NAME}-${VERSION_ARG}.jar /${ARTIFACT_NAME}-${VERSION_ARG}.jar
+COPY ./${ARTIFACT_NAME_ARG}-${VERSION_ARG}.jar /${ARTIFACT_NAME_ARG}-${VERSION_ARG}.jar
 COPY ./ai.jar /ai.jar
 
 EXPOSE 80
 EXPOSE 443
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-javaagent:/ai.jar","-jar","/${ARTIFACT_NAME}-${VERSION_ARG}.jar"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-javaagent:/ai.jar","-jar","/${ARTIFACT_NAME_ARG}-${VERSION_ARG}.jar"]
