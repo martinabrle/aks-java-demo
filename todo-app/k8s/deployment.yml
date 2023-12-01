@@ -82,7 +82,6 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-todo-app
-
 ---
 apiVersion: v1
 kind: Service
