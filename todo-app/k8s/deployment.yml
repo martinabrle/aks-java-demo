@@ -45,25 +45,25 @@ spec:
         - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           valueFrom:
             secretKeyRef:
-              name: kv-secrets-todo-api
+              name: kv-secrets-todo-app
               key: TODO-APP-INSIGHTS-CONNECTION-STRING
               optional: false
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
           valueFrom:
             secretKeyRef:
-              name: kv-secrets-todo-api
+              name: kv-secrets-todo-app
               key: TODO-APP-INSIGHTS-INSTRUMENTATION-KEY
               optional: false
         - name: SPRING_DATASOURCE_URL
           valueFrom:
             secretKeyRef:
-              name: kv-secrets-todo-api
+              name: kv-secrets-todo-app
               key: TODO-SPRING-DATASOURCE-URL
               optional: false
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
             secretKeyRef:
-              name: kv-secrets-todo-api
+              name: kv-secrets-todo-app
               key: TODO-SPRING-DATASOURCE-USERNAME
               optional: false
         - name: SPRING_DATASOURCE_SHOW_SQL
@@ -81,7 +81,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: kv-secrets-todo-api
+              secretProviderClass: kv-secrets-todo-app
 ---
 apiVersion: v1
 kind: Service
