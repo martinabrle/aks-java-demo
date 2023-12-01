@@ -2,16 +2,8 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   annotations:
-    azure.workload.identity/client-id: "${API_GW_SVC_CLIENT_ID}"
-  name: "pet-clinic-api-gw-service-account"
-  namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${ADMIN_SVC_CLIENT_ID}"
-  name: "pet-clinic-admin-service-account"
+    azure.workload.identity/client-id: "${PET_CLINIC_APP_CLIENT_ID}"
+  name: "pet-clinic-app-service-account"
   namespace: "pet-clinic"
 ---
 apiVersion: v1
@@ -28,14 +20,6 @@ metadata:
   annotations:
     azure.workload.identity/client-id: "${CUSTS_SVC_CLIENT_ID}"
   name: "pet-clinic-custs-service-account"
-  namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${DISCO_SVC_CLIENT_ID}"
-  name: "pet-clinic-disco-service-account"
   namespace: "pet-clinic"
 ---
 apiVersion: v1

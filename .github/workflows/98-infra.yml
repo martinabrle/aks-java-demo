@@ -128,8 +128,6 @@ jobs:
                                                      location="${{secrets.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
-          AKS_SECRETS_IDENTITY_CLIENT_ID=`az aks show -g ${{secrets.AKS_RESOURCE_GROUP}} -n "${{secrets.AKS_NAME}}" --query 'addonProfiles.azureKeyvaultSecretsProvider.identity.clientId' -o tsv`
-          echo "AKS_SECRETS_IDENTITY_CLIENT_ID=${AKS_SECRETS_IDENTITY_CLIENT_ID}" >> $GITHUB_OUTPUT
 
           todoAppUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityName.value"`
           todoAppUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityPrincipalId.value"`
@@ -137,13 +135,9 @@ jobs:
           todoAppDbName=`echo $deploymentOutput|jq ".properties.outputs.todoAppDbName.value"`
           todoAppDbUserName=`echo $deploymentOutput|jq ".properties.outputs.todoAppDbUserName.value"`
 
-          petClinicAdminSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicAdminSvcUserManagedIdentityName.value"`
-          petClinicAdminSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicAdminSvcUserManagedIdentityPrincipalId.value"`
-          petClinicAdminSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicAdminSvcUserManagedIdentityClientId.value"`
-
-          petClinicApiGWSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicApiGWSvcUserManagedIdentityName.value"`
-          petClinicApiGWSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicApiGWSvcUserManagedIdentityPrincipalId.value"`
-          petClinicApiGWSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicApiGWSvcUserManagedIdentityClientId.value"`
+          petClinicAppUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicAppUserManagedIdentityName.value"`
+          petClinicAppUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicAppUserManagedIdentityPrincipalId.value"`
+          petClinicAppUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicAppUserManagedIdentityClientId.value"`
 
           petClinicConfigSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicConfigSvcUserManagedIdentityName.value"`
           petClinicConfigSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicConfigSvcUserManagedIdentityPrincipalId.value"`
@@ -154,10 +148,6 @@ jobs:
           petClinicCustsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcUserManagedIdentityClientId.value"`
           petClinicCustsSvcDbName=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcDbName.value"`
           petClinicCustsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcDbUserName.value"`
-
-          petClinicDiscoSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicDiscoSvcUserManagedIdentityName.value"`
-          petClinicDiscoSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicDiscoSvcUserManagedIdentityPrincipalId.value"`
-          petClinicDiscoSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicDiscoSvcUserManagedIdentityClientId.value"`
 
           petClinicVetsSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcUserManagedIdentityName.value"`
           petClinicVetsSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcUserManagedIdentityPrincipalId.value"`
@@ -184,19 +174,12 @@ jobs:
           echo "TODO_APP_DB_USER_NAME: ${todoAppDbUserName}"
           echo "TODO_APP_DB_USER_NAME=${todoAppDbUserName}" >> $GITHUB_OUTPUT
 
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_NAME: ${petClinicAdminSvcUserManagedIdentityName}"
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_NAME=${petClinicAdminSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_PRINCIPAL_ID: ${petClinicAdminSvcUserManagedIdentityPrincipalId}"
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_PRINCIPAL_ID=${petClinicAdminSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_CLIENT_ID: ${petClinicAdminSvcUserManagedIdentityClientId}"
-          echo "PET_CLINIC_ADMIN_SVC_USER_MI_CLIENT_ID=${petClinicAdminSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
-
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_NAME: ${petClinicApiGWSvcUserManagedIdentityName}"
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_NAME=${petClinicApiGWSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_PRINCIPAL_ID: ${petClinicApiGWSvcUserManagedIdentityPrincipalId}"
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_PRINCIPAL_ID=${petClinicApiGWSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_CLIENT_ID: ${petClinicApiGWSvcUserManagedIdentityClientId}"
-          echo "PET_CLINIC_API_GW_SVC_USER_MI_CLIENT_ID=${petClinicApiGWSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_NAME: ${petClinicAdminSvcUserManagedIdentityName}"
+          echo "PET_CLINIC_APP_USER_MI_NAME=${petClinicAdminSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID: ${petClinicAdminSvcUserManagedIdentityPrincipalId}"
+          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID=${petClinicAdminSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID: ${petClinicAdminSvcUserManagedIdentityClientId}"
+          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID=${petClinicAdminSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
 
           echo "PET_CLINIC_CONFIG_SVC_USER_MI_NAME: ${petClinicConfigSvcUserManagedIdentityName}"
           echo "PET_CLINIC_CONFIG_SVC_USER_MI_NAME=${petClinicConfigSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
@@ -215,13 +198,6 @@ jobs:
           echo "PET_CLINIC_CUSTS_SVC_DB_NAME=${petClinicCustsSvcDbName}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_CUSTS_SVC_DB_USER_NAME: ${petClinicCustsSvcDbUserName}"
           echo "PET_CLINIC_CUSTS_SVC_DB_USER_NAME=${petClinicCustsSvcDbUserName}" >> $GITHUB_OUTPUT
-
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_NAME: ${petClinicDiscoSvcUserManagedIdentityName}"
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_NAME=${petClinicDiscoSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_PRINCIPAL_ID: ${petClinicDiscoSvcUserManagedIdentityPrincipalId}"
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_PRINCIPAL_ID=${petClinicDiscoSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_CLIENT_ID: ${petClinicDiscoSvcUserManagedIdentityClientId}"
-          echo "PET_CLINIC_DISCO_SVC_USER_MI_CLIENT_ID=${petClinicDiscoSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
 
           echo "PET_CLINIC_VETS_SVC_USER_MI_NAME: ${petClinicVetsSvcUserManagedIdentityName}"
           echo "PET_CLINIC_VETS_SVC_USER_MI_NAME=${petClinicVetsSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
@@ -439,23 +415,95 @@ jobs:
             --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp" \
             --file ./04a-kv-secrets-todo-app.yml.tmp
 
-      - name: Prepare PET_CLINIC_APP KV Secrets manifest
+      - name: Prepare PET_CLINIC_APP General KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          AKS_SECRETS_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AKS_SECRETS_IDENTITY_CLIENT_ID}}
+          PET_CLINIC_APP_MI_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} AKS_SECRETS_IDENTITY_CLIENT_ID=${{env.AKS_SECRETS_IDENTITY_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_MI_CLIENT_ID=${{env.PET_CLINIC_APP_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
 
-      - name: Deploy TODO_APP KV Secrets manifest
+      - name: Deploy PET_CLINIC_APP General KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
           az aks command invoke \
             --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
             --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp" \
+            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.tmp" \
             --file ./04b-kv-secrets-pet-clinic-app.yml.tmp
+      
+      - name: Prepare PET_CLINIC_CONFIG_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          CONFIG_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.CONFIG_SVC_MI_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_MI_CLIENT_ID=${{env.CONFIG_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+
+      - name: Deploy PET_CLINIC_CONFIG_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.tmp" \
+            --file ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+      
+      - name: Prepare PET_CLINIC_CUST_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          CUST_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.CUST_SVC_MI_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04d-kv-secrets-pet-clinic-cust-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUST_SVC_MI_CLIENT_ID=${{env.CUST_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-cust-svc.yml.tmp
+
+      - name: Deploy PET_CLINIC_CUST_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04d-kv-secrets-pet-clinic-cust-svc.tmp" \
+            --file ./04d-kv-secrets-pet-clinic-cust-svc.yml.tmp
+
+      - name: Prepare PET_CLINIC_VET_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          VET_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.VET_SVC_MI_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04e-kv-secrets-pet-clinic-vet-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VET_SVC_MI_CLIENT_ID=${{env.VET_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vet-svc.yml.tmp
+
+      - name: Deploy PET_CLINIC_VET_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vet-svc.tmp" \
+            --file ./04e-kv-secrets-pet-clinic-vet-svc.yml.tmp
+            
+      - name: Prepare PET_CLINIC_VISIT_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        env:
+          KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
+          VISIT_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.VISIT_SVC_MI_CLIENT_ID}}
+          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+        run: |
+            cat ./04f-kv-secrets-pet-clinic-visit-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISIT_SVC_MI_CLIENT_ID=${{env.VISIT_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visit-svc.yml.tmp
+
+      - name: Deploy PET_CLINIC_VISIT_SVC General KV Secrets manifest
+        working-directory: ./scripts/deployment/templates/k8s/
+        run: |
+          az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visit-svc.tmp" \
+            --file ./04f-kv-secrets-pet-clinic-visit-svc.yml.tmp
 
       - name: Prepare TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -476,15 +524,13 @@ jobs:
       - name: Prepare PET_CLINIC_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          API_GW_SVC_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
-          ADMIN_SVC_CLIENT_ID:  ${{steps.deployment.outputs.PET_CLINIC_ADMIN_SVC_USER_MI_CLIENT_ID}}
+          PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
           CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
           CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
-          DISCO_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_DISCO_SVC_USER_MI_CLIENT_ID}}
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
         run: |
-           cat ./06b-workload-identity-pet-clinic-app.yml | API_GW_SVC_CLIENT_ID=${{env.API_GW_SVC_CLIENT_ID}} ADMIN_SVC_CLIENT_ID=${{env.ADMIN_SVC_CLIENT_ID}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} DISCO_SVC_CLIENT_ID=${{env.DISCO_SVC_CLIENT_ID}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
+           cat ./06b-workload-identity-pet-clinic-app.yml | PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
 
       - name: Deploy K8S workload identity for PET_CLINIC_APP
         working-directory: ./scripts/deployment/templates/k8s/

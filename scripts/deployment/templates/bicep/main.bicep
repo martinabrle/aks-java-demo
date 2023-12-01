@@ -18,11 +18,9 @@ param pgsqlRG string
 param pgsqlTags string
 
 param todoAppUserManagedIdentityName string = '${aksName}-todo-app-identity'
-param petClinicAdminSvcUserManagedIdentityName string = '${aksName}-pet-clinic-admin-identity'
-param petClinicApiGWSvcUserManagedIdentityName string = '${aksName}-pet-clinic-api-gw-identity'
+param petClinicAppUserManagedIdentityName string = '${aksName}-pet-clinic-app-identity'
 param petClinicConfigSvcUserManagedIdentityName string = '${aksName}-pet-clinic-config-identity'
 param petClinicCustsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-custs-identity'
-param petClinicDiscoSvcUserManagedIdentityName string = '${aksName}-pet-clinic-disco-identity'
 param petClinicVetsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vets-identity'
 param petClinicVisitsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vists-identity'
 
@@ -69,14 +67,8 @@ resource todoAppUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdent
   tags: aksTagsArray
 }
 
-resource petClinicAdminSvcUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: petClinicAdminSvcUserManagedIdentityName
-  location: location
-  tags: aksTagsArray
-}
-
-resource petClinicApiGWUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: petClinicApiGWSvcUserManagedIdentityName
+resource petClinicAppUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: petClinicAppUserManagedIdentityName
   location: location
   tags: aksTagsArray
 }
@@ -89,12 +81,6 @@ resource petClinicConfigSvcUserManagedIdentity 'Microsoft.ManagedIdentity/userAs
 
 resource petClinicCustsSvcUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: petClinicCustsSvcUserManagedIdentityName
-  location: location
-  tags: aksTagsArray
-}
-
-resource petClinicDiscoSvcUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: petClinicDiscoSvcUserManagedIdentityName
   location: location
   tags: aksTagsArray
 }
@@ -450,45 +436,23 @@ module rbacKVSecretTodoAppAppInsightsInstrKey './components/role-assignment-kv-s
   }
 }
 
-module rbacKVSecretPetAdminSvcAppInsightsConStr './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-admin-app-insights-con-str'
+module rbacKVSecretPetAppInsightsConStr './components/role-assignment-kv-secret.bicep' = {
+  name: 'rbac-kv-secret-pet-app-insights-con-str'
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicAdminSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicAdminSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretId, keyVaultSecretsUser.id)
+    principalId: petClinicAppUserManagedIdentity.properties.principalId
+    roleAssignmentNameGuid: guid(petClinicAppUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
     kvSecretName: kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretName
   }
 }
 
-module rbacKVSecretPetAdminSvcAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-admin-app-insights-instr-key'
+module rbacKVSecretPetAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
+  name: 'rbac-kv-secret-pet-app-insights-instr-key'
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicAdminSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicAdminSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
-    kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretName
-  }
-}
-
-module rbacKVSecretPetApiGWSvcAppInsightsConStr './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-api-gw-app-insights-con-str'
-  params: {
-    roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicApiGWUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicApiGWUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretId, keyVaultSecretsUser.id)
-    kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretName
-  }
-}
-
-module rbacKVSecretPetApiGWSvcAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-api-gw-app-insights-instr-key'
-  params: {
-    roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicApiGWUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicApiGWUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
+    principalId: petClinicAppUserManagedIdentity.properties.principalId
+    roleAssignmentNameGuid: guid(petClinicAppUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
     kvSecretName: kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretName
   }
@@ -549,7 +513,7 @@ module rbacKVSecretPetConfigSvcAppInsightsInstrKey './components/role-assignment
   }
 }
 
-module rbacKVSecretPetCCustsSvcDSUri './components/role-assignment-kv-secret.bicep' = {
+module rbacKVSecretPetCustsSvcDSUri './components/role-assignment-kv-secret.bicep' = {
   name: 'rbac-kv-secret-pet-custs-ds-url'
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
@@ -588,28 +552,6 @@ module rbacKVSecretPetCustsSvcAppInsightsInstrKey './components/role-assignment-
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicCustsSvcUserManagedIdentity.properties.principalId
     roleAssignmentNameGuid: guid(petClinicCustsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
-    kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretName
-  }
-}
-
-module rbacKVSecretPetDiscoSvcAppInsightsConStr './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-disco-app-insights-con-str'
-  params: {
-    roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicDiscoSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicDiscoSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretId, keyVaultSecretsUser.id)
-    kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicAppInsightsConnectionString.outputs.kvSecretName
-  }
-}
-
-module rbacKVSecretPetDiscoSvcAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
-  name: 'rbac-kv-secret-pet-disco-app-insights-instr-key'
-  params: {
-    roleDefinitionId: keyVaultSecretsUser.id
-    principalId: petClinicDiscoSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicDiscoSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
     kvSecretName: kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretName
   }
@@ -692,7 +634,7 @@ module rbacKVSecretPetVisitsSvcAppInsightsConStr './components/role-assignment-k
   }
 }
 
-module rbacKVSecretPetisitsSvcAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
+module rbacKVSecretPetVisitsSvcAppInsightsInstrKey './components/role-assignment-kv-secret.bicep' = {
   name: 'rbac-kv-secret-pet-visits-app-insights-instr-key'
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
@@ -739,13 +681,9 @@ output todoAppUserManagedIdentityClientId string = todoAppUserManagedIdentity.pr
 output todoAppDbName string = pgsqlTodoAppDbName
 output todoAppDbUserName string = todoAppDbUserName
 
-output petClinicAdminSvcUserManagedIdentityName string = petClinicAdminSvcUserManagedIdentity.name
-output petClinicAdminSvcUserManagedIdentityPrincipalId string = petClinicAdminSvcUserManagedIdentity.properties.principalId
-output petClinicAdminSvcUserManagedIdentityClientId string = petClinicAdminSvcUserManagedIdentity.properties.clientId
-
-output petClinicApiGWSvcUserManagedIdentityName string = petClinicApiGWUserManagedIdentity.name
-output petClinicApiGWSvcUserManagedIdentityPrincipalId string = petClinicApiGWUserManagedIdentity.properties.principalId
-output petClinicApiGWSvcUserManagedIdentityClientId string = petClinicApiGWUserManagedIdentity.properties.clientId
+output petClinicAppUserManagedIdentityName string = petClinicAppUserManagedIdentity.name
+output petClinicAppUserManagedIdentityPrincipalId string = petClinicAppUserManagedIdentity.properties.principalId
+output petClinicAppUserManagedIdentityClientId string = petClinicAppUserManagedIdentity.properties.clientId
 
 output petClinicConfigSvcUserManagedIdentityName string = petClinicConfigSvcUserManagedIdentity.name
 output petClinicConfigSvcUserManagedIdentityPrincipalId string = petClinicConfigSvcUserManagedIdentity.properties.principalId
@@ -756,10 +694,6 @@ output petClinicCustsSvcUserManagedIdentityPrincipalId string = petClinicCustsSv
 output petClinicCustsSvcUserManagedIdentityClientId string = petClinicCustsSvcUserManagedIdentity.properties.clientId
 output petClinicCustsSvcDbName string = pgsqlPetClinicCustsSvcDbName
 output petClinicCustsSvcDbUserName string = petClinicCustsSvcDbUserName
-
-output petClinicDiscoSvcUserManagedIdentityName string = petClinicDiscoSvcUserManagedIdentity.name
-output petClinicDiscoSvcUserManagedIdentityPrincipalId string = petClinicDiscoSvcUserManagedIdentity.properties.principalId
-output petClinicDiscoSvcUserManagedIdentityClientId string = petClinicDiscoSvcUserManagedIdentity.properties.clientId
 
 output petClinicVetsSvcUserManagedIdentityName string = petClinicVetsSvcUserManagedIdentity.name
 output petClinicVetsSvcUserManagedIdentityPrincipalId string = petClinicVetsSvcUserManagedIdentity.properties.principalId
