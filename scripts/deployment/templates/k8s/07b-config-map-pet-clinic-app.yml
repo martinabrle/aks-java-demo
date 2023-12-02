@@ -7,12 +7,4 @@ data:
   # property-like keys; each key maps to a simple value
   CONFIG_SERVER_URL: "http://config-server:8888"
   SPRING_DATASOURCE_SHOW_SQL: "true"
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: config-server
-  namespace: "todo"
-data:
-  # property-like keys; each key maps to a simple value
-  SPRING_DATASOURCE_SHOW_SQL: "true"
+

@@ -5,35 +5,3 @@ metadata:
     azure.workload.identity/client-id: "${PET_CLINIC_APP_CLIENT_ID}"
   name: "pet-clinic-app-service-account"
   namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${CONFIG_SVC_CLIENT_ID}"
-  name: "pet-clinic-config-service-account"
-  namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${CUSTS_SVC_CLIENT_ID}"
-  name: "pet-clinic-custs-service-account"
-  namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${VETS_SVC_CLIENT_ID}"
-  name: "pet-clinic-vets-service-account"
-  namespace: "pet-clinic"
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  annotations:
-    azure.workload.identity/client-id: "${VISITS_SVC_CLIENT_ID}"
-  name: "pet-clinic-visits-service-account"
-  namespace: "pet-clinic"

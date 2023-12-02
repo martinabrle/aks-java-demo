@@ -15,16 +15,10 @@ spec:
         app: discovery-server
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: pet-clinic-disco-service-account
+      serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
         name: discovery-server
-        env:
-        - name: "CONFIG_SERVER_URL"
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: CONFIG_SERVER_URL
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3

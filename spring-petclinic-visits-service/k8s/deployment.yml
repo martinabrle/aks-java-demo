@@ -70,13 +70,13 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-VISIT-SVC-SPRING-DATASOURCE-URL
+              key: PET-CLINIC-VISITS-SVC-SPRING-DATASOURCE-URL
               optional: false
         - name: SPRING_DATASOURCE_USERNAME
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-VISIT-SVC-SPRING-DS-USER
+              key: PET-CLINIC-VISITS-SVC-SPRING-DS-USER
               optional: false
         - name: ENVIRONMENT
           value: "AKS"

@@ -227,55 +227,55 @@ module kvSecretPetClinicConfigRepoPassword 'components/kv-secret.bicep' = {
 }
 
 module kvSecretPetClinicCustSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-cust-ds-url'
+  name: 'kv-secret-pet-clinic-custs-ds-url'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-CUST-SVC-SPRING-DATASOURCE-URL'
+    secretName: 'PET-CLINIC-CUSTS-SVC-SPRING-DATASOURCE-URL'
     secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicCustsSvcDbName}'
   }
 }
 
-module kvSecretPetClinicCustSvcDbUserName 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-cust-svc-ds-username'
+module kvSecretPetClinicCustsSvcDbUserName 'components/kv-secret.bicep' = {
+  name: 'kv-secret-pet-clinic-custs-svc-ds-username'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-CUST-SVC-SPRING-DS-USER'
+    secretName: 'PET-CLINIC-CUSTS-SVC-SPRING-DS-USER'
     secretValue: petClinicCustsSvcDbUserName
   }
 }
 
 module kvSecretPetClinicVetSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-vet-ds-url'
+  name: 'kv-secret-pet-clinic-vets-ds-url'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VET-SVC-SPRING-DATASOURCE-URL'
+    secretName: 'PET-CLINIC-VETS-SVC-SPRING-DATASOURCE-URL'
     secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicVetsSvcDbName}'
   }
 }
 
-module kvSecretPetClinicVetSvcDbUserName 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-vet-svc-ds-username'
+module kvSecretPetClinicVetsSvcDbUserName 'components/kv-secret.bicep' = {
+  name: 'kv-secret-pet-clinic-vets-svc-ds-username'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VET-SVC-SPRING-DS-USER'
+    secretName: 'PET-CLINIC-VETS-SVC-SPRING-DS-USER'
     secretValue: petClinicVetsSvcDbUserName
   }
 }
 
 module kvSecretPetClinicVisitSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-visit-ds-url'
+  name: 'kv-secret-pet-clinic-visits-ds-url'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VISIT-SVC-SPRING-DATASOURCE-URL'
+    secretName: 'PET-CLINIC-VISITS-SVC-SPRING-DATASOURCE-URL'
     secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicVisitsSvcDbName}'
   }
 }
 
-module kvSecretPetClinicVisitSvcDbUserName 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-visit-svc-ds-username'
+module kvSecretPetClinicVisitsSvcDbUserName 'components/kv-secret.bicep' = {
+  name: 'kv-secret-pet-clinic-visits-svc-ds-username'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VISIT-SVC-SPRING-DS-USER'
+    secretName: 'PET-CLINIC-VISITS-SVC-SPRING-DS-USER'
     secretValue: petClinicVisitsSvcDbUserName
   }
 }
@@ -529,9 +529,9 @@ module rbacKVSecretPetCustsSvcDBUSer './components/role-assignment-kv-secret.bic
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicCustsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicCustsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicCustSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicCustsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicCustsSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicCustSvcDbUserName.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicCustsSvcDbUserName.outputs.kvSecretName
   }
 }
 
@@ -573,9 +573,9 @@ module rbacKVSecretPetVetsSvcDBUSer './components/role-assignment-kv-secret.bice
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicVetsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicVetsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVetSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicVetsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVetsSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicVetSvcDbUserName.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicVetsSvcDbUserName.outputs.kvSecretName
   }
 }
 
@@ -617,9 +617,9 @@ module rbacKVSecretPetVisitsSvcDBUSer './components/role-assignment-kv-secret.bi
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicVisitsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicVisitsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVisitSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicVisitsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVisitsSvcDbUserName.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicVisitSvcDbUserName.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicVisitsSvcDbUserName.outputs.kvSecretName
   }
 }
 

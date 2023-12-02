@@ -15,7 +15,7 @@ spec:
         app: admin-server
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: pet-clinic-admin-service-account
+      serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
         name: admin-server

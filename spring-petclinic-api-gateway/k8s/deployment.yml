@@ -15,7 +15,7 @@ spec:
         app: api-gateway
         azure.workload.identity/use: "true"
     spec:
-      serviceAccountName: pet-clinic-api-gw-service-account
+      serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
         name: api-gateway
