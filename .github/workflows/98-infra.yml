@@ -521,7 +521,7 @@ jobs:
         env:
           CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
         run: |
-            cat ./06c-workload-identity-pet-clinic-config-svc.yml |CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} envsubst > ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+            cat ./06c-workload-identity-pet-clinic-config-svc.yml | CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} envsubst > ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
             cat ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
