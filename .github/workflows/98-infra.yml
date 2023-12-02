@@ -535,6 +535,7 @@ jobs:
           CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
         run: |
             cat ./06d-workload-identity-pet-clinic-custs-svc.yml | CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} envsubst > ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
+            cat ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
@@ -565,7 +566,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.l.tmp" \
+              --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp" \
               --file ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
       
       - name: Create federated identity for TODO-APP on AKS
