@@ -508,6 +508,7 @@ jobs:
         env:
           PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
         run: |
+            echo "PET_CLINIC_APP_USER_MI_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}"
             cat ./06b-workload-identity-pet-clinic-app.yml | PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}}  envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
             cat ./06b-workload-identity-pet-clinic-app.yml.tmp
             az aks command invoke \
