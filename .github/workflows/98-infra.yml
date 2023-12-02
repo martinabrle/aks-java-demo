@@ -379,6 +379,7 @@ jobs:
           TODO_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_EDIT_AD_GROUP_ID}}
         run: |
             cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${{env.TODO_APP_EDIT_AD_GROUP_ID}} TODO_APP_VIEW_AD_GROUP_ID=${{env.TODO_APP_VIEW_AD_GROUP_ID}} envsubst > ./02a-rolebinding-todo.yml.tmp
+            cat ./02a-rolebinding-todo.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
@@ -392,6 +393,7 @@ jobs:
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
             cat ./02b-rolebinding-pet-clinic.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-pet-clinic.yml.tmp
+            cat ./02b-rolebinding-pet-clinic.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
@@ -425,7 +427,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.tmp" \
+              --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp" \
               --file ./04b-kv-secrets-pet-clinic-app.yml.tmp
       
       - name: Deploy PET_CLINIC_CONFIG_SVC KV Secrets manifest
@@ -440,7 +442,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.tmp" \
+              --command "kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp" \
               --file ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_CUSTS_SVC KV Secrets manifest
@@ -455,7 +457,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./04d-kv-secrets-pet-clinic-custs-svc.tmp" \
+              --command "kubectl apply -f ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp" \
               --file ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_VETS_SVC KV Secrets manifest
@@ -470,7 +472,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.tmp" \
+              --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp" \
               --file ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             
       - name: Deploy PET_CLINIC_VISITS_SVC General KV Secrets manifest
@@ -485,7 +487,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.tmp" \
+              --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp" \
               --file ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
 
       - name: Deploy K8S workload identity for TODO_APP
@@ -563,7 +565,7 @@ jobs:
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
-              --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.tmp" \
+              --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.l.tmp" \
               --file ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
       
       - name: Create federated identity for TODO-APP on AKS
