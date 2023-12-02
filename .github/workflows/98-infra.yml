@@ -9,9 +9,6 @@ jobs:
     permissions:
         id-token: write
         contents: read
-    # defaults:
-    #   run:
-    #     working-directory: ./scripts
     steps:
       - uses: actions/checkout@v4
       
@@ -348,29 +345,32 @@ jobs:
       - name: Deploy Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./01-namespaces.yml" \
-            --file ./01-namespaces.yml
+            cat ./01-namespaces.yml
+            az aks command invoke \
+              --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./01-namespaces.yml" \
+              --file ./01-namespaces.yml
 
       - name: Deploy Config Maps for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./07a-config-map-todo-app.yml" \
-            --file ./07a-config-map-todo-app.yml
+            cat ./07a-config-map-todo-app.yml
+            az aks command invoke \
+              --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./07a-config-map-todo-app.yml" \
+              --file ./07a-config-map-todo-app.yml
 
       - name: Deploy Config Maps for PET_CLINIC_APP
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./07b-config-map-pet-clinic-app.yml" \
-            --file ./07b-config-map-pet-clinic-app.yml
+            cat ./07b-config-map-pet-clinic-app.yml
+            az aks command invoke \
+              --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./07b-config-map-pet-clinic-app.yml" \
+              --file ./07b-config-map-pet-clinic-app.yml
 
       - name: Deploy K8S role bindings for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
