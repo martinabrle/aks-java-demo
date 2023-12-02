@@ -174,12 +174,12 @@ jobs:
           echo "TODO_APP_DB_USER_NAME: ${todoAppDbUserName}"
           echo "TODO_APP_DB_USER_NAME=${todoAppDbUserName}" >> $GITHUB_OUTPUT
 
-          echo "PET_CLINIC_APP_USER_MI_NAME: ${petClinicAdminSvcUserManagedIdentityName}"
-          echo "PET_CLINIC_APP_USER_MI_NAME=${petClinicAdminSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID: ${petClinicAdminSvcUserManagedIdentityPrincipalId}"
-          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID=${petClinicAdminSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID: ${petClinicAdminSvcUserManagedIdentityClientId}"
-          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID=${petClinicAdminSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_NAME: ${petClinicAppUserManagedIdentityName}"
+          echo "PET_CLINIC_APP_USER_MI_NAME=${petClinicAppUserManagedIdentityName}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID: ${petClinicAppUserManagedIdentityPrincipalId}"
+          echo "PET_CLINIC_APP_USER_MI_PRINCIPAL_ID=${petClinicAppUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
+          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID: ${petClinicAppUserManagedIdentityClientId}"
+          echo "PET_CLINIC_APP_USER_MI_CLIENT_ID=${petClinicAppUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
 
           echo "PET_CLINIC_CONFIG_SVC_USER_MI_NAME: ${petClinicConfigSvcUserManagedIdentityName}"
           echo "PET_CLINIC_CONFIG_SVC_USER_MI_NAME=${petClinicConfigSvcUserManagedIdentityName}" >> $GITHUB_OUTPUT
