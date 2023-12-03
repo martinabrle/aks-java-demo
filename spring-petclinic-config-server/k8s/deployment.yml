@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: config-server
+  namespace: pet-clinic
   labels:
     app: config-server
-  name: config-server
 spec:
   replicas: 1
   selector:
@@ -91,15 +92,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: config-server
+  namespace: pet-clinic
   labels:
     app: config-server
-  name: config-server
 spec:
+  type: ClusterIP
   ports:
-  - port: 8888
-    protocol: TCP
+  - protocol: TCP
+    name: http
+    port: 8888
     targetPort: 8888
   selector:
     app: config-server
-  type: ClusterIP
-
