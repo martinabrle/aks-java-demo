@@ -386,7 +386,7 @@ jobs:
               --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp" \
               --file ./02a-rolebinding-todo.yml.tmp
 
-      - name: Deploy K8S role bindings for PET_CLINIC
+      - name: Deploy K8S role bindings for PET_CLINIC_APP
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           PET_CLINIC_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_VIEW_AD_GROUP_ID}}
@@ -475,7 +475,7 @@ jobs:
               --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp" \
               --file ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             
-      - name: Deploy PET_CLINIC_VISITS_SVC General KV Secrets manifest
+      - name: Deploy PET_CLINIC_VISITS_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
@@ -570,7 +570,7 @@ jobs:
               --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp" \
               --file ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
       
-      - name: Create federated identity for TODO-APP on AKS
+      - name: Create federated identity for TODO_APP on AKS
         env:
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}
           RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
@@ -579,8 +579,21 @@ jobs:
           SERVICE_ACCOUNT_NAME: "todo-app-service-account"
           AKS_NAME: ${{secrets.AKS_NAME}}
         run: |
-            # export USER_ASSIGNED_CLIENT_ID="$(az identity show -g ${{env.RESOURCE_GROUP}} --name $TODO_APP_MI_NAME --query 'clientId' -o tsv)"
-            # echo "USER_ASSIGNED_CLIENT_ID: $USER_ASSIGNED_CLIENT_ID"
             export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
             az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+
+      - name: Create federated identity for PET_CLINIC_APP on AKS
+        env:
+          PET_CLINIC_APP_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_NAME}}
+          RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+          FEDERATED_IDENTITY_NAME: ${{secrets.AKS_NAME}}-fi-pet-clinic-app
+          SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
+          SERVICE_ACCOUNT_NAME: "pet-clinic-app-service-account"
+          AKS_NAME: ${{secrets.AKS_NAME}}
+        run: |
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_APP_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+
+      # TODO: Add federated identity for PET_CLINIC-CONFIG-SVC, CUST, VETS, VISITS on AKS
