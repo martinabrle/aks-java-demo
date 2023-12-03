@@ -434,7 +434,7 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_NAME}}
+          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
             cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
