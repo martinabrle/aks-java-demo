@@ -70,17 +70,17 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-config-svc
-              key: PET-CLINIC-CONFIG-SVC-GIT-REPO-URI
+              key: GIT-REPO-URI
         - name: GIT_USERNAME
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-config-svc
-              key: PET-CLINIC-CONFIG-SVC-GIT-REPO-USERNAME
+              key: GIT-REPO-USERNAME
         - name: GIT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-config-svc
-              key: PET-CLINIC-CONFIG-SVC-GIT-REPO-PASSWORD
+              key: GIT-REPO-PASSWORD
         - name: ENVIRONMENT
           value: AKS
         volumeMounts:
