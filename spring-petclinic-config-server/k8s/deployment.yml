@@ -94,7 +94,7 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-config-svc
-      
+
 ---
 apiVersion: v1
 kind: Service
