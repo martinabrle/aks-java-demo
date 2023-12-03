@@ -419,10 +419,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          PET_CLINIC_APP_MI_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_MI_CLIENT_ID}}
+          PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_MI_CLIENT_ID=${{env.PET_CLINIC_APP_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
             cat ./04b-kv-secrets-pet-clinic-app.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
@@ -434,10 +434,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          CONFIG_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.CONFIG_SVC_MI_CLIENT_ID}}
+          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.CONFIG_SVC_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_MI_CLIENT_ID=${{env.CONFIG_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
             cat ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
@@ -449,10 +449,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          CUSTS_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.CUSTS_SVC_MI_CLIENT_ID}}
+          CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.CUSTS_SVC_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_MI_CLIENT_ID=${{env.CUSTS_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
             cat ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
@@ -464,10 +464,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          VETS_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.VETS_SVC_MI_CLIENT_ID}}
+          VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.VETS_SVC_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_MI_CLIENT_ID=${{env.VETS_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             cat ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
@@ -479,10 +479,10 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          VISITS_SVC_MI_CLIENT_ID: ${{steps.deployment.outputs.VISITS_SVC_MI_CLIENT_ID}}
+          VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.VISITS_SVC_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_MI_CLIENT_ID=${{env.VISITS_SVC_MI_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
             cat ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
@@ -490,7 +490,7 @@ jobs:
               --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp" \
               --file ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
 
-      - name: Deploy K8S workload identity for TODO_APP
+      - name: Deploy TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
