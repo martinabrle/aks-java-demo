@@ -556,7 +556,6 @@ jobs:
               --command "kubectl apply -f ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp" \
               --file ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
 
-
       - name: Deploy PET_CLINIC_VISITS_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
