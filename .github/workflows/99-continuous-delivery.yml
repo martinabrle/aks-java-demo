@@ -151,16 +151,7 @@ jobs:
             az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.IMAGE_NAME}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
             cd ..
           fi
-      
-      - name: Prepare deployment manifest
-        env:
-          DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
-          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
-          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
-        run: |
-          cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
-          cat ./deployment.yml.tmp
-
+ 
       - name: Test connection to AKS
         run: |
           az aks command invoke \
@@ -169,7 +160,13 @@ jobs:
            --command "kubectl get ns"
 
       - name: Deploy app into AKS
+        env:
+          DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
+          RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
+          CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{steps.init.outputs.APP_NAME}}:${{steps.init.outputs.RELEASE_VERSION}}
         run: |
+          cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+          cat ./deployment.yml.tmp
           az aks command invoke \
            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
            --name ${{secrets.AKS_NAME}} \
