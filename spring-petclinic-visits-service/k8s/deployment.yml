@@ -70,7 +70,7 @@ spec:
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
-                "role": {   
+                "role": {
                     "name": "visits-service"
                   }
             }
@@ -104,6 +104,7 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-visits-svc
+
 ---
 apiVersion: v1
 kind: Service

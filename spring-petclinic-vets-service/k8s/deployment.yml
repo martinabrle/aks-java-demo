@@ -90,13 +90,13 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: config-server
-              key: SPRING_DATASOURCE_SHOW_SQL    
+              key: SPRING_DATASOURCE_SHOW_SQL
         - name: ENVIRONMENT
           value: AKS
         volumeMounts:
-        - name: secrets-store01-inline
-          mountPath: /mnt/secrets-store
-          readOnly: true
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
       volumes:
         - name: secrets-store01-inline
           csi: 
@@ -104,7 +104,7 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-vets-svc
-   
+
 ---
 apiVersion: v1
 kind: Service
