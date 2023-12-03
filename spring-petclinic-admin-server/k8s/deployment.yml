@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: admin-server
+  namespace: pet-clinic
   labels:
     app: admin-server
-  name: admin-server
 spec:
   replicas: 1
   selector:
@@ -18,8 +19,15 @@ spec:
       serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: admin-server
         imagePullPolicy: Always
+        name: admin-server
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -58,13 +66,13 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-APP-INSIGHTS-CONNECTION-STRING
+              key: APP-INSIGHTS-CONNECTION-STRING
               optional: false
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-INSIGHTS-INSTRUMENTATION-KEY
+              key: APP-INSIGHTS-INSTRUMENTATION-KEY
               optional: false
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
@@ -73,6 +81,8 @@ spec:
                     "name": "admin-server"
                   }
             }
+        - name: ENVIRONMENT
+          value: AKS
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
@@ -83,7 +93,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: kv-secrets-pet-clinic-app   
+              secretProviderClass: kv-secrets-pet-clinic-app
 ---
 apiVersion: v1
 kind: Service
@@ -92,10 +102,11 @@ metadata:
     app: admin-server
   name: admin-server
 spec:
-  ports:
-  - port: 8080
-    protocol: TCP
-    targetPort: 8080
+  type: LoadBalancer
   selector:
     app: admin-server
-  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    name: http
+    port: 8080
+    targetPort: 8080

@@ -102,6 +102,7 @@ metadata:
   labels:
     app: api-gateway
   name: api-gateway
+  namespace: pet-clinic
 spec:
   type: LoadBalancer
   selector:

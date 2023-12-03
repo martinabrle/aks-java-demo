@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: discovery-server
+  namespace: pet-clinic
   labels:
     app: discovery-server
-  name: discovery-server
 spec:
   replicas: 1
   selector:
@@ -18,8 +19,15 @@ spec:
       serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: discovery-server
         imagePullPolicy: Always
+        name: discovery-server
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -58,13 +66,13 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-APP-INSIGHTS-CONNECTION-STRING
+              key: APP-INSIGHTS-CONNECTION-STRING
               optional: false
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-INSIGHTS-INSTRUMENTATION-KEY
+              key: APP-INSIGHTS-INSTRUMENTATION-KEY
               optional: false
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
@@ -86,7 +94,6 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-app
-   
 ---
 apiVersion: v1
 kind: Service
@@ -95,10 +102,11 @@ metadata:
     app: discovery-server
   name: discovery-server
 spec:
-  ports:
-  - port: 8761
-    protocol: TCP
-    targetPort: 8761
   selector:
     app: discovery-server
   type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: http
+    port: 8761
+    targetPort: 8761
