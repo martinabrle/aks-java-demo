@@ -58,7 +58,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-config-svc
-              key: APPLICATIONINSIGHTS_CONNECTION_STRING
+              key: APP-INSIGHTS-CONNECTION-STRING
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
