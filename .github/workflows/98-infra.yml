@@ -527,7 +527,7 @@ jobs:
               --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
               --name ${{secrets.AKS_NAME}} \
               --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp" \
-              --file ./06b-workload-identity-pet-clinic-app.yml.tmp
+              --file ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_CUSTS_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
