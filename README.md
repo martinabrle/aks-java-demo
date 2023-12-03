@@ -2,6 +2,8 @@ Clone of the original spring-petclinic-microservices GitHub Repo: [https://githu
 
 # Distributed version of the Spring PetClinic Sample Application built with Spring Cloud 
 
+[![70-Continuous-Integration](https://github.com/martinabrle/aks-java-demo/actions/workflows/70-continuous-integration.yml/badge.svg)](https://github.com/martinabrle/aks-java-demo/actions/workflows/70-continuous-integration.yml)
+
 [![99-Continuous-Delivery](https://github.com/martinabrle/aks-java-demo/actions/workflows/99-continuous-delivery.yml/badge.svg)](https://github.com/martinabrle/aks-java-demo/actions/workflows/99-continuous-delivery.yml)
 
 [![Deployment status](https://github.com/martinabrle/aks-java-demo/actions/workflows/98-infra.yml/badge.svg)](https://github.com/martinabrle/aks-java-demo/actions/workflows/98-infra.yml)
