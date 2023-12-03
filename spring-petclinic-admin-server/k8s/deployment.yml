@@ -21,13 +21,6 @@ spec:
       - image: "$CONTAINER_IMAGE"
         imagePullPolicy: Always
         name: admin-server
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: "1"
-          requests:
-            memory: 256Mi
-            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -101,6 +94,7 @@ metadata:
   labels:
     app: admin-server
   name: admin-server
+  namespace: pet-clinic
 spec:
   type: LoadBalancer
   selector:

@@ -21,13 +21,6 @@ spec:
       - image: "$CONTAINER_IMAGE"
         imagePullPolicy: Always
         name: config-server
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: "1"
-          requests:
-            memory: 256Mi
-            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:

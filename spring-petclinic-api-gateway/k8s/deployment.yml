@@ -21,13 +21,6 @@ spec:
       - image: "$CONTAINER_IMAGE"
         imagePullPolicy: Always
         name: api-gateway
-        resources:
-          limits:
-            memory: 512Mi
-            cpu: "1"
-          requests:
-            memory: 256Mi
-            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -77,7 +70,7 @@ spec:
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
-                "role": {   
+                "role": {
                     "name": "api-gateway"
                   }
             }
