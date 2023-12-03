@@ -49,17 +49,17 @@ spec:
         securityContext:
           privileged: false
         env:
-        - name: "CONFIG_SERVER_URL"
+        - name: CONFIG_SERVER_URL
           valueFrom:
             configMapKeyRef:
               name: config-server
               key: CONFIG_SERVER_URL
-        - name: "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           valueFrom:
             configMapKeyRef:
               name: config-server
               key: APPLICATIONINSIGHTS_CONNECTION_STRING
-        - name: "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"
+        - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
                 "role": {   

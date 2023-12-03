@@ -17,12 +17,6 @@ spec:
       containers:
       - image: "$CONTAINER_IMAGE"
         name: tracing-server
-        env:
-        - name: "CONFIG_SERVER_URL"
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: CONFIG_SERVER_URL
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -47,13 +41,13 @@ spec:
         securityContext:
           privileged: false
         env:
-        - name: "CONFIG_SERVER_URL"
+        - name: CONFIG_SERVER_URL
           valueFrom:
             configMapKeyRef:
               name: config-server
               key: CONFIG_SERVER_URL
         - name: ENVIRONMENT
-          value: "AKS"
+          value: AKS
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store

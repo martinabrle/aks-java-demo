@@ -49,17 +49,17 @@ spec:
         securityContext:
           privileged: false
         env:
-        - name: "CONFIG_SERVER_URL"
+        - name: CONFIG_SERVER_URL
           valueFrom:
             configMapKeyRef:
               name: config-server
               key: CONFIG_SERVER_URL
-        - name: "APPLICATIONINSIGHTS_CONNECTION_STRING"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
           valueFrom:
             configMapKeyRef:
               name: config-server
               key: APPLICATIONINSIGHTS_CONNECTION_STRING
-        - name: "APPLICATIONINSIGHTS_CONFIGURATION_CONTENT"
+        - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
                 "role": {
@@ -82,7 +82,7 @@ spec:
               name: kv-secrets-pet-clinic-app
               key: PET-CLINIC-CONFIG-SVC-GIT-REPO-PASSWORD
         - name: ENVIRONMENT
-          value: "AKS"
+          value: AKS
         volumeMounts:
         - name: secrets-store01-inline
           mountPath: "/mnt/secrets-store"
