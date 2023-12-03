@@ -110,4 +110,3 @@ spec:
     name: http
     port: 8888
     targetPort: 8888
-
