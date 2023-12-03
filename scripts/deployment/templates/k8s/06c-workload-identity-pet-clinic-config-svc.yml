@@ -5,3 +5,4 @@ metadata:
     azure.workload.identity/client-id: "${CONFIG_SVC_CLIENT_ID}"
   name: "pet-clinic-config-service-account"
   namespace: "pet-clinic"
+  

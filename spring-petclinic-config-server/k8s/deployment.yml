@@ -4,7 +4,7 @@ metadata:
   name: config-server
   namespace: pet-clinic
   labels:
-    app: config-server
+    deploy: config-server
 spec:
   replicas: 1
   selector:
@@ -19,8 +19,15 @@ spec:
       serviceAccountName: pet-clinic-config-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: config-server
         imagePullPolicy: Always
+        name: config-server
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.3"
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -86,7 +93,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: kv-secrets-pet-clinic-app
+              secretProviderClass: kv-secrets-pet-clinic-config-svc
       
 ---
 apiVersion: v1
@@ -94,14 +101,13 @@ kind: Service
 metadata:
   name: config-server
   namespace: pet-clinic
-  labels:
-    app: config-server
 spec:
   type: ClusterIP
+  selector:
+    app: config-server
   ports:
   - protocol: TCP
     name: http
     port: 8888
     targetPort: 8888
-  selector:
-    app: config-server
+
