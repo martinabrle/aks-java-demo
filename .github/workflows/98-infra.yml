@@ -434,7 +434,7 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.CONFIG_SVC_MI_CLIENT_ID}}
+          CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_NAME}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
             cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
@@ -449,7 +449,7 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.CUSTS_SVC_MI_CLIENT_ID}}
+          CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
             cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
@@ -464,7 +464,7 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.VETS_SVC_MI_CLIENT_ID}}
+          VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
             cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
@@ -479,7 +479,7 @@ jobs:
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           KEYVAULT_NAME: ${{secrets.AKS_NAME}}-kv
-          VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.VISITS_SVC_MI_CLIENT_ID}}
+          VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
             cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
