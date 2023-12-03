@@ -4,7 +4,7 @@ metadata:
   name: config-server
   namespace: pet-clinic
   labels:
-    deploy: config-server
+    app: config-server
 spec:
   replicas: 1
   selector:
@@ -59,6 +59,13 @@ spec:
             secretKeyRef:
               name: kv-secrets-pet-clinic-config-svc
               key: APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-config-svc
+              key: APP-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
@@ -85,7 +92,7 @@ spec:
           value: AKS
         volumeMounts:
         - name: secrets-store01-inline
-          mountPath: "/mnt/secrets-store"
+          mountPath: /mnt/secrets-store
           readOnly: true
       volumes:
         - name: secrets-store01-inline
@@ -99,6 +106,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  labels:
+    app: config-server
   name: config-server
   namespace: pet-clinic
 spec:
