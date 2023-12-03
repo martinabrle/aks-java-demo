@@ -94,13 +94,13 @@ jobs:
           subscription-id: "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
 
       - name: Add DB Firewall exception used for Schema sync
-        if: ${{steps.init.outputs.DB_NAME}} != ''
+        if: ${{ steps.init.outputs.DB_NAME != '' }}
         run: |
           deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
           az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
       
       - name: Synchronize DB Schema
-        if: ${{steps.init.outputs.DB_NAME}} != ''
+        if: ${{ steps.init.outputs.DB_NAME != '' }}
         env:
           RELEASE_DIR_NAME: ${{steps.init.outputs.RELEASE_DIR_NAME}}
           PGSQL_SERVER_NAME: '${{secrets.PGSQL_NAME}}.postgres.database.azure.com'
@@ -174,7 +174,7 @@ jobs:
            --file deployment.yml.tmp
       
       - name: Remove DB Firewall exception used for Schema sync
-        if: ${{steps.init.outputs.DB_NAME}} != ''
+        if: ${{ steps.init.outputs.DB_NAME != '' }}
         run: |
           az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
       
