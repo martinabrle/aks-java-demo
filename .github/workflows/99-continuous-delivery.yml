@@ -8,9 +8,12 @@ on:
         required: true
         type: string
       version:
-        type: string
         description: 'App Version to deploy (i.e. 1.5.3)'
+        type: string
         required: true
+      deployment_suffix:
+        description: 'K8S Deployment Suffix'
+        type: string
   workflow_dispatch:
     inputs:
       app_name:
@@ -34,7 +37,17 @@ on:
         description: 'K8S Deployment Suffix'
 
 jobs:
+  # for debugging purposes only
+  preinit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: preinit
+        run: |
+          echo "github.ref: ${{github.ref}}"
+          echo "github.event_name: ${{github.event_name}}"
+          echo "inputs.version: ${{inputs.version}} "
   deploy:
+    needs: preinit
     runs-on: ubuntu-latest
     permissions:
         id-token: write
@@ -52,6 +65,10 @@ jobs:
             deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
             appName="${{github.event.inputs.app_name}}"
           elif [[ "${{github.event_name}}" == "workflow_call" ]]; then
+            releaseVersion="${{github.event.inputs.version}}"
+            deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
+            appName="${{github.event.inputs.app_name}}"
+          elif [[ "${{github.event_name}}" == "push" ]]; then
             releaseVersion="${{github.event.inputs.version}}"
             deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
             appName="${{github.event.inputs.app_name}}"
