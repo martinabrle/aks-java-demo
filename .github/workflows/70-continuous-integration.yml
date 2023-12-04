@@ -423,8 +423,8 @@ jobs:
 
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile
         cd ..
-        echo "::set-output name=ARTIFACT_NAME::${{env.ARTIFACT_NAME}}"
-        echo "::set-output name=VERSION::${{env.VERSION}}"
+        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> $GITHUB_OUTPUT
+        echo "VERSION=${{env.VERSION}}" >> $GITHUB_OUTPUT
 
   deploy_app:
     needs: [release_app]
