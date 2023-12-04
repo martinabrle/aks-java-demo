@@ -33,7 +33,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 8888
             scheme: HTTP
           initialDelaySeconds: 10
           successThreshold: 1
