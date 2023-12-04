@@ -61,6 +61,10 @@ jobs:
         env:
           RUNNER_CONTEXT: ${{ toJson(runner) }}
         run: echo "$RUNNER_CONTEXT"
+      - name: Event name
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: echo "$EVENT_NAME"
       # - name: Dump strategy context
       #   env:
       #     STRATEGY_CONTEXT: ${{ toJson(strategy) }}
