@@ -96,17 +96,17 @@ jobs:
         run: |
           releaseVersion=""
           if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
-            releaseVersion="${{github.event.inputs.version}}"
-            deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
-            appName="${{github.event.inputs.app_name}}"
+            releaseVersion="${{inputs.version}}"
+            deploymentSuffix="${{inputs.deployment_suffix}}"
+            appName="${{inputs.app_name}}"
           elif [[ "${{github.event_name}}" == "workflow_call" ]]; then
-            releaseVersion="${{github.event.inputs.version}}"
-            deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
-            appName="${{github.event.inputs.app_name}}"
+            releaseVersion="${{inputs.version}}"
+            deploymentSuffix="${{inputs.deployment_suffix}}"
+            appName="${{inputs.app_name}}"
           elif [[ "${{github.event_name}}" == "push" ]]; then
-            releaseVersion="${{github.event.inputs.version}}"
-            deploymentSuffix="${{github.event.inputs.deployment_suffix}}"
-            appName="${{github.event.inputs.app_name}}"
+            releaseVersion="${{inputs.version}}"
+            deploymentSuffix="${{inputs.deployment_suffix}}"
+            appName="${{inputs.app_name}}"
           else
             echo "Unsupported event '${{github.event_name}}'. Exiting..."
             exit 1
