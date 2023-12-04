@@ -423,15 +423,15 @@ jobs:
 
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile
         cd ..
-        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> $GITHUB_OUTPUT
-        echo "VERSION=${{env.VERSION}}" >> $GITHUB_OUTPUT
+        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> "$GITHUB_OUTPUT"
+        echo "VERSION=${{env.VERSION}}" >> "$GITHUB_OUTPUT"
 
   deploy_app:
     needs: [release_app]
     uses: ./.github/workflows/99-continuous-delivery.yml
     with:
-      app_name: ${{needs.release_app.outputs.ARTIFACT_NAME}}
-      version: ${{needs.release_app.outputs.VERSION}}
+      app_name: "${{needs.release_app.outputs.ARTIFACT_NAME}}-test"
+      version: "${{needs.release_app.outputs.VERSION}}-test"
     secrets: inherit     
      
   release_utils:
