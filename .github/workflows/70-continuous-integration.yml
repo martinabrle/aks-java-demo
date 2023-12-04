@@ -318,6 +318,9 @@ jobs:
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.version_tag }}
       JAVA_VERSION: ${{ matrix.java_version }}
+    outputs:
+      ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
+      VERSION: ${{ steps.build_container.outputs.VERSION }}
     defaults:
       run:
         working-directory: ${{matrix.artifact_name}}
@@ -409,6 +412,7 @@ jobs:
         subscription-id: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}        
 
     - name: Build a new container image
+      id: build_container
       run: |
         cd ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
@@ -419,7 +423,17 @@ jobs:
 
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile
         cd ..
+        echo "::set-output name=ARTIFACT_NAME::${{env.ARTIFACT_NAME}}"
+        echo "::set-output name=VERSION::${{env.VERSION}}"
 
+  deploy_app:
+    needs: [release_app]
+    uses: ./.github/workflows/99-continuous-delivery.yml
+    with:
+      app_name: ${{needs.release_app.outputs.ARTIFACT_NAME}}
+      version: ${{needs.release_app.outputs.VERSION}}
+    secrets: inherit     
+     
   release_utils:
     needs: [versions]
     runs-on: ubuntu-latest
@@ -436,6 +450,9 @@ jobs:
       ARTIFACT_NAME: ${{ matrix.artifact_name }}
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.version_tag }}
+    outputs:
+      ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
+      VERSION: ${{ steps.build_container.outputs.VERSION }}
     defaults:
       run:
         working-directory: docker/${{matrix.artifact_name}}
@@ -486,7 +503,19 @@ jobs:
         subscription-id: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}        
 
     - name: Build a new container image
+      id: build_container
       run: |
         rm ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
         ls -la
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg BUILD_VERSION_ARG=${{env.VERSION}} --file ./Dockerfile
+        echo "::set-output name=ARTIFACT_NAME::${{env.ARTIFACT_NAME}}"
+        echo "::set-output name=VERSION::${{env.VERSION}}"
+
+  deploy_utils:
+    needs: [release_utils]
+    uses: ./.github/workflows/99-continuous-delivery.yml
+    with:
+      app_name: ${{needs.release_utils.outputs.ARTIFACT_NAME}}
+      version: ${{needs.release_utils.outputs.VERSION}}
+    secrets: inherit
+      
