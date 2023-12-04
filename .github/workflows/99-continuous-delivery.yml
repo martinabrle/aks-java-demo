@@ -1,6 +1,16 @@
 name: 99-Continuous-Delivery
 
 on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 'Application to deploy (todo-app, spring-petclinic-admin-server, ...)'
+        required: true
+        type: string
+      version:
+        type: string
+        description: 'App Version to deploy (i.e. 1.5.3)'
+        required: true
   workflow_dispatch:
     inputs:
       app_name:
@@ -40,26 +50,34 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             releaseVersion="${{ github.event.inputs.version }}"
             deploymentSuffix="${{ github.event.inputs.deployment_suffix }}"
+            appName="${{ github.event.inputs.app_name }}"
+          elif if [[ "${{ github.event_name }}" == "workflow_call" ]]; then
+            releaseVersion="${{ github.event.inputs.version }}"
+            deploymentSuffix="${{ github.event.inputs.deployment_suffix }}"
+            appName="${{ github.event.inputs.app_name }}"
+          else
+            echo "Unsupported event '${{ github.event_name }}'. Exiting..."
+            exit 1
           fi
           if [[ -z "$releaseVersion" ]]; then
             echo "RELEASE_VERSION is not set. Exiting..."
             exit 1
           fi
           dbName=""
-          if [[ "${{ github.event.inputs.app_name }}" == "todo-app" ]]; then
+          if [[ "${appName}" == "todo-app" ]]; then
             dbName="tododb"
-          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-customers-service" ]]; then
+          elif [[ "${appName}" == "spring-petclinic-customers-service" ]]; then
             dbName="petcliniccustomersdb"
-          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-vets-service" ]]; then
+          elif [[ "${appName}" == "spring-petclinic-vets-service" ]]; then
             dbName="petclinicvetssdb"
-          elif [[ "${{ github.event.inputs.app_name }}" == "spring-petclinic-visits-service" ]]; then
+          elif [[ "${appName}" == "spring-petclinic-visits-service" ]]; then
             dbName="petclinicvisitsdb"
           fi
-          echo "APP_NAME=${{github.event.inputs.app_name}}" >> $GITHUB_OUTPUT
+          echo "APP_NAME=${appName}" >> $GITHUB_OUTPUT
           echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
-          echo "RELEASE_DIR_NAME=${{github.event.inputs.app_name}}-${releaseVersion}" >> $GITHUB_OUTPUT
-          echo "RELEASE_ARCHIVE_NAME=${{github.event.inputs.app_name}}-${releaseVersion}.zip" >> $GITHUB_OUTPUT
-          echo "RELEASE_FILE_NAME=${{github.event.inputs.app_name}}-${releaseVersion}.jar" >> $GITHUB_OUTPUT
+          echo "RELEASE_DIR_NAME=${appName}-${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ARCHIVE_NAME=${appName}-${releaseVersion}.zip" >> $GITHUB_OUTPUT
+          echo "RELEASE_FILE_NAME=${appName}-${releaseVersion}.jar" >> $GITHUB_OUTPUT
           echo "DEPLOYMENT_SUFFIX=$deploymentSuffix" >> $GITHUB_OUTPUT
           echo "DB_NAME=$dbName" >> $GITHUB_OUTPUT
       
