@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS specialties (
   "name" VARCHAR(80)
 );
 
-CREATE INDEX IF NOT EXISTS specialties_name_idx ON vets ( "name" );
+CREATE INDEX IF NOT EXISTS specialties_name_idx ON specialties ( "name" );
 
 CREATE TABLE IF NOT EXISTS vet_specialties (
   "vet_id" INT NOT NULL,
