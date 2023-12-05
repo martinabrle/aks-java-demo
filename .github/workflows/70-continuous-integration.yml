@@ -238,7 +238,7 @@ jobs:
           matrix="{\"include\":["
           matrix_utils="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"db_name\":\"${{secrets.TODO_APP_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -254,7 +254,7 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -262,11 +262,11 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -317,7 +317,9 @@ jobs:
       ARTIFACT_NAME: ${{ matrix.artifact_name }}
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.version_tag }}
+      RELEASE_DIR_NAME: "${{matrix.artifact_name}}-${{matrix.version}}"
       JAVA_VERSION: ${{ matrix.java_version }}
+      DB_NAME: ${{ matrix.db_name }}
     outputs:
       ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
       VERSION: ${{ steps.build_container.outputs.VERSION }}
@@ -335,6 +337,7 @@ jobs:
         echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
         echo "VERSION=${{env.VERSION}}"
         echo "VERSION_TAG=${{env.VERSION_TAG}}"
+        echo "RELEASE_DIR_NAME=${{env.RELEASE_DIR_NAME}}"
         echo "JAVA_VERSION=${{env.JAVA_VERSION}}"
         echo "GITHUB_SHA=${{github.sha}}"
         echo "GITHUB_REF=${{github.ref}}"
@@ -423,16 +426,54 @@ jobs:
 
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile
         cd ..
-        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> "$GITHUB_OUTPUT"
-        echo "VERSION=${{env.VERSION}}" >> "$GITHUB_OUTPUT"
 
-  deploy_app:
-    needs: [release_app]
-    uses: ./.github/workflows/99-continuous-delivery.yml
-    with:
-      app_name: "${{needs.release_app.outputs.ARTIFACT_NAME}}"
-      version: "${{needs.release_app.outputs.VERSION}}"
-    secrets: inherit     
+    - name: Add DB Firewall exception used for Schema sync
+      if: ${{ env.DB_NAME != '' }}
+      run: |
+        deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
+        az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
+  
+    - name: Synchronize DB Schema
+      if: ${{ env.DB_NAME != '' }}
+      env:
+        PGSQL_SERVER_NAME: '${{secrets.PGSQL_NAME}}.postgres.database.azure.com'
+      run: |
+        export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+        psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.RELEASE_DIR_NAME}}/db/pgsql/schema.sql -v ON_ERROR_STOP=1
+        psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.RELEASE_DIR_NAME}}/db/pgsql/data.sql -v ON_ERROR_STOP=1
+
+    - name: Test connection to AKS
+      run: |
+        az aks command invoke \
+          --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+          --name ${{secrets.AKS_NAME}} \
+          --command "kubectl get ns"
+
+    - name: Deploy app into AKS
+      env:
+        DEPLOYMENT_SUFFIX: ${{steps.init.outputs.DEPLOYMENT_SUFFIX}}
+        CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{env.ARTIFACT_NAME}}:${{env.VERSION}}
+      run: |
+        cat ./${{env.RELEASE_DIR_NAME}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+        cat ./deployment.yml.tmp
+        az aks command invoke \
+          --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+          --name ${{secrets.AKS_NAME}} \
+          --command "kubectl apply -f deployment.yml.tmp" \
+          --file deployment.yml.tmp
+
+    - name: Remove DB Firewall exception used for Schema sync
+      if: ${{ env.DB_NAME != '' }}
+      run: |
+        az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
+      
+  # deploy_app:
+  #   needs: [release_app]
+  #   uses: ./.github/workflows/99-continuous-delivery.yml
+  #   with:
+  #     app_name: "${{needs.release_app.outputs.ARTIFACT_NAME}}"
+  #     version: "${{needs.release_app.outputs.VERSION}}"
+  #   secrets: inherit     
      
   release_utils:
     needs: [versions]
@@ -511,11 +552,11 @@ jobs:
         echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> "$GITHUB_OUTPUT"
         echo "VERSION=${{env.VERSION}}" >> "$GITHUB_OUTPUT"
 
-  deploy_utils:
-    needs: [release_utils]
-    uses: ./.github/workflows/99-continuous-delivery.yml
-    with:
-      app_name: ${{needs.release_utils.outputs.ARTIFACT_NAME}}
-      version: ${{needs.release_utils.outputs.VERSION}}
-    secrets: inherit
+  # deploy_utils:
+  #   needs: [release_utils]
+  #   uses: ./.github/workflows/99-continuous-delivery.yml
+  #   with:
+  #     app_name: ${{needs.release_utils.outputs.ARTIFACT_NAME}}
+  #     version: ${{needs.release_utils.outputs.VERSION}}
+  #   secrets: inherit
       

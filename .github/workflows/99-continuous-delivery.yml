@@ -117,13 +117,13 @@ jobs:
           fi
           dbName=""
           if [[ "${appName}" == "todo-app" ]]; then
-            dbName="tododb"
+            dbName="${{secrets.TODO_APP_DB_NAME}}"
           elif [[ "${appName}" == "spring-petclinic-customers-service" ]]; then
-            dbName="petcliniccustomersdb"
+            dbName="${{secrets.PETCLINIC_DB_NAME}}"
           elif [[ "${appName}" == "spring-petclinic-vets-service" ]]; then
-            dbName="petclinicvetssdb"
+            dbName="${{secrets.PETCLINIC_DB_NAME}}"
           elif [[ "${appName}" == "spring-petclinic-visits-service" ]]; then
-            dbName="petclinicvisitsdb"
+            dbName="${{secrets.PETCLINIC_DB_NAME}}"
           fi
           echo "APP_NAME=${appName}" >> $GITHUB_OUTPUT
           echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT

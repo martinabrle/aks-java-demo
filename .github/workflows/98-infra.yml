@@ -113,6 +113,10 @@ jobs:
                                                      pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
                                                      pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
                                                      pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
+                                                     pgsqlPetClinicCustsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+                                                     pgsqlPetClinicVetsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+                                                     pgsqlPetClinicVisitsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+                                                     pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
                                                      pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
                                                      logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
                                                      logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
@@ -166,8 +170,6 @@ jobs:
           echo "TODO_APP_USER_MI_PRINCIPAL_ID=${todoAppUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
           echo "TODO_APP_USER_MI_CLIENT_ID: ${todoAppUserManagedIdentityClientId}"
           echo "TODO_APP_USER_MI_CLIENT_ID=${todoAppUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
-          echo "TODO_APP_DB_NAME: ${todoAppDbName}"
-          echo "TODO_APP_DB_NAME=${todoAppDbName}" >> $GITHUB_OUTPUT
           echo "TODO_APP_DB_USER_NAME: ${todoAppDbUserName}"
           echo "TODO_APP_DB_USER_NAME=${todoAppDbUserName}" >> $GITHUB_OUTPUT
 
@@ -191,8 +193,6 @@ jobs:
           echo "PET_CLINIC_CUSTS_SVC_USER_MI_PRINCIPAL_ID=${petClinicCustsSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID: ${petClinicCustsSvcUserManagedIdentityClientId}"
           echo "PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID=${petClinicCustsSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_CUSTS_SVC_DB_NAME: ${petClinicCustsSvcDbName}"
-          echo "PET_CLINIC_CUSTS_SVC_DB_NAME=${petClinicCustsSvcDbName}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_CUSTS_SVC_DB_USER_NAME: ${petClinicCustsSvcDbUserName}"
           echo "PET_CLINIC_CUSTS_SVC_DB_USER_NAME=${petClinicCustsSvcDbUserName}" >> $GITHUB_OUTPUT
 
@@ -202,8 +202,6 @@ jobs:
           echo "PET_CLINIC_VETS_SVC_USER_MI_PRINCIPAL_ID=${petClinicVetsSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID: ${petClinicVetsSvcUserManagedIdentityClientId}"
           echo "PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID=${petClinicVetsSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_VETS_SVC_DB_NAME: ${petClinicVetsSvcDbName}"
-          echo "PET_CLINIC_VETS_SVC_DB_NAME=${petClinicVetsSvcDbName}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_VETS_SVC_DB_USER_NAME: ${petClinicVetsSvcDbUserName}"
           echo "PET_CLINIC_VETS_SVC_DB_USER_NAME=${petClinicVetsSvcDbUserName}" >> $GITHUB_OUTPUT
 
@@ -213,8 +211,6 @@ jobs:
           echo "PET_CLINIC_VISITS_SVC_USER_MI_PRINCIPAL_ID=${petClinicVisitsSvcUserManagedIdentityPrincipalId}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID: ${petClinicVisitsSvcUserManagedIdentityClientId}"
           echo "PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID=${petClinicVisitsSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
-          echo "PET_CLINIC_VISITS_SVC_DB_NAME: ${petClinicVisitsSvcDbName}"
-          echo "PET_CLINIC_VISITS_SVC_DB_NAME=${petClinicVisitsSvcDbName}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME: ${petClinicVisitsSvcDbUserName}"
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME=${petClinicVisitsSvcDbUserName}" >> $GITHUB_OUTPUT
 
@@ -266,25 +262,25 @@ jobs:
         run: |
           # When the database gets created using a script, AAD accounts gets full permissions on public schema and can assign roles
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
       
       - name: Create PET_CLINIC_CUSTS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
       - name: Create PET_CLINIC_VETS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
       - name: Create PET_CLINIC_VISITS_SVC_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
       - name: Create TODO_APP_DB user(s)
         working-directory: ./scripts/deployment/utils/
@@ -292,7 +288,7 @@ jobs:
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_pgsql_user.sh \
             -s "${{secrets.PGSQL_NAME}}" \
-            -d "${{steps.deployment.outputs.TODO_APP_DB_NAME}}" \
+            -d "${{secrets.TODO_APP_DB_NAME}}" \
             -a "${{secrets.DBA_GROUP_NAME}}" \
             -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
             -o "${{steps.deployment.outputs.TODO_APP_USER_MI_PRINCIPAL_ID}}"
@@ -303,7 +299,7 @@ jobs:
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
             ./create_aad_pgsql_user.sh \
               -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_NAME}}" \
+              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_PRINCIPAL_ID}}"
@@ -314,7 +310,7 @@ jobs:
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
             ./create_aad_pgsql_user.sh \
               -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_NAME}}" \
+              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_PRINCIPAL_ID}}"
@@ -325,7 +321,7 @@ jobs:
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
             ./create_aad_pgsql_user.sh \
               -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_NAME}}" \
+              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_PRINCIPAL_ID}}"

@@ -8,12 +8,12 @@ param aksTags string
 param pgsqlName string
 param pgsqlAADAdminGroupName string
 param pgsqlAADAdminGroupObjectId string
-param pgsqlTodoAppDbName string = 'tododb'
+param pgsqlTodoAppDbName string
 // Pet Clinic pplication still needs all data in the same DB
 // However, all deployment scripts are ready to support separate DBs for each service
-param pgsqlPetClinicCustsSvcDbName string = 'petclinicdb'
-param pgsqlPetClinicVetsSvcDbName string = 'petclinicdb'
-param pgsqlPetClinicVisitsSvcDbName string = 'petclinicdb'
+param pgsqlPetClinicCustsSvcDbName string
+param pgsqlPetClinicVetsSvcDbName string
+param pgsqlPetClinicVisitsSvcDbName string
 
 param pgsqlSubscriptionId string
 param pgsqlRG string
@@ -680,7 +680,6 @@ resource managedIdentityOperator 'Microsoft.Authorization/roleDefinitions@2022-0
 output todoAppUserManagedIdentityName string = todoAppUserManagedIdentity.name
 output todoAppUserManagedIdentityPrincipalId string = todoAppUserManagedIdentity.properties.principalId
 output todoAppUserManagedIdentityClientId string = todoAppUserManagedIdentity.properties.clientId
-output todoAppDbName string = pgsqlTodoAppDbName
 output todoAppDbUserName string = todoAppDbUserName
 
 output petClinicAppUserManagedIdentityName string = petClinicAppUserManagedIdentity.name
@@ -694,19 +693,16 @@ output petClinicConfigSvcUserManagedIdentityClientId string = petClinicConfigSvc
 output petClinicCustsSvcUserManagedIdentityName string = petClinicCustsSvcUserManagedIdentity.name
 output petClinicCustsSvcUserManagedIdentityPrincipalId string = petClinicCustsSvcUserManagedIdentity.properties.principalId
 output petClinicCustsSvcUserManagedIdentityClientId string = petClinicCustsSvcUserManagedIdentity.properties.clientId
-output petClinicCustsSvcDbName string = pgsqlPetClinicCustsSvcDbName
 output petClinicCustsSvcDbUserName string = petClinicCustsSvcDbUserName
 
 output petClinicVetsSvcUserManagedIdentityName string = petClinicVetsSvcUserManagedIdentity.name
 output petClinicVetsSvcUserManagedIdentityPrincipalId string = petClinicVetsSvcUserManagedIdentity.properties.principalId
 output petClinicVetsSvcUserManagedIdentityClientId string = petClinicVetsSvcUserManagedIdentity.properties.clientId
 output petClinicVetsSvcDbUserName string = petClinicVetsSvcDbUserName
-output petClinicVetsSvcDbName string = pgsqlPetClinicVetsSvcDbName
 
 output petClinicVisitsSvcUserManagedIdentityName string = petClinicVisitsSvcUserManagedIdentity.name
 output petClinicVisitsSvcUserManagedIdentityPrincipalId string = petClinicVisitsSvcUserManagedIdentity.properties.principalId
 output petClinicVisitsSvcUserManagedIdentityClientId string = petClinicVisitsSvcUserManagedIdentity.properties.clientId
 output petClinicVisitsSvcDbUserName string = petClinicVisitsSvcDbUserName
-output petClinicVisitsSvcDbName string = pgsqlPetClinicVisitsSvcDbName
 
 output pgsqlUpdatedFirewallRulesSet array = pgsql.outputs.validFirewallRules
