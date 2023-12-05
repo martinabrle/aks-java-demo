@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS visits (
-  "id" INT SERIAL PRIMARY KEY NOT NULL,
+  "id" SERIAL PRIMARY KEY NOT NULL,
   "pet_id" INT NOT NULL,
   "visit_date" DATE,
   "description" VARCHAR(8192),
