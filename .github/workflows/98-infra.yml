@@ -300,7 +300,7 @@ jobs:
               -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_PRINCIPAL_ID}}"
+              -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}"
     
       - name: Create PET_CLINIC_VETS_SVC_DB user(s)
         working-directory: ./scripts/deployment/utils/
@@ -311,7 +311,7 @@ jobs:
               -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_PRINCIPAL_ID}}"
+              -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}"
           
       - name: Create PET_CLINIC_VISITS_SVC_DB user(s)
         working-directory: ./scripts/deployment/utils/
@@ -322,7 +322,7 @@ jobs:
               -d "${{secrets.PET_CLINIC_DB_NAME}}" \
               -a "${{secrets.DBA_GROUP_NAME}}" \
               -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_PRINCIPAL_ID}}"
+              -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}"
 
       - name: Remove DB Firewall exception used for DB setup
         run: |
