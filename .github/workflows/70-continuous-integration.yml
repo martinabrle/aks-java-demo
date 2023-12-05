@@ -312,7 +312,7 @@ jobs:
       id-token: write
 
     strategy:
-      max-parallel: 0
+      max-parallel: 1
       matrix: ${{fromJson(needs.versions.outputs.matrix)}}
     env:
       ARTIFACT_NAME: ${{ matrix.artifact_name }}
