@@ -1,4 +1,4 @@
-name: 70-Continuous-Integration
+name: 70-Continuous-Integration-Delivery
 
 on:
   push:
