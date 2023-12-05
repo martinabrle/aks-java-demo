@@ -32,7 +32,7 @@ spec:
             path: /health
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           successThreshold: 1
         ports:
         - containerPort: 3000
@@ -49,10 +49,11 @@ metadata:
     app: grafana-server
   name: grafana-server
 spec:
-  ports:
-  - port: 3000
-    protocol: TCP
-    targetPort: 3000
+  type: ClusterIP
   selector:
     app: grafana-server
-  type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: http
+    port: 3000
+    targetPort: 3000

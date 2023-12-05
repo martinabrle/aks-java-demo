@@ -35,7 +35,7 @@ spec:
             path: /actuator/health
             port: 8888
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           successThreshold: 1
         ports:
         - containerPort: 8888
@@ -92,9 +92,9 @@ spec:
         - name: ENVIRONMENT
           value: AKS
         volumeMounts:
-        - name: secrets-store01-inline
-          mountPath: /mnt/secrets-store
-          readOnly: true
+          - name: secrets-store01-inline
+            mountPath: /mnt/secrets-store
+            readOnly: true
       volumes:
         - name: secrets-store01-inline
           csi: 

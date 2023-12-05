@@ -32,7 +32,7 @@ spec:
             path: /health
             port: 9411
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           successThreshold: 1
         ports:
         - containerPort: 9411
@@ -50,18 +50,18 @@ spec:
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-APP-INSIGHTS-CONNECTION-STRING
+              key: APP-INSIGHTS-CONNECTION-STRING
               optional: false
         - name: APPINSIGHTS_INSTRUMENTATIONKEY
           valueFrom:
             secretKeyRef:
               name: kv-secrets-pet-clinic-app
-              key: PET-CLINIC-INSIGHTS-INSTRUMENTATION-KEY
+              key: APP-INSIGHTS-INSTRUMENTATION-KEY
               optional: false
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
-                "role": {   
+                "role": {
                     "name": "tracing-server"
                   }
             }
@@ -78,7 +78,7 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-app
-   
+
 ---
 apiVersion: v1
 kind: Service
@@ -87,10 +87,11 @@ metadata:
     app: tracing-server
   name: tracing-server
 spec:
-  ports:
-  - port: 9411
-    protocol: TCP
-    targetPort: 9411
+  type: ClusterIP
   selector:
     app: tracing-server
-  type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: http
+    port: 9411
+    targetPort: 9411

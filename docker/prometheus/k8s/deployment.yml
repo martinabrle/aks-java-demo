@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: tracing-server
-  name: tracing-server
+    app: prometheus-server
+  name: prometheus-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: tracing-server
+      app: prometheus-server
   template:
     metadata:
       labels:
-        app: tracing-server
+        app: prometheus-server
     spec:
       containers:
       - image: "$CONTAINER_IMAGE"
@@ -32,7 +32,7 @@ spec:
             path: /health
             port: 9091
             scheme: HTTP
-          initialDelaySeconds: 10
+          initialDelaySeconds: 30
           successThreshold: 1
         ports:
         - containerPort: 9091
@@ -59,7 +59,7 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: kv-secrets-pet-clinic-app
-   
+
 ---
 apiVersion: v1
 kind: Service
@@ -68,10 +68,12 @@ metadata:
     app: prometheus-server
   name: prometheus-server
 spec:
-  ports:
-  - port: 9091
-    protocol: TCP
-    targetPort: 9091
+  type: ClusterIP
   selector:
     app: prometheus-server
-  type: ClusterIP
+  ports:
+  - protocol: TCP
+    name: http
+    port: 9091
+    targetPort: 9091
+
