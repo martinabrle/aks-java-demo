@@ -299,9 +299,8 @@ jobs:
             echo "matrix_utils=${matrix_utils}" >> $GITHUB_OUTPUT
             echo "something_to_deploy_utils=true" >> $GITHUB_OUTPUT
           fi  
-
   
-  release_app:
+  release_deploy_app:
     needs: [versions]
     runs-on: ubuntu-latest
     if: ${{ contains(needs.versions.outputs.something_to_deploy, 'true') }}
