@@ -374,29 +374,30 @@ jobs:
     - name: Download Application Insights Agent
       if: ${{ env.APP_INSIGHTS == 'true' }} 
       run: |
-         wget -q -O ./target/ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
+         wget -q -O ./ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
     
     - name: Build release ZIP archive
       id: create_archive
       run: |
-        ls -la ./target
-        if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
-          echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
-          exit 1
-        fi
         mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        if [[ ${{ env.APP_INSIGHTS == 'true' }} ]]; then
-          mv ./target/ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        fi
-        if [[ ${{ env.JAVA_VERSION != '' }} ]]; then
+        if [[ "${{env.JAVA_VERSION}}" != '' ]]; then
+          ls -la ./target
+          if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
+            echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
+            exit 1
+          fi
+          mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
           cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
         else
+          ls -la
           cp -R ./Dockerfile ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
         fi
-        cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
         if [[ -d "./src/main/resources/db" ]]; then
           cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
+        fi
+        cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
+        if [[ ${{ env.APP_INSIGHTS == 'true' }} ]]; then
+          mv ./ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         fi
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
