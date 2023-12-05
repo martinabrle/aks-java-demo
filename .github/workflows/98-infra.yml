@@ -282,14 +282,14 @@ jobs:
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           echo "TODO_APP_USER_MI_PRINCIPAL_ID=${{steps.deployment.outputs.TODO_APP_USER_MI_PRINCIPAL_ID}}"
           echo "TODO_APP_USER_MI_CLIENT_ID=${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
-          appClientId=`az ad sp list --display-name "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" --query "[?displayName=='${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}'].appId" --out tsv`
+          appClientId=`az ad sp list --display-name "${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}" --query "[?displayName=='${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}'].appId" --out tsv`
           echo "APP_CLIENT_ID=${appClientId}"
           ./create_aad_pgsql_user.sh \
             -s "${{secrets.PGSQL_NAME}}" \
             -d "${{secrets.TODO_APP_DB_NAME}}" \
             -a "${{secrets.DBA_GROUP_NAME}}" \
             -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
-            -o "${{steps.deployment.outputs.TODO_APP_USER_MI_PRINCIPAL_ID}}"
+            -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
 
       - name: Create PET_CLINIC_CUSTS_SVC_DB user(s)
         working-directory: ./scripts/deployment/utils/
