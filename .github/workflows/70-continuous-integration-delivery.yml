@@ -267,15 +267,15 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_prometheus_version.outputs.changed}}" == "true" && "${{steps.semver_prometheus_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_zipkin_version.outputs.changed}}" == "true" && "${{steps.semver_zipkin_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
             delimiter=","
           fi
           if [[ "$delimiter" == "" ]]; then
@@ -312,7 +312,7 @@ jobs:
       VERSION: ${{ steps.build_container.outputs.VERSION }}
     defaults:
       run:
-        working-directory: ${{ matrix.artifact }}
+        working-directory: "${{matrix.parent_dir}}${{ matrix.artifact }}"
     steps:
     - name: Checkout
       uses: actions/checkout@v3
