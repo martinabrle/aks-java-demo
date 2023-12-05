@@ -388,17 +388,19 @@ jobs:
           fi
           mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
           cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+          cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
+          if [[ -d "./src/main/resources/db" ]]; then
+            cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
+          fi
+          if [[ "${{env.APP_INSIGHTS}}" == 'true'  ]]; then
+            mv ./ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+          fi
         else
+          # No source code here, proceed with copying the whole docker directory
           ls -la
-          cp -R ./Dockerfile ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+          cp -R * ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/
         fi
-        if [[ -d "./src/main/resources/db" ]]; then
-          cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
-        fi
-        cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
-        if [[ "${{env.APP_INSIGHTS}}" == 'true'  ]]; then
-          mv ./ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        fi
+
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         ls -la
         echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
