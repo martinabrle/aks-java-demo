@@ -298,7 +298,8 @@ jobs:
             matrix_utils="$matrix_utils]}"
             echo "matrix_utils=${matrix_utils}" >> $GITHUB_OUTPUT
             echo "something_to_deploy_utils=true" >> $GITHUB_OUTPUT
-          fi  
+          fi
+          echo "matrix: ${matrix}"
   
   release_deploy_app:
     needs: [versions]
