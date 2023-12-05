@@ -423,7 +423,7 @@ jobs:
       with:
         client-id: ${{secrets.AAD_CLIENT_ID}}
         tenant-id: ${{secrets.AAD_TENANT_ID}}
-        subscription-id: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}        
+        subscription-id: ${{secrets.AKS_SUBSCRIPTION_ID}}        
 
     - name: Build a new container image
       id: build_container
@@ -435,7 +435,7 @@ jobs:
         cat ./Dockerfile.tmp | ARTIFACT_NAME_ARG=${{env.ARTIFACT_NAME}} VERSION_ARG=${{env.VERSION}} envsubst > ./Dockerfile
         cat ./Dockerfile
 
-        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile
+        az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
         cd ..
 
     - name: Add DB Firewall exception used for Schema sync
@@ -458,7 +458,8 @@ jobs:
         az aks command invoke \
           --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
           --name ${{secrets.AKS_NAME}} \
-          --command "kubectl get ns"
+          --command "kubectl get ns" \
+          --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
     - name: Deploy app into AKS
       env:
@@ -471,7 +472,8 @@ jobs:
           --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
           --name ${{secrets.AKS_NAME}} \
           --command "kubectl apply -f deployment.yml.tmp" \
-          --file deployment.yml.tmp
+          --file deployment.yml.tmp \
+          --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
     - name: Remove DB Firewall exception used for Schema sync
       if: ${{ steps.params.outputs.DB_NAME != '' }}
