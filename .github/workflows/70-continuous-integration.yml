@@ -238,7 +238,7 @@ jobs:
           matrix="{\"include\":["
           matrix_utils="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"db_name\":\"tododb\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"db_name\":\"${{secrets.TODO_APP_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -254,7 +254,7 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -262,11 +262,11 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
