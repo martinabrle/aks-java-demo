@@ -32,8 +32,6 @@ jobs:
     outputs:
       matrix: ${{ steps.versions.outputs.matrix }}
       something_to_deploy: ${{ steps.versions.outputs.something_to_deploy }}
-      matrix_utils: ${{ steps.versions.outputs.matrix_utils }}
-      something_to_deploy_utils: ${{ steps.versions.outputs.something_to_deploy_utils }}
     steps:
     - uses: actions/checkout@v3
       with:
@@ -234,24 +232,22 @@ jobs:
             fi
           fi
           delimiter=""
-          delimiter_utils=""
           matrix="{\"include\":["
 
-          matrix_utils="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -259,28 +255,28 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\"}"
-            delimiter_utils=","
+            matrix="$matrix${delimiter}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\"}"
+            delimiter=","
           fi
           if [[ "${{steps.semver_prometheus_version.outputs.changed}}" == "true" && "${{steps.semver_prometheus_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\"}"
-            delimiter_utils=","
+            matrix="$matrix${delimiter}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\"}"
+            delimiter=","
           fi
           if [[ "${{steps.semver_zipkin_version.outputs.changed}}" == "true" && "${{steps.semver_zipkin_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\"}"
-            delimiter_utils=","
+            matrix="$matrix${delimiter}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\"}"
+            delimiter=","
           fi
           if [[ "$delimiter" == "" ]]; then
             matrix=""
@@ -291,17 +287,7 @@ jobs:
             echo "matrix=${matrix}" >> $GITHUB_OUTPUT
             echo "something_to_deploy=true" >> $GITHUB_OUTPUT
           fi
-          if [[ "$delimiter_utils" == "" ]]; then
-            matrix_utils=""
-            echo "matrix_utils=\"\"" >> $GITHUB_OUTPUT
-            echo "something_to_deploy_utils=false" >> $GITHUB_OUTPUT
-          else
-            matrix_utils="$matrix_utils]}"
-            echo "matrix_utils=${matrix_utils}" >> $GITHUB_OUTPUT
-            echo "something_to_deploy_utils=true" >> $GITHUB_OUTPUT
-          fi
           echo "matrix: ${matrix}"
-          echo "matrix_utils: ${matrix_utils}"
   
   release_deploy_app:
     needs: [versions]
@@ -320,6 +306,7 @@ jobs:
       VERSION: ${{ matrix.version }}
       VERSION_TAG: ${{ matrix.tag }}
       JAVA_VERSION: ${{ matrix.java_version }}
+      APP_INSIGHTS: ${{ matrix.app_insights }}
     outputs:
       ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
       VERSION: ${{ steps.build_container.outputs.VERSION }}
@@ -357,30 +344,35 @@ jobs:
         echo "DB_NAME: ${dbName}"
         
     - name: Set up JDK
+      if: ${{ env.JAVA_VERSION != '' }}
       uses: actions/setup-java@v3
       with:
         java-version: ${{env.JAVA_VERSION}}
         distribution: 'microsoft'
 
     - name: Set the release version
+      if: ${{ env.JAVA_VERSION }} != ''
       run: |
         mv ./pom.xml ./pom.xml.bak
         ls -la
         java ../scripts/deployment/utils/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
 
     - name: Set the git commit id
+      if: ${{ env.JAVA_VERSION != '' }} 
       run: |
         mv ./pom.xml ./pom.xml.bak
         ls -la
         java ../scripts/deployment/utils/JavaUtils.java -update_git_commit_id ./pom.xml.bak "${GITHUB_SHA}" ./pom.xml
     
     - name: Build the .jar
+      if: ${{ env.JAVA_VERSION != '' }}
       run: |
         export PORT=8080
         export SPRING_PROFILES_ACTIVE=local
         mvn clean package -DskipTests
     
     - name: Download Application Insights Agent
+      if: ${{ env.APP_INSIGHTS == 'true' }} 
       run: |
          wget -q -O ./target/ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
     
@@ -394,8 +386,14 @@ jobs:
         fi
         mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        mv ./target/ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-        cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+        if [[ ${{ env.APP_INSIGHTS == 'true' }} ]]; then
+          mv ./target/ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        fi
+        if [[ ${{ env.JAVA_VERSION != '' }} ]]; then
+          cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+        else
+          cp -R ./Dockerfile ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+        fi
         cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
         if [[ -d "./src/main/resources/db" ]]; then
           cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
