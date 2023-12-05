@@ -379,8 +379,9 @@ jobs:
     - name: Build release ZIP archive
       id: create_archive
       run: |
-        mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+        
         if [[ "${{env.JAVA_VERSION}}" != '' ]]; then
+          mkdir ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
           ls -la ./target
           if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar" ]]; then
             echo "File ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar does not exists. Check the build script."
@@ -398,7 +399,9 @@ jobs:
         else
           # No source code here, proceed with copying the whole docker directory
           ls -la
-          cp -R * ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/
+          mkdir ../${{env.ARTIFACT_NAME}}-${{env.VERSION}}
+          cp -R * ../${{env.ARTIFACT_NAME}}-${{env.VERSION}}/
+          mv ../${{env.ARTIFACT_NAME}}-${{env.VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         fi
 
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
