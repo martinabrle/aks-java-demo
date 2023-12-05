@@ -300,6 +300,7 @@ jobs:
             echo "something_to_deploy_utils=true" >> $GITHUB_OUTPUT
           fi
           echo "matrix: ${matrix}"
+          echo "matrix_utils: ${matrix_utils}"
   
   release_deploy_app:
     needs: [versions]
