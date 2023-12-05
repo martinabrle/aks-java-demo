@@ -396,7 +396,7 @@ jobs:
           cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
         fi
         cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
-        if [[ ${{ env.APP_INSIGHTS == 'true' }} ]]; then
+        if [[ "${{env.APP_INSIGHTS}}" == 'true'  ]]; then
           mv ./ai.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
         fi
         zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
