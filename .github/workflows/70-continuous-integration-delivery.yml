@@ -307,6 +307,7 @@ jobs:
       VERSION_TAG: ${{ matrix.tag }}
       JAVA_VERSION: ${{ matrix.java_version }}
       APP_INSIGHTS: ${{ matrix.app_insights }}
+      DB: ${{ matrix.db }}
     outputs:
       ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
       VERSION: ${{ steps.build_container.outputs.VERSION }}
@@ -327,6 +328,8 @@ jobs:
         echo "VERSION_TAG=${{env.VERSION_TAG}}"
         echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}"
         echo "JAVA_VERSION=${{env.JAVA_VERSION}}"
+        echo "DB=${{env.DB}}"
+
         echo "GITHUB_SHA=${{github.sha}}"
         echo "GITHUB_REF=${{github.ref}}"
         echo "GITHUB_EVENT_NAME=${{github.event_name}}"
