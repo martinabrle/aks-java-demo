@@ -8,9 +8,10 @@ CREATE INDEX IF NOT EXISTS vets_last_name_idx ON vets ( "last_name" );
 
 CREATE TABLE IF NOT EXISTS specialties (
   "id" SERIAL PRIMARY KEY NOT NULL ,
-  "name" VARCHAR(80),
-  INDEX(name)
+  "name" VARCHAR(80)
 );
+
+CREATE INDEX IF NOT EXISTS specialties_name_idx ON vets ( "name" );
 
 CREATE TABLE IF NOT EXISTS vet_specialties (
   "vet_id" INT NOT NULL,
