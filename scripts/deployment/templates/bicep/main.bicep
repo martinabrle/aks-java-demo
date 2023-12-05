@@ -9,11 +9,7 @@ param pgsqlName string
 param pgsqlAADAdminGroupName string
 param pgsqlAADAdminGroupObjectId string
 param pgsqlTodoAppDbName string
-// Pet Clinic pplication still needs all data in the same DB
-// However, all deployment scripts are ready to support separate DBs for each service
-param pgsqlPetClinicCustsSvcDbName string
-param pgsqlPetClinicVetsSvcDbName string
-param pgsqlPetClinicVisitsSvcDbName string
+param pgsqlPetClinicDbName string
 
 param pgsqlSubscriptionId string
 param pgsqlRG string
@@ -233,7 +229,7 @@ module kvSecretPetClinicCustSpringDSURL 'components/kv-secret.bicep' = {
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
     secretName: 'PET-CLINIC-CUSTS-SVC-SPRING-DATASOURCE-URL'
-    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicCustsSvcDbName}'
+    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
   }
 }
 
@@ -251,7 +247,7 @@ module kvSecretPetClinicVetSpringDSURL 'components/kv-secret.bicep' = {
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
     secretName: 'PET-CLINIC-VETS-SVC-SPRING-DATASOURCE-URL'
-    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicVetsSvcDbName}'
+    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
   }
 }
 
@@ -269,7 +265,7 @@ module kvSecretPetClinicVisitSpringDSURL 'components/kv-secret.bicep' = {
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
     secretName: 'PET-CLINIC-VISITS-SVC-SPRING-DATASOURCE-URL'
-    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicVisitsSvcDbName}'
+    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
   }
 }
 

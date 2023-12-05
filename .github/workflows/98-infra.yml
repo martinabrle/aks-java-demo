@@ -113,9 +113,7 @@ jobs:
                                                      pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
                                                      pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
                                                      pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
-                                                     pgsqlPetClinicCustsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
-                                                     pgsqlPetClinicVetsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
-                                                     pgsqlPetClinicVisitsSvcDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+                                                     pgsqlPetClinicDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
                                                      pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
                                                      pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
                                                      logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
@@ -133,7 +131,6 @@ jobs:
           todoAppUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityName.value"`
           todoAppUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityPrincipalId.value"`
           todoAppUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.todoAppUserManagedIdentityClientId.value"`
-          todoAppDbName=`echo $deploymentOutput|jq ".properties.outputs.todoAppDbName.value"`
           todoAppDbUserName=`echo $deploymentOutput|jq ".properties.outputs.todoAppDbUserName.value"`
 
           petClinicAppUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicAppUserManagedIdentityName.value"`
@@ -147,20 +144,17 @@ jobs:
           petClinicCustsSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcUserManagedIdentityName.value"`
           petClinicCustsSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcUserManagedIdentityPrincipalId.value"`
           petClinicCustsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcUserManagedIdentityClientId.value"`
-          petClinicCustsSvcDbName=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcDbName.value"`
           petClinicCustsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicCustsSvcDbUserName.value"`
 
           petClinicVetsSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcUserManagedIdentityName.value"`
           petClinicVetsSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcUserManagedIdentityPrincipalId.value"`
           petClinicVetsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcUserManagedIdentityClientId.value"`
           petClinicVetsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcDbUserName.value"`
-          petClinicVetsSvcDbName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVetsSvcDbName.value"`
 
           petClinicVisitsSvcUserManagedIdentityName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityName.value"`
           petClinicVisitsSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityPrincipalId.value"`
           petClinicVisitsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityClientId.value"`
           petClinicVisitsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcDbUserName.value"`
-          petClinicVisitsSvcDbName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcDbName.value"`
 
           pgsqlUpdatedFirewallRules=`echo $deploymentOutput|jq ".properties.outputs.pgsqlUpdatedFirewallRulesSet.value"`
 
