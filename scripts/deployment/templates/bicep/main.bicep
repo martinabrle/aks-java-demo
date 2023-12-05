@@ -9,9 +9,11 @@ param pgsqlName string
 param pgsqlAADAdminGroupName string
 param pgsqlAADAdminGroupObjectId string
 param pgsqlTodoAppDbName string = 'tododb'
-param pgsqlPetClinicCustsSvcDbName string = 'petcliniccustomersdb'
-param pgsqlPetClinicVetsSvcDbName string = 'petclinicvetssdb'
-param pgsqlPetClinicVisitsSvcDbName string = 'petclinicvisitsdb'
+// Pet Clinic pplication still needs all data in the same DB
+// However, all deployment scripts are ready to support separate DBs for each service
+param pgsqlPetClinicCustsSvcDbName string = 'petclinicdb'
+param pgsqlPetClinicVetsSvcDbName string = 'petclinicdb'
+param pgsqlPetClinicVisitsSvcDbName string = 'petclinicdb'
 
 param pgsqlSubscriptionId string
 param pgsqlRG string
