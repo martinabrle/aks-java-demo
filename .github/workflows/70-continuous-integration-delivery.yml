@@ -333,18 +333,9 @@ jobs:
         echo "GITHUB_SHA=${{github.sha}}"
         echo "GITHUB_REF=${{github.ref}}"
         echo "GITHUB_EVENT_NAME=${{github.event_name}}"
-        dbName=""
-        if [[ "${{env.ARTIFACT_NAME}}" == "todo-app" ]]; then
-          dbName="${{secrets.TODO_APP_DB_NAME}}"
-        elif [[ "${{env.ARTIFACT_NAME}}" == "spring-petclinic-customers-service" ]]; then
-          dbName="${{secrets.PET_CLINIC_DB_NAME}}"
-        elif [[ "${{env.ARTIFACT_NAME}}" == "spring-petclinic-vets-service" ]]; then
-          dbName="${{secrets.PET_CLINIC_DB_NAME}}"
-        elif [[ "${{env.ARTIFACT_NAME}}" == "spring-petclinic-visits-service" ]]; then
-          dbName="${{secrets.PET_CLINIC_DB_NAME}}"
-        fi
-        echo "DB_NAME=${dbName}" >> "$GITHUB_OUTPUT"
-        echo "DB_NAME: ${dbName}"
+
+        echo "DB_NAME=${{env.DB}}" >> "$GITHUB_OUTPUT"
+        echo "DB_NAME: ${{env.DB}}"
         
     - name: Set up JDK
       if: ${{ env.JAVA_VERSION != '' }}
@@ -488,97 +479,3 @@ jobs:
       if: ${{ steps.params.outputs.DB_NAME != '' }}
       run: |
         az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
-      
-  # deploy_app:
-  #   needs: [release_app]
-  #   uses: ./.github/workflows/99-continuous-delivery.yml
-  #   with:
-  #     app_name: "${{needs.release_app.outputs.ARTIFACT_NAME}}"
-  #     version: "${{needs.release_app.outputs.VERSION}}"
-  #   secrets: inherit     
-     
-  # release_utils:
-  #   needs: [versions]
-  #   runs-on: ubuntu-latest
-  #   if: ${{ contains(needs.versions.outputs.something_to_deploy_utils, 'true') }}
-  #   permissions:
-  #     contents: write
-  #     packages: write
-  #     id-token: write
-
-  #   strategy:
-  #     max-parallel: 0
-  #     matrix: ${{fromJson(needs.versions.outputs.matrix_utils)}}
-  #   env:
-  #     ARTIFACT_NAME: ${{ matrix.artifact_name }}
-  #     VERSION: ${{ matrix.version }}
-  #     VERSION_TAG: ${{ matrix.version_tag }}
-  #   outputs:
-  #     ARTIFACT_NAME: ${{ steps.build_container.outputs.ARTIFACT_NAME }}
-  #     VERSION: ${{ steps.build_container.outputs.VERSION }}
-  #   defaults:
-  #     run:
-  #       working-directory: docker/${{matrix.artifact_name}}
-  #   steps:
-  #   - name: Checkout
-  #     uses: actions/checkout@v3
-  #     with:
-  #       fetch-depth: 0
-
-  #   - name: Display parameters
-  #     run: |
-  #       echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
-  #       echo "VERSION=${{env.VERSION}}"
-  #       echo "VERSION_TAG=${{env.VERSION_TAG}}"
-  #       echo "GITHUB_SHA=${{github.sha}}"
-  #       echo "GITHUB_REF=${{github.ref}}"
-  #       echo "GITHUB_EVENT_NAME=${{github.event_name}}"
-    
-  #   - name: Build release ZIP archive
-  #     id: create_archive
-  #     run: |
-  #       ls -la
-  #       zip -r ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip ./
-  #       ls -la
-  #       echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}" >> $GITHUB_OUTPUT
-
-  #   # Only for troubleshooting, otherwise not needed
-  #   # - name: Upload build artifact
-  #   #   uses: actions/upload-artifact@v3
-  #   #   with:
-  #   #     name: ${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-  #   #     path: ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-  #   #     if-no-files-found: error
-  #   #     retention-days: 1          
-
-  #   - name: Release build artifact
-  #     env:
-  #       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #     run: |
-  #       ls -la ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-  #       gh release create ${{env.VERSION_TAG}} ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip --notes "Auto release ${{env.VERSION_TAG}}"
-
-  #   - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
-  #     uses: azure/login@v1
-  #     with:
-  #       client-id: ${{secrets.AAD_CLIENT_ID}}
-  #       tenant-id: ${{secrets.AAD_TENANT_ID}}
-  #       subscription-id: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}        
-
-  #   - name: Build a new container image
-  #     id: build_container
-  #     run: |
-  #       rm ${{env.ARTIFACT_NAME}}-${{env.VERSION}}.zip
-  #       ls -la
-  #       az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --build-arg BUILD_VERSION_ARG=${{env.VERSION}} --file ./Dockerfile
-  #       echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}" >> "$GITHUB_OUTPUT"
-  #       echo "VERSION=${{env.VERSION}}" >> "$GITHUB_OUTPUT"
-
-  # deploy_utils:
-  #   needs: [release_utils]
-  #   uses: ./.github/workflows/99-continuous-delivery.yml
-  #   with:
-  #     app_name: ${{needs.release_utils.outputs.ARTIFACT_NAME}}
-  #     version: ${{needs.release_utils.outputs.VERSION}}
-  #   secrets: inherit
-      
