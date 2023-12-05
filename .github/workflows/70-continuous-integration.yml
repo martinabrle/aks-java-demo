@@ -325,7 +325,7 @@ jobs:
       VERSION: ${{ steps.build_container.outputs.VERSION }}
     defaults:
       run:
-        working-directory: ${{matrix.artifact_name}}
+        working-directory: ${{ matrix.artifact }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -353,7 +353,7 @@ jobs:
         elif [[ "${{env.ARTIFACT_NAME}}" == "spring-petclinic-visits-service" ]]; then
           dbName="${{secrets.PET_CLINIC_DB_NAME}}"
         fi
-        echo "DB_NAME=${dbName}" >> $GITHUB_OUTPUT
+        echo "DB_NAME=${dbName}" >> "$GITHUB_OUTPUT"
         echo "DB_NAME: ${dbName}"
         
     - name: Set up JDK
