@@ -251,7 +251,7 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -259,11 +259,11 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"${{secrets.PET_CLINIC_DB_NAME}}\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -329,6 +329,7 @@ jobs:
         echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${{env.VERSION}}"
         echo "JAVA_VERSION=${{env.JAVA_VERSION}}"
         echo "DB=${{env.DB}}"
+        echo "DB=${{secrets.PET_CLINIC_DB_NAME}}"
 
         echo "GITHUB_SHA=${{github.sha}}"
         echo "GITHUB_REF=${{github.ref}}"
