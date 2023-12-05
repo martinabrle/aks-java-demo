@@ -242,15 +242,15 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -258,7 +258,7 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"db_name\":\"\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
@@ -270,15 +270,15 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\"}"
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\",\"db_name\":\"\"}"
             delimiter_utils=","
           fi
           if [[ "${{steps.semver_prometheus_version.outputs.changed}}" == "true" && "${{steps.semver_prometheus_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\"}"
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\",\"db_name\":\"\"}"
             delimiter_utils=","
           fi
           if [[ "${{steps.semver_zipkin_version.outputs.changed}}" == "true" && "${{steps.semver_zipkin_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\"}"
+            matrix_utils="$matrix_utils${delimiter_utils}{\"artifact_name\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\",\"db_name\":\"\"}"
             delimiter_utils=","
           fi
           if [[ "$delimiter" == "" ]]; then
