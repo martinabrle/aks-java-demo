@@ -238,7 +238,7 @@ jobs:
           matrix="{\"include\":["
           matrix_utils="{\"include\":["
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"db_name\":\"${{secrets.TODO_APP_DB_NAME}}\"}"
+            matrix="$matrix${delimiter}{\"artifact_name\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"version_tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"db_name\":\"\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
