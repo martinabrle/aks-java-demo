@@ -251,7 +251,7 @@ jobs:
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
