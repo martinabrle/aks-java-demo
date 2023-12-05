@@ -1,12 +1,12 @@
 CREATE TABLE IF NOT EXISTS types (
-  "id" INT SERIAL PRIMARY KEY NOT NULL,
+  "id" SERIAL PRIMARY KEY NOT NULL,
   "name" VARCHAR(80)
 );
 
 CREATE INDEX IF NOT EXISTS types_name_idx ON types ( "name" );
 
 CREATE TABLE IF NOT EXISTS owners (
-  "id" INT SERIAL PRIMARY KEY NOT NULL,
+  "id" SERIAL PRIMARY KEY NOT NULL,
   "first_name" VARCHAR(30),
   "last_name" VARCHAR(30),
   "address" VARCHAR(255),
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS owners (
 CREATE INDEX IF NOT EXISTS owners_last_name_idx ON owners ( "last_name" );
 
 CREATE TABLE IF NOT EXISTS pets (
-  "id" INT SERIAL PRIMARY KEY NOT NULL,
+  "id" SERIAL PRIMARY KEY NOT NULL,
   "name" VARCHAR(30),
   "birth_date" DATE,
   "type_id" INT UNSIGNED NOT NULL,
