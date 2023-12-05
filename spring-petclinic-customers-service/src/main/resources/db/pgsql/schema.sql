@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS pets (
   "id" SERIAL PRIMARY KEY NOT NULL,
   "name" VARCHAR(30),
   "birth_date" DATE,
-  "type_id" INT UNSIGNED NOT NULL,
-  "owner_id" INT UNSIGNED NOT NULL,
+  "type_id" INT NOT NULL,
+  "owner_id" INT NOT NULL,
   FOREIGN KEY ("owner_id") REFERENCES owners("id"),
   FOREIGN KEY ("type_id") REFERENCES types("id")
 );
