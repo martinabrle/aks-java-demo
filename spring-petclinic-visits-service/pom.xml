@@ -19,9 +19,14 @@
     <properties>
         <docker.exposed.port>8081</docker.exposed.port>
         <docker.image.dockerfile.dir>${basedir}/../docker</docker.image.dockerfile.dir>
+        <version.spring.cloud.azure>4.12.0</version.spring.cloud.azure>
     </properties>
 
 	<dependencies>
+        <dependency>
+            <groupId>com.azure.spring</groupId>
+            <artifactId>spring-cloud-azure-starter-jdbc-postgresql</artifactId>
+          </dependency>
         <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
