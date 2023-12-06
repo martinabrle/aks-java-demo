@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: tracing-server
+  namespace: petclinic
   labels:
     app: tracing-server
-  name: tracing-server
 spec:
   replicas: 1
   selector:
@@ -13,11 +14,13 @@ spec:
     metadata:
       labels:
         app: tracing-server
+        azure.workload.identity/use: "true"
     spec:
+      serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: tracing-server
         imagePullPolicy: Always
+        name: tracing-server
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -86,6 +89,7 @@ metadata:
   labels:
     app: tracing-server
   name: tracing-server
+  namespace: pet-clinic
 spec:
   type: ClusterIP
   selector:
