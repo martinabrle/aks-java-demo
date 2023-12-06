@@ -22,7 +22,7 @@ spec:
         livenessProbe:
           failureThreshold: 3
           httpGet:
-            path: /healthy
+            path: /-/healthy
             port: 9090
             scheme: HTTP
           initialDelaySeconds: 180
@@ -30,7 +30,7 @@ spec:
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /ready
+            path: /-/ready
             port: 9090
             scheme: HTTP
           initialDelaySeconds: 30
