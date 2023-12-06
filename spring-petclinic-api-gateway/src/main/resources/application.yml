@@ -2,7 +2,7 @@ spring:
   application:
     name: api-gateway
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+    import: configserver:${CONFIG_SERVER_URL}
   cloud:
     gateway:
       routes:
@@ -25,20 +25,3 @@ spring:
           filters:
             - StripPrefix=2
 
-
-
----
-spring:
-  config:
-    activate:
-      on-profile: docker
-    import: configserver:http://config-server:8888
-
-
-
----
-spring:
-  config:
-    activate:
-      on-profile: azure-aks
-    import: configserver:http://config-server:8888

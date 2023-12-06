@@ -2,26 +2,4 @@ spring:
   application:
     name: discovery-server
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
-# Avoid some debugging logs at startup
-logging:
-  level:
-    org:
-      springframework:
-        boot: INFO
-        web: INFO
-
----
-spring:
-  config:
-    activate:
-      on-profile: docker
-    import: configserver:http://config-server:8888
-
----
-spring:
-  config:
-    activate:
-      on-profile: azure-aks
-    import: configserver:http://config-server:8888
+    import: configserver:${CONFIG_SERVER_URL}

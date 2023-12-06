@@ -5,7 +5,7 @@ spring:
       server:
         git:
           uri: ${GIT_CONFIG_REPO_URI} # example: https://github.com/spring-petclinic/spring-petclinic-microservices-config
-          searchPaths: spring-petclinic-config-server
+          #todo: investigate if needed: searchPaths: spring-petclinic-config-server
           username: ${GIT_USERNAME}
           password: ${GIT_PASSWORD}
           default-label: main
