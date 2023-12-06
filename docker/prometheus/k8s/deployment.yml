@@ -18,7 +18,7 @@ spec:
       containers:
       - image: "$CONTAINER_IMAGE"
         imagePullPolicy: Always
-        name: tracing-server
+        name: prometheus-server
         livenessProbe:
           failureThreshold: 3
           httpGet:
