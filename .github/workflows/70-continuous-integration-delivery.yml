@@ -14,8 +14,9 @@ on:
      - 'spring-petclinic-discovery-server/**'
      - 'spring-petclinic-vets-service/**'
      - 'spring-petclinic-visits-service/**'
-     - 'docker/grafana/**'
      - 'docker/prometheus/**'
+     - 'docker/grafana/**'
+
 
   workflow_dispatch:
     inputs:
@@ -455,13 +456,13 @@ jobs:
         psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{steps.params.outputs.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db/pgsql/schema.sql -v ON_ERROR_STOP=1
         psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{steps.params.outputs.DB_NAME}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db/pgsql/data.sql -v ON_ERROR_STOP=1
 
-    - name: Test connection to AKS
-      run: |
-        az aks command invoke \
-          --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-          --name ${{secrets.AKS_NAME}} \
-          --command "kubectl get ns" \
-          --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
+    # - name: Test connection to AKS
+    #   run: |
+    #     az aks command invoke \
+    #       --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+    #       --name ${{secrets.AKS_NAME}} \
+    #       --command "kubectl get ns" \
+    #       --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
 
     - name: Deploy app into AKS
       env:
