@@ -49,17 +49,6 @@ spec:
               key: CONFIG_SERVER_URL
         - name: ENVIRONMENT
           value: AKS
-        volumeMounts:
-          - name: secrets-store01-inline
-            mountPath: /mnt/secrets-store
-            readOnly: true
-      volumes:
-        - name: secrets-store01-inline
-          csi: 
-            driver: secrets-store.csi.k8s.io
-            readOnly: true
-            volumeAttributes:
-              secretProviderClass: kv-secrets-pet-clinic-app
 
 ---
 apiVersion: v1
