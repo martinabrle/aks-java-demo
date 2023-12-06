@@ -23,7 +23,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /healthy
-            port: 9091
+            port: 9090
             scheme: HTTP
           initialDelaySeconds: 180
           successThreshold: 1
@@ -31,7 +31,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /ready
-            port: 9091
+            port: 9090
             scheme: HTTP
           initialDelaySeconds: 30
           successThreshold: 1
@@ -66,4 +66,4 @@ spec:
   - protocol: TCP
     name: http
     port: 9091
-    targetPort: 9091
+    targetPort: 9090
