@@ -2,20 +2,12 @@ spring:
   application:
     name: admin-server
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
-
-
+    import: optional:configserver:${CONFIG_SERVER_URL}
 ---
 spring:
+  application:
+    name: admin-server
   config:
     activate:
-      on-profile: docker
-    import: configserver:http://config-server:8888
-
-
----
-spring:
-  config:
-    activate:
-      on-profile: azure-aks
-    import: configserver:http://config-server:8888
+      on-profile: local
+    import: http://localhost:8888/
