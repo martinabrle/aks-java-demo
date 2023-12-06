@@ -1,9 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: prometheus-server
+  namespace: pet-clinic
   labels:
     app: prometheus-server
-  name: prometheus-server
 spec:
   replicas: 1
   selector:
@@ -16,8 +17,8 @@ spec:
     spec:
       containers:
       - image: "$CONTAINER_IMAGE"
-        name: tracing-server
         imagePullPolicy: Always
+        name: tracing-server
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -67,6 +68,7 @@ metadata:
   labels:
     app: prometheus-server
   name: prometheus-server
+  namespace: pet-clinic
 spec:
   type: ClusterIP
   selector:
@@ -76,4 +78,3 @@ spec:
     name: http
     port: 9091
     targetPort: 9091
-
