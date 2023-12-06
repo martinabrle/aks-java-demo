@@ -5,5 +5,5 @@ spring:
     import: configserver:${CONFIG_SERVER_URL}
   cache:
     cache-names: vets
-  # profiles:
-  #   active: production
+  profiles:
+    active: production

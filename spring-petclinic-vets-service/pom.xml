@@ -17,7 +17,7 @@
 	</parent>
 
     <properties>
-        <docker.image.exposed.port>8081</docker.image.exposed.port>
+        <docker.image.exposed.port>8083</docker.image.exposed.port>
         <docker.image.dockerfile.dir>${basedir}/../docker</docker.image.dockerfile.dir>
         <!-- <version.spring.cloud.azure>4.12.0</version.spring.cloud.azure> -->
     </properties>

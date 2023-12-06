@@ -116,7 +116,7 @@ metadata:
 spec:
   selector:
     app: vets-service
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - protocol: TCP
     name: http
