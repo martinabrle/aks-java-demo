@@ -28,8 +28,9 @@
     <properties>
         <java.version>17</java.version>
 
+        <!-- Check https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/configure-spring-data-jpa-with-azure-postgresql for version infos-->
         <spring-cloud.version>2022.0.4</spring-cloud.version>
-        <version.spring.cloud.azure>4.13.0</version.spring.cloud.azure>
+        <version.spring.cloud.azure>5.7.0</version.spring.cloud.azure>
         <chaos-monkey-spring-boot.version>2.3.10</chaos-monkey-spring-boot.version>
         <jolokia-core.version>1.7.1</jolokia-core.version>
 
