@@ -6,9 +6,10 @@ on:
      - main
    paths:
      - 'todo-app/**'
+     - 'docker/zipkin/**'
+     - 'spring-petclinic-config-server/**'
      - 'spring-petclinic-admin-server/**'
      - 'spring-petclinic-api-gateway/**'
-     - 'spring-petclinic-config-server/**'
      - 'spring-petclinic-customers-service/**'
      - 'spring-petclinic-discovery-server/**'
      - 'spring-petclinic-vets-service/**'
