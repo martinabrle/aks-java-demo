@@ -91,7 +91,7 @@ metadata:
   name: tracing-server
   namespace: pet-clinic
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: tracing-server
   ports:
