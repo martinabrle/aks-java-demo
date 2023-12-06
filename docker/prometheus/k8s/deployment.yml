@@ -19,24 +19,24 @@ spec:
       - image: "$CONTAINER_IMAGE"
         imagePullPolicy: Always
         name: prometheus-server
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /health
-            port: 9091
-            scheme: HTTP
-          initialDelaySeconds: 180
-          successThreshold: 1
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /health
-            port: 9091
-            scheme: HTTP
-          initialDelaySeconds: 30
-          successThreshold: 1
+        # livenessProbe:
+        #   failureThreshold: 3
+        #   httpGet:
+        #     path: /health
+        #     port: 9091
+        #     scheme: HTTP
+        #   initialDelaySeconds: 180
+        #   successThreshold: 1
+        # readinessProbe:
+        #   failureThreshold: 3
+        #   httpGet:
+        #     path: /health
+        #     port: 9091
+        #     scheme: HTTP
+        #   initialDelaySeconds: 30
+        #   successThreshold: 1
         ports:
-        - containerPort: 9091
+        - containerPort: 9090
           name: http
           protocol: TCP
         securityContext:
