@@ -116,7 +116,7 @@ metadata:
 spec:
   selector:
     app: visits-service
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - protocol: TCP
     name: http
