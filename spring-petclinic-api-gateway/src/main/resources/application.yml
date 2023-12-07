@@ -7,19 +7,19 @@ spring:
     gateway:
       routes:
         - id: vets-service
-          uri: http://vets-service:8083
+          uri: http://vets-service.pet-clinic:8083
           predicates:
             - Path=/api/vet/**
           filters:
             - StripPrefix=2
         - id: visits-service
-          uri: http://visits-service:8082
+          uri: http://visits-service.pet-clinic:8082
           predicates:
             - Path=/api/visit/**
           filters:
             - StripPrefix=2
         - id: customers-service
-          uri: http://customers-service:8081
+          uri: http://customers-service.pet-clinic:8081
           predicates:
             - Path=/api/customer/**
           filters:
