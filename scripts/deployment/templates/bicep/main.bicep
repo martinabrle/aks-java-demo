@@ -224,11 +224,11 @@ module kvSecretPetClinicConfigRepoPassword 'components/kv-secret.bicep' = {
   }
 }
 
-module kvSecretPetClinicCustSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-custs-ds-url'
+module kvSecretPetClinicAppSpringDSURL 'components/kv-secret.bicep' = {
+  name: 'kv-secret-pet-clinic-app-ds-url'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-CUSTS-SVC-SPRING-DATASOURCE-URL'
+    secretName: 'PET-CLINIC-APP-SPRING-DATASOURCE-URL'
     secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
   }
 }
@@ -242,30 +242,12 @@ module kvSecretPetClinicCustsSvcDbUserName 'components/kv-secret.bicep' = {
   }
 }
 
-module kvSecretPetClinicVetSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-vets-ds-url'
-  params: {
-    keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VETS-SVC-SPRING-DATASOURCE-URL'
-    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
-  }
-}
-
 module kvSecretPetClinicVetsSvcDbUserName 'components/kv-secret.bicep' = {
   name: 'kv-secret-pet-clinic-vets-svc-ds-username'
   params: {
     keyVaultName: keyVault.outputs.keyVaultName
     secretName: 'PET-CLINIC-VETS-SVC-SPRING-DS-USER'
     secretValue: petClinicVetsSvcDbUserName
-  }
-}
-
-module kvSecretPetClinicVisitSpringDSURL 'components/kv-secret.bicep' = {
-  name: 'kv-secret-pet-clinic-visits-ds-url'
-  params: {
-    keyVaultName: keyVault.outputs.keyVaultName
-    secretName: 'PET-CLINIC-VISITS-SVC-SPRING-DATASOURCE-URL'
-    secretValue: 'jdbc:postgresql://${pgsqlName}.postgres.database.azure.com:5432/${pgsqlPetClinicDbName}'
   }
 }
 
@@ -516,9 +498,9 @@ module rbacKVSecretPetCustsSvcDSUri './components/role-assignment-kv-secret.bice
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicCustsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicCustsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicCustSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicCustsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicCustSpringDSURL.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicAppSpringDSURL.outputs.kvSecretName
   }
 }
 
@@ -560,9 +542,9 @@ module rbacKVSecretPetVetsSvcDSUri './components/role-assignment-kv-secret.bicep
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicVetsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicVetsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVetSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicVetsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicVetSpringDSURL.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicAppSpringDSURL.outputs.kvSecretName
   }
 }
 
@@ -604,9 +586,9 @@ module rbacKVSecretPetVisitsSvcDSUri './components/role-assignment-kv-secret.bic
   params: {
     roleDefinitionId: keyVaultSecretsUser.id
     principalId: petClinicVisitsSvcUserManagedIdentity.properties.principalId
-    roleAssignmentNameGuid: guid(petClinicVisitsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicVisitSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
+    roleAssignmentNameGuid: guid(petClinicVisitsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppSpringDSURL.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
-    kvSecretName: kvSecretPetClinicVisitSpringDSURL.outputs.kvSecretName
+    kvSecretName: kvSecretPetClinicAppSpringDSURL.outputs.kvSecretName
   }
 }
 
