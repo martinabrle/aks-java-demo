@@ -71,6 +71,8 @@ spec:
             configMapKeyRef:
               name: config-server
               key: SPRING_DATASOURCE_SHOW_SQL              
+        - name: ENVIRONMENT
+          value: AKS
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
