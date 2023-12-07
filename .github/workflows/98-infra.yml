@@ -267,13 +267,13 @@ jobs:
       - name: Create TODO_APP_DB user(s)
         working-directory: ./scripts/deployment/utils/
         run: |
-          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_pgsql_user.sh \
-            -s "${{secrets.PGSQL_NAME}}" \
-            -d "${{secrets.TODO_APP_DB_NAME}}" \
-            -a "${{secrets.DBA_GROUP_NAME}}" \
-            -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
-            -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
+            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+            ./create_aad_pgsql_user.sh \
+              -s "${{secrets.PGSQL_NAME}}" \
+              -d "${{secrets.TODO_APP_DB_NAME}}" \
+              -a "${{secrets.DBA_GROUP_NAME}}" \
+              -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
+              -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
 
       - name: Create PET_CLINIC_CUSTS_SVC DB user(s)
         working-directory: ./scripts/deployment/utils/
