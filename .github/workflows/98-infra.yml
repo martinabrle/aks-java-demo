@@ -258,19 +258,7 @@ jobs:
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
       
-      - name: Create PET_CLINIC_CUSTS_SVC_DB Database
-        working-directory: ./scripts/deployment/utils/
-        run: |
-          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
-
-      - name: Create PET_CLINIC_VETS_SVC_DB Database
-        working-directory: ./scripts/deployment/utils/
-        run: |
-          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
-
-      - name: Create PET_CLINIC_VISITS_SVC_DB Database
+      - name: Create PET_CLINIC_APP_DB Database
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
@@ -291,7 +279,7 @@ jobs:
             -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
             -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
 
-      - name: Create PET_CLINIC_CUSTS_SVC_DB user(s)
+      - name: Create PET_CLINIC_CUSTS_SVC DB user(s)
         working-directory: ./scripts/deployment/utils/
         run: |
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
@@ -302,7 +290,7 @@ jobs:
               -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}"
     
-      - name: Create PET_CLINIC_VETS_SVC_DB user(s)
+      - name: Create PET_CLINIC_VETS_SVC DB user(s)
         working-directory: ./scripts/deployment/utils/
         run: |
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
@@ -313,7 +301,7 @@ jobs:
               -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
               -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}"
           
-      - name: Create PET_CLINIC_VISITS_SVC_DB user(s)
+      - name: Create PET_CLINIC_VISITS_SVC DB user(s)
         working-directory: ./scripts/deployment/utils/
         run: |
             export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
