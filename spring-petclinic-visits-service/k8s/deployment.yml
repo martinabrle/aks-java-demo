@@ -114,11 +114,10 @@ metadata:
   name: visits-service
   namespace: pet-clinic
 spec:
+  ports:
+  - port: 8082
+    protocol: TCP
+    targetPort: 8082
   selector:
     app: visits-service
   type: ClusterIP
-  ports:
-  - protocol: TCP
-    name: http
-    port: 8082
-    targetPort: 8082
