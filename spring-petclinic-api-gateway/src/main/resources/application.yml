@@ -22,6 +22,5 @@ spring:
           uri: http://customers-service.pet-clinic:8081
           predicates:
             - Path=/api/customer/**
-            - Path=/api/owners/**
           filters:
             - StripPrefix=2
