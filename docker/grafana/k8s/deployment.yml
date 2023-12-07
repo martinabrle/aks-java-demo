@@ -21,20 +21,22 @@ spec:
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
-          httpGet:
-            path: /health
-            port: 3000
-            scheme: HTTP
-          initialDelaySeconds: 180
+          initialDelaySeconds: 30
+          periodSeconds: 10
           successThreshold: 1
+          tcpSocket:
+              port: 3000
+          timeoutSeconds: 1
         readinessProbe:
           failureThreshold: 3
           httpGet:
-            path: /health
+            path: /robots.txt
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 30
+          initialDelaySeconds: 10
+          periodSeconds: 30
           successThreshold: 1
+          timeoutSeconds: 2
         ports:
         - containerPort: 3000
           name: http
