@@ -97,7 +97,7 @@ metadata:
   name: discovery-server
   namespace: pet-clinic
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: discovery-server
   ports:

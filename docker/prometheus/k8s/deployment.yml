@@ -59,7 +59,7 @@ metadata:
   name: prometheus-server
   namespace: pet-clinic
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: prometheus-server
   ports:
