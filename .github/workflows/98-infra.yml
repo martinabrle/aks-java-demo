@@ -268,10 +268,6 @@ jobs:
         working-directory: ./scripts/deployment/utils/
         run: |
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          echo "TODO_APP_USER_MI_PRINCIPAL_ID=${{steps.deployment.outputs.TODO_APP_USER_MI_PRINCIPAL_ID}}"
-          echo "TODO_APP_USER_MI_CLIENT_ID=${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
-          appClientId=`az ad sp list --display-name "${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}" --query "[?displayName=='${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}'].appId" --out tsv`
-          echo "APP_CLIENT_ID=${appClientId}"
           ./create_aad_pgsql_user.sh \
             -s "${{secrets.PGSQL_NAME}}" \
             -d "${{secrets.TODO_APP_DB_NAME}}" \
