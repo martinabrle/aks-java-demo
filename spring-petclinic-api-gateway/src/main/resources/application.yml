@@ -3,6 +3,8 @@ spring:
     name: api-gateway
   config:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+    # TODO: URIs were supposed to work with lb:// prefix, it seems to be failing,
+    # at leastwhen deployed to a non-default namespace
   cloud:
     gateway:
       routes:
