@@ -385,7 +385,7 @@ jobs:
             exit 1
           fi
           mv ./target/${{env.ARTIFACT_NAME}}-${{env.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}
-          cp -R ../docker/Dockerfile.JAVA${{env.JAVA_VERSION}} ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
+          cp ./Dockerfile ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/Dockerfile
           cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/k8s
           if [[ -d "./src/main/resources/db" ]]; then
             cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db
@@ -435,7 +435,7 @@ jobs:
         ls -la
         mv ./Dockerfile ./Dockerfile.tmp
         # Dockerfile syntax is driving me bonkers. This should work...
-        cat ./Dockerfile.tmp | ARTIFACT_NAME_ARG=${{env.ARTIFACT_NAME}} VERSION_ARG=${{env.VERSION}} envsubst > ./Dockerfile
+        cat ./Dockerfile.tmp | ARTIFACT_NAME_ARG=${{env.ARTIFACT_NAME}} VERSION_ARG=${{env.VERSION}} VERSION_ARG=${{env.VERSION}} envsubst > ./Dockerfile
         cat ./Dockerfile
 
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
