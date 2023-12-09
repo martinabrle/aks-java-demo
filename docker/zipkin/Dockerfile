@@ -13,4 +13,5 @@ ENV JAVA_OPTS="-XX:+UnlockExperimentalVMOptions"
 ENV -Djava.security.egd=file:/dev/./urandom
 ENV JAVA_TOOL_OPTIONS="-javaagent:/ai.jar"
 
-ENV BUILD_VERSION=$BUILD_VERSION_ARG
+ENV BUILD_VERSION=${VERSION_ARG}
+ENV ARTIFACT_NAME=${ARTIFACT_NAME_ARG}

@@ -19,36 +19,7 @@ spec:
       serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        imagePullPolicy: Always
         name: admin-server
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /actuator/health
-            port: 9090
-            scheme: HTTP
-          initialDelaySeconds: 180
-          successThreshold: 1
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /actuator/health
-            port: 9090
-            scheme: HTTP
-          initialDelaySeconds: 30
-          successThreshold: 1
-        ports:
-        - containerPort: 9090
-          name: http
-          protocol: TCP
-        - containerPort: 9779
-          name: prometheus
-          protocol: TCP
-        - containerPort: 8778
-          name: jolokia
-          protocol: TCP
-        securityContext:
-          privileged: false
         env:
         - name: CONFIG_SERVER_URL
           valueFrom:
@@ -76,6 +47,35 @@ spec:
             }
         - name: ENVIRONMENT
           value: AKS
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 180
+          successThreshold: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 30
+          successThreshold: 1
+        ports:
+        - containerPort: 8080
+          name: http
+          protocol: TCP
+        - containerPort: 9779
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        securityContext:
+          privileged: false
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
@@ -96,11 +96,13 @@ metadata:
     app: admin-server
   name: admin-server
   namespace: pet-clinic
+#  annotations:
+#    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:
   ports:
-  - port: 9090
+  - port: 8080
     protocol: TCP
-    targetPort: 9090
+    targetPort: 8080
   selector:
     app: admin-server
   type: LoadBalancer

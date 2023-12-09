@@ -19,8 +19,35 @@ spec:
       serviceAccountName: pet-clinic-app-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        imagePullPolicy: Always
         name: api-gateway
+        env:
+        - name: CONFIG_SERVER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: CONFIG_SERVER_URL
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: APP-INSIGHTS-CONNECTION-STRING
+              optional: false
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          valueFrom:
+            secretKeyRef:
+              name: kv-secrets-pet-clinic-app
+              key: APP-INSIGHTS-INSTRUMENTATION-KEY
+              optional: false
+        - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
+          value: >-
+            {
+                "role": {
+                    "name": "api-gateway"
+                  }
+            }
+        - name: ENVIRONMENT
+          value: AKS
+        imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -49,33 +76,6 @@ spec:
           protocol: TCP
         securityContext:
           privileged: false
-        env:
-        - name: CONFIG_SERVER_URL
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: CONFIG_SERVER_URL
-        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
-          valueFrom:
-            secretKeyRef:
-              name: kv-secrets-pet-clinic-app
-              key: APP-INSIGHTS-CONNECTION-STRING
-              optional: false
-        - name: APPINSIGHTS_INSTRUMENTATIONKEY
-          valueFrom:
-            secretKeyRef:
-              name: kv-secrets-pet-clinic-app
-              key: APP-INSIGHTS-INSTRUMENTATION-KEY
-              optional: false
-        - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
-          value: >-
-            {
-                "role": {
-                    "name": "api-gateway"
-                  }
-            }
-        - name: ENVIRONMENT
-          value: AKS
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store
@@ -96,6 +96,8 @@ metadata:
     app: api-gateway
   name: api-gateway
   namespace: pet-clinic
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:
   ports:
   - port: 8080

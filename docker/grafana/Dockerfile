@@ -3,4 +3,5 @@ ADD ./provisioning /etc/grafana/provisioning
 ADD ./grafana.ini /etc/grafana/grafana.ini
 ADD ./dashboards /var/lib/grafana/dashboards
 
-ENV BUILD_VERSION=$BUILD_VERSION_ARG
+ENV BUILD_VERSION=${VERSION_ARG}
+ENV ARTIFACT_NAME=${ARTIFACT_NAME_ARG}
