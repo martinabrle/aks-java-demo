@@ -19,36 +19,7 @@ spec:
       serviceAccountName: pet-clinic-config-service-account
       containers:
       - image: "$CONTAINER_IMAGE"
-        imagePullPolicy: Always
         name: config-server
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /actuator/health
-            port: 8888
-            scheme: HTTP
-          initialDelaySeconds: 180
-          successThreshold: 1
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /actuator/health
-            port: 8888
-            scheme: HTTP
-          initialDelaySeconds: 30
-          successThreshold: 1
-        ports:
-        - containerPort: 8888
-          name: http
-          protocol: TCP
-        - containerPort: 9779
-          name: prometheus
-          protocol: TCP
-        - containerPort: 8778
-          name: jolokia
-          protocol: TCP
-        securityContext:
-          privileged: false
         env:
         - name: CONFIG_SERVER_URL
           valueFrom:
@@ -91,6 +62,35 @@ spec:
               key: GIT-REPO-PASSWORD
         - name: ENVIRONMENT
           value: AKS
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 180
+          successThreshold: 1
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /actuator/health
+            port: 8888
+            scheme: HTTP
+          initialDelaySeconds: 30
+          successThreshold: 1
+        ports:
+        - containerPort: 8888
+          name: http
+          protocol: TCP
+        - containerPort: 9779
+          name: prometheus
+          protocol: TCP
+        - containerPort: 8778
+          name: jolokia
+          protocol: TCP
+        securityContext:
+          privileged: false
         volumeMounts:
           - name: secrets-store01-inline
             mountPath: /mnt/secrets-store

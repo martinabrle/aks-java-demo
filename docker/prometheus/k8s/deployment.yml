@@ -17,8 +17,16 @@ spec:
     spec:
       containers:
       - image: "$CONTAINER_IMAGE"
-        imagePullPolicy: Always
         name: prometheus-server
+        env:
+        - name: CONFIG_SERVER_URL
+          valueFrom:
+            configMapKeyRef:
+              name: config-server
+              key: CONFIG_SERVER_URL
+        - name: ENVIRONMENT
+          value: AKS
+        imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -41,14 +49,6 @@ spec:
           protocol: TCP
         securityContext:
           privileged: false
-        env:
-        - name: CONFIG_SERVER_URL
-          valueFrom:
-            configMapKeyRef:
-              name: config-server
-              key: CONFIG_SERVER_URL
-        - name: ENVIRONMENT
-          value: AKS
 
 ---
 apiVersion: v1
