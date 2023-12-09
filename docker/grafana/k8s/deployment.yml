@@ -18,7 +18,6 @@ spec:
         - image: "$CONTAINER_IMAGE"
           imagePullPolicy: Always
           name: grafana-server
-          namespace: pet-clinic
           ports:
             - containerPort: 3000
               name: http
