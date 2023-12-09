@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api-gateway
-  namespace: pet-clinic
   labels:
     app: api-gateway
+  name: api-gateway
+  namespace: pet-clinic
 spec:
   replicas: 1
   selector:
@@ -97,11 +97,10 @@ metadata:
   name: api-gateway
   namespace: pet-clinic
 spec:
-  type: LoadBalancer
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
   selector:
     app: api-gateway
-  ports:
-  - protocol: TCP
-    name: http
-    port: 8080
-    targetPort: 8080
+  type: LoadBalancer

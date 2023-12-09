@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vets-service
-  namespace: pet-clinic
   labels:
     app: vets-service
+  name: vets-service
+  namespace: pet-clinic
 spec:
   replicas: 1
   selector:
@@ -114,11 +114,10 @@ metadata:
   name: vets-service
   namespace: pet-clinic
 spec:
+  ports:
+  - port: 8083
+    protocol: TCP
+    targetPort: 8083
   selector:
     app: vets-service
   type: ClusterIP
-  ports:
-  - protocol: TCP
-    name: http
-    port: 8083
-    targetPort: 8083

@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tracing-server
-  namespace: pet-clinic
   labels:
     app: tracing-server
+  name: tracing-server
+  namespace: pet-clinic
 spec:
   replicas: 1
   selector:
@@ -91,11 +91,10 @@ metadata:
   name: tracing-server
   namespace: pet-clinic
 spec:
-  type: ClusterIP
+  ports:
+  - port: 9411
+    protocol: TCP
+    targetPort: 9411
   selector:
     app: tracing-server
-  ports:
-  - protocol: TCP
-    name: http
-    port: 9411
-    targetPort: 9411
+  type: ClusterIP

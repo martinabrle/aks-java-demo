@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: admin-server
-  namespace: pet-clinic
   labels:
     app: admin-server
+  name: admin-server
+  namespace: pet-clinic
 spec:
   replicas: 1
   selector:
@@ -97,11 +97,10 @@ metadata:
   name: admin-server
   namespace: pet-clinic
 spec:
-  type: LoadBalancer
+  ports:
+  - port: 9090
+    protocol: TCP
+    targetPort: 9090
   selector:
     app: admin-server
-  ports:
-  - protocol: TCP
-    name: http
-    port: 9090
-    targetPort: 9090
+  type: LoadBalancer
