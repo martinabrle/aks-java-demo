@@ -25,7 +25,7 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
   location: location
   tags: tagsArray
   sku: {
-    name: 'Standard_B1ms' //'Standard_B2s'
+    name: 'Standard_B2ms' //'Standard_B2s'
     tier: 'Burstable'
   }
   properties: {
