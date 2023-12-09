@@ -5,3 +5,5 @@ ADD ./dashboards /var/lib/grafana/dashboards
 
 ENV BUILD_VERSION=${VERSION_ARG}
 ENV ARTIFACT_NAME=${ARTIFACT_NAME_ARG}
+
+ENV PORT=3000
