@@ -61,3 +61,7 @@ create_user.sql
 deploy.sh
 
 applicationinsights.log
+
+# Local working copies of Bicep param files, potentially containing secrets
+main.work.bicepparam
+resource_groups work.bicepparam

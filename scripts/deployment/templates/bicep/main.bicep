@@ -9,7 +9,11 @@ param pgsqlName string
 param pgsqlAADAdminGroupName string
 param pgsqlAADAdminGroupObjectId string
 param pgsqlTodoAppDbName string
+param todoAppDbUserName string // = 'todo_app' - moved to GH secrets
 param pgsqlPetClinicDbName string
+param petClinicCustsSvcDbUserName string // = 'pet_clinic_custs_svc'
+param petClinicVetsSvcDbUserName string // = 'pet_clinic_vets_svc'
+param petClinicVisitsSvcDbUserName string // = 'pet_clinic_visits_svc'
 
 param pgsqlSubscriptionId string
 param pgsqlRG string
@@ -22,11 +26,6 @@ param petClinicCustsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-c
 param petClinicVetsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vets-identity'
 param petClinicVisitsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vists-identity'
 
-param todoAppDbUserName string = 'todo_app'
-param petClinicCustsSvcDbUserName string = 'pet_clinic_custs_svc'
-param petClinicVetsSvcDbUserName string = 'pet_clinic_vets_svc'
-param petClinicVisitsSvcDbUserName string = 'pet_clinic_visits_svc'
-
 @description('URI of the GitHub config repo, for example: https://github.com/spring-petclinic/spring-petclinic-microservices-config')
 param petClinicGitConfigRepoUri string
 @description('User name used to access the GitHub config repo')
@@ -35,9 +34,13 @@ param petClinicGitConfigRepoUserName string
 @description('Password (PAT) used to access the GitHub config repo')
 param petClinicGitConfigRepoPassword string
 
+@description('Log Analytics Workspace\'s name')
 param logAnalyticsName string
+@description('Subscription ID of the Log Analytics Workspace')
 param logAnalyticsSubscriptionId string
+@description('Resource Group of the Log Analytics Workspace')
 param logAnalyticsRG string
+@description('Resource Tags to apply at the Log Analytics Workspace\'s level')
 param logAnalyticsTags string
 
 param containerRegistryName string

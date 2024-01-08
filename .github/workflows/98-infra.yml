@@ -114,7 +114,11 @@ jobs:
                                                      pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
                                                      pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
                                                      pgsqlPetClinicDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+                                                     petClinicCustsSvcDbUserName="${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
+                                                     petClinicVetsSvcDbUserName="${{secrets.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
+                                                     petClinicVisitsSvcDbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
                                                      pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
+                                                     todoAppDbUserName=="${{secrets.TODO_APP_DB_USER_NAME}}" \
                                                      pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
                                                      logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
                                                      logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
@@ -264,63 +268,63 @@ jobs:
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
-      - name: Create TODO_APP_DB user(s)
-        working-directory: ./scripts/deployment/utils/
-        run: |
-            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-            ./create_aad_pgsql_user.sh \
-              -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{secrets.TODO_APP_DB_NAME}}" \
-              -a "${{secrets.DBA_GROUP_NAME}}" \
-              -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
+      # - name: Create TODO_APP_DB user(s)
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #       ./create_aad_pgsql_user.sh \
+      #         -s "${{secrets.PGSQL_NAME}}" \
+      #         -d "${{secrets.TODO_APP_DB_NAME}}" \
+      #         -a "${{secrets.DBA_GROUP_NAME}}" \
+      #         -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
+      #         -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
             
-            dbServerName="${{secrets.PGSQL_NAME}}"
-            dbName="${{secrets.TODO_APP_DB_NAME}}"
-            dbUserName="${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}"
-            dbAADAdminName="${{secrets.DBA_GROUP_NAME}}"
+      #       dbServerName="${{secrets.PGSQL_NAME}}"
+      #       dbName="${{secrets.TODO_APP_DB_NAME}}"
+      #       dbUserName="${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}"
+      #       dbAADAdminName="${{secrets.DBA_GROUP_NAME}}"
 
-            grantStatement="GRANT CONNECT ON DATABASE ${dbName} TO ${dbUserName};"
-            psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
+      #       grantStatement="GRANT CONNECT ON DATABASE ${dbName} TO ${dbUserName};"
+      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
             
-            grantStatement="GRANT USAGE ON SCHEMA public TO ${dbUserName};"
-            psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
+      #       grantStatement="GRANT USAGE ON SCHEMA public TO ${dbUserName};"
+      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
             
-            grantStatement="GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${dbUserName};"
-            psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
-              
-      - name: Create PET_CLINIC_CUSTS_SVC DB user(s)
-        working-directory: ./scripts/deployment/utils/
-        run: |
-            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-            ./create_aad_pgsql_user.sh \
-              -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-              -a "${{secrets.DBA_GROUP_NAME}}" \
-              -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}"
+      #       grantStatement="GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${dbUserName};"
+      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
+            
+      # - name: Create PET_CLINIC_CUSTS_SVC DB user(s)
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #       ./create_aad_pgsql_user.sh \
+      #         -s "${{secrets.PGSQL_NAME}}" \
+      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
+      #         -a "${{secrets.DBA_GROUP_NAME}}" \
+      #         -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
+      #         -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}"
     
-      - name: Create PET_CLINIC_VETS_SVC DB user(s)
-        working-directory: ./scripts/deployment/utils/
-        run: |
-            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-            ./create_aad_pgsql_user.sh \
-              -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-              -a "${{secrets.DBA_GROUP_NAME}}" \
-              -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}"
+      # - name: Create PET_CLINIC_VETS_SVC DB user(s)
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #       ./create_aad_pgsql_user.sh \
+      #         -s "${{secrets.PGSQL_NAME}}" \
+      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
+      #         -a "${{secrets.DBA_GROUP_NAME}}" \
+      #         -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
+      #         -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}"
           
-      - name: Create PET_CLINIC_VISITS_SVC DB user(s)
-        working-directory: ./scripts/deployment/utils/
-        run: |
-            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-            ./create_aad_pgsql_user.sh \
-              -s "${{secrets.PGSQL_NAME}}" \
-              -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-              -a "${{secrets.DBA_GROUP_NAME}}" \
-              -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
-              -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}"
+      # - name: Create PET_CLINIC_VISITS_SVC DB user(s)
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #       ./create_aad_pgsql_user.sh \
+      #         -s "${{secrets.PGSQL_NAME}}" \
+      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
+      #         -a "${{secrets.DBA_GROUP_NAME}}" \
+      #         -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
+      #         -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}"
 
       - name: Remove DB Firewall exception used for DB setup
         run: |
