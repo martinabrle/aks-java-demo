@@ -242,47 +242,47 @@ jobs:
           matrix="{\"include\":["
 
           if [[ "${{steps.semver_todo_app_version.outputs.changed}}" == "true" && "${{steps.semver_todo_app_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"app_insights\":\"true\",\"db\":\"tododb\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"todo-app\",\"version\":\"${{steps.semver_todo_app_version.outputs.version}}\",\"tag\":\"${{steps.semver_todo_app_version.outputs.version_tag}}\",\"java_version\":\"11\",\"app_insights\":\"true\",\"db\":\"tododb\",\"is_tagged\":\"${{steps.semver_todo_app_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_admin_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-admin-server\",\"version\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_admin_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"is_tagged\":\"${{steps.semver_petclinic_admin_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_api_gw_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-api-gateway\",\"version\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"is_tagged\":\"${{steps.semver_petclinic_api_gw_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_config_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_config_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-config-server\",\"version\":\"${{steps.semver_petclinic_config_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_config_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"is_tagged\":\"${{steps.semver_petclinic_config_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_customers_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-customers-service\",\"version\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_customers_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\",\"is_tagged\":\"${{steps.semver_petclinic_customers_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_discovery_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-discovery-server\",\"version\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"is_tagged\":\"${{steps.semver_petclinic_discovery_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_vets_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-vets-service\",\"version\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_vets_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\",\"is_tagged\":\"${{steps.semver_petclinic_vets_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_petclinic_visits_svc_version.outputs.changed}}" == "true" && "${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"spring-petclinic-visits-service\",\"version\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version}}\",\"tag\":\"${{steps.semver_petclinic_visits_svc_version.outputs.version_tag}}\",\"java_version\":\"17\",\"app_insights\":\"true\",\"db\":\"petclinicdb\",\"is_tagged\":\"${{steps.semver_petclinic_visits_svc_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_grafana_version.outputs.changed}}" == "true" && "${{steps.semver_grafana_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"grafana\",\"version\":\"${{steps.semver_grafana_version.outputs.version}}\",\"tag\":\"${{steps.semver_grafana_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\",\"is_tagged\":\"${{steps.semver_grafana_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_prometheus_version.outputs.changed}}" == "true" && "${{steps.semver_prometheus_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"prometheus\",\"version\":\"${{steps.semver_prometheus_version.outputs.version}}\",\"tag\":\"${{steps.semver_prometheus_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\",\"is_tagged\":\"${{steps.semver_prometheus_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "${{steps.semver_zipkin_version.outputs.changed}}" == "true" && "${{steps.semver_zipkin_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            matrix="$matrix${delimiter}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\"}"
+            matrix="$matrix${delimiter}{\"artifact\":\"zipkin\",\"version\":\"${{steps.semver_zipkin_version.outputs.version}}\",\"tag\":\"${{steps.semver_zipkin_version.outputs.version_tag}}\",\"parent_dir\":\"docker/\",\"is_tagged\":\"${{steps.semver_zipkin_version.outputs.is_tagged}}\"}"
             delimiter=","
           fi
           if [[ "$delimiter" == "" ]]; then
@@ -486,14 +486,14 @@ jobs:
         echo "Token: ${PGPASSWORD}"
         
         # Create a new service user if needed
-        dbUserExists=`psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "SELECT 1 FROM pg_roles WHERE rolname='${dbUserName}';" -v ON_ERROR_STOP=1`
+        dbUserExists=`psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "SELECT 1 FROM pg_roles WHERE rolname='${dbUserName}';" -v ON_ERROR_STOP=1`
         if [[ $dbUserExists -ne '1' ]]; then
           echo "User '${dbUserName}' does not exist yet, creating the user"
-          psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "CREATE ROLE ${dbUserName} LOGIN;" -v ON_ERROR_STOP=1
+          psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "CREATE ROLE ${dbUserName} LOGIN;" -v ON_ERROR_STOP=1
         else
           echo "User '${dbUserName}' already exists, skipping the creation"
         fi
-        psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "security label for pgaadauth on role ${dbUserName} is 'aadauth,oid=${appClientId},type=service';" -v ON_ERROR_STOP=1
+        psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "security label for pgaadauth on role ${dbUserName} is 'aadauth,oid=${appClientId},type=service';" -v ON_ERROR_STOP=1
         
         # Sync DB Schema
         psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db/pgsql/schema.sql -v ON_ERROR_STOP=1
