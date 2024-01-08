@@ -501,9 +501,9 @@ jobs:
         psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{env.VERSION}}/db/pgsql/data.sql -v ON_ERROR_STOP=1
         
         # Grant the newly create service user all necessary rights
-        psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT CONNECT ON DATABASE ${{env.DB}} TO ${dbUserName};" -v ON_ERROR_STOP=1
-        psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT USAGE ON SCHEMA public TO ${dbUserName};" -v ON_ERROR_STOP=1
-        psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${dbUserName};" -v ON_ERROR_STOP=1
+        psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT CONNECT ON DATABASE ${{env.DB}} TO ${dbUserName};" -v ON_ERROR_STOP=1
+        psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT USAGE ON SCHEMA public TO ${dbUserName};" -v ON_ERROR_STOP=1
+        psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${dbUserName};" -v ON_ERROR_STOP=1
 
     # - name: Test connection to AKS
     #   run: |
