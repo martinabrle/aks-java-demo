@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
     inputs:
       force_release:
-        description: 'Force a new release for all services, even if there are no changes'
+        description: 'Create a new release if needed or deploy the current tagged version'
         required: false
         type: boolean
         default: false
@@ -476,10 +476,10 @@ jobs:
             userManagedIdentityName="${{secrets.AKS_NAME}}-todo-app-identity"
             ;;
         esac
-        appClientId=`az ad sp list --display-name "${userManagedIdentityName}-" --query "[?displayName=='${userManagedIdentityName}'].appId" --out tsv`
+        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].appId" --out tsv`
         echo "DB user: ${dbUserName}"
         echo "Managed identity name: ${userManagedIdentityName}"
-        echo "Managed identity appClientId: ${userManagedIdentityName}"
+        echo "Managed identity appClientId: ${appClientId}"
         
         # Retrieve PGSQL access token 
         export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
