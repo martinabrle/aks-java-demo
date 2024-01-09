@@ -476,7 +476,8 @@ jobs:
             userManagedIdentityName="${{secrets.AKS_NAME}}-todo-app-identity"
             ;;
         esac
-        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].appId" --out tsv`
+        # Never know when to use id and when to use appId...
+        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
         echo "DB user: ${dbUserName}"
         echo "Managed identity name: ${userManagedIdentityName}"
         echo "Managed identity appClientId: ${appClientId}"

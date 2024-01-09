@@ -24,7 +24,7 @@ param petClinicAppUserManagedIdentityName string = '${aksName}-pet-clinic-app-id
 param petClinicConfigSvcUserManagedIdentityName string = '${aksName}-pet-clinic-config-identity'
 param petClinicCustsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-custs-identity'
 param petClinicVetsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vets-identity'
-param petClinicVisitsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-vists-identity'
+param petClinicVisitsSvcUserManagedIdentityName string = '${aksName}-pet-clinic-visits-identity'
 
 @description('URI of the GitHub config repo, for example: https://github.com/spring-petclinic/spring-petclinic-microservices-config')
 param petClinicGitConfigRepoUri string
