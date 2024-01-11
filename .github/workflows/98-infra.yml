@@ -118,7 +118,7 @@ jobs:
                                                      petClinicVetsSvcDbUserName="${{secrets.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
                                                      petClinicVisitsSvcDbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
                                                      pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
-                                                     todoAppDbUserName=="${{secrets.TODO_APP_DB_USER_NAME}}" \
+                                                     todoAppDbUserName="${{secrets.TODO_APP_DB_USER_NAME}}" \
                                                      pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
                                                      logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
                                                      logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
