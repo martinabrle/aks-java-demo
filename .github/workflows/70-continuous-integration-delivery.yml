@@ -462,12 +462,10 @@ jobs:
           "spring-petclinic-customers-service")
             dbUserName="${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}"
             userManagedIdentityName="${{secrets.AKS_NAME}}-pet-clinic-custs-identity"
-            appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
             ;;
           "spring-petclinic-vets-service")
             dbUserName="${{secrets.PET_CLINIC_VETS_SVC_DB_USER_NAME}}"
             userManagedIdentityName="${{secrets.AKS_NAME}}-pet-clinic-vets-identity"
-            appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
             ;;
           "spring-petclinic-visits-service")
             dbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}"
@@ -476,11 +474,11 @@ jobs:
           *)
             dbUserName="${{secrets.TODO_APP_DB_USER_NAME}}"
             userManagedIdentityName="${{secrets.AKS_NAME}}-todo-app-identity"
-            appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].appId" --out tsv`
             ;;
         esac
         # Never know when to use id and when to use appId...
-        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
+        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].appId" --out tsv`
+        
         echo "DB user: ${dbUserName}"
         echo "Managed identity name: ${userManagedIdentityName}"
         echo "Managed identity appClientId: ${appClientId}"
