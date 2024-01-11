@@ -472,7 +472,6 @@ jobs:
           "spring-petclinic-visits-service")
             dbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}"
             userManagedIdentityName="${{secrets.AKS_NAME}}-pet-clinic-visits-identity"
-            appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
             ;;
           *)
             dbUserName="${{secrets.TODO_APP_DB_USER_NAME}}"
@@ -481,6 +480,7 @@ jobs:
             ;;
         esac
         # Never know when to use id and when to use appId...
+        appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${userManagedIdentityName}'].id" --out tsv`
         echo "DB user: ${dbUserName}"
         echo "Managed identity name: ${userManagedIdentityName}"
         echo "Managed identity appClientId: ${appClientId}"
