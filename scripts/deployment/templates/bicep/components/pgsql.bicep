@@ -54,24 +54,6 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
   }
 }
 
-resource postgreSQLTodoDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
-  name:  todoDBName
-  parent: postgreSQLServer
-  properties: {
-    charset: 'utf8'
-    collation: 'English_United States.1252'
-  }
-}
-
-resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
-  name: petClinicDBName
-  parent: postgreSQLServer
-  properties: {
-    charset: 'utf8'
-    collation: 'English_United States.1252'
-  }
-}
-
 resource postgreSQLServerAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2023-03-01-preview' = {
   parent: postgreSQLServer
   name: dbServerAADAdminGroupObjectId 
@@ -82,8 +64,35 @@ resource postgreSQLServerAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/admini
   }
 }
 
+resource postgreSQLTodoDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name:  todoDBName
+  dependsOn: [
+    postgreSQLServerAdmin
+  ]
+  parent: postgreSQLServer
+  properties: {
+    charset: 'utf8'
+    collation: 'English_United States.1252'
+  }
+}
+
+resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name: petClinicDBName
+  dependsOn: [
+    postgreSQLTodoDB
+  ]
+  parent: postgreSQLServer
+  properties: {
+    charset: 'utf8'
+    collation: 'English_United States.1252'
+  }
+}
+
 resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = if (empty(incomingIpAddresses)) {
   name: 'AllowAllAzureIps'
+  dependsOn: [
+    postgreSQLPetClinicDB
+  ]
   parent: postgreSQLServer
   properties: {
     startIpAddress: '0.0.0.0'
@@ -93,6 +102,9 @@ resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers
 
 resource allowClientIPFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-03-08-preview' = if (!empty(deploymentClientIPAddress)) {
   name: 'AllowDeploymentClientIP'
+  dependsOn: [
+    allowAllAzureIPsFirewallRule
+  ]
   parent: postgreSQLServer
   properties: {
     endIpAddress: deploymentClientIPAddress
@@ -105,6 +117,9 @@ var incomingIpAddressesUniqueArray = !empty(incomingIpAddresses) ? union(incomin
 
 resource allowAppServiceIPs 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2023-03-01-preview' = [for incomingIpAddress in incomingIpAddressesUniqueArray: {
   name: 'AKS_${replace(incomingIpAddress, '.', '_')}'
+  dependsOn: [
+    postgreSQLPetClinicDB
+  ]
   parent: postgreSQLServer
   properties: {
     startIpAddress: incomingIpAddress
