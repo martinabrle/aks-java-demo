@@ -97,9 +97,6 @@ resource postgreSQLTodoDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2
     postgreSQLServerAdmin
   ]
   parent: postgreSQLServer
-  properties: {
-    charset: 'utf8'
-  }
 }
 
 resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
@@ -108,9 +105,6 @@ resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databa
     postgreSQLTodoDB
   ]
   parent: postgreSQLServer
-  properties: {
-    charset: 'utf8'
-  }
 }
 
 resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = if (empty(incomingIpAddresses)) {
