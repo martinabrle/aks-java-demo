@@ -96,8 +96,8 @@ metadata:
     app: admin-server
   name: admin-server
   namespace: pet-clinic
- annotations:
-   service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+#  annotations:
+#    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:
   ports:
   - port: 8080
