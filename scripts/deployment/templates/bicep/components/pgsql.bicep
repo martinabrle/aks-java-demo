@@ -54,9 +54,36 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
   }
 }
 
+resource postgreSQLServerDiagnotsicsLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${name}-db-logs'
+  scope: postgreSQLServer
+  properties: {
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+      {
+        categoryGroup: 'audit'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    workspaceId: logAnalyticsWorkspaceId
+  }
+}
+
 resource postgreSQLServerAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2023-03-01-preview' = {
   parent: postgreSQLServer
-  name: dbServerAADAdminGroupObjectId 
+  name: dbServerAADAdminGroupObjectId
+  dependsOn: [
+    postgreSQLServerDiagnotsicsLogs
+  ]
   properties: {
     principalType: 'Group'
     principalName: dbServerAADAdminGroupName 
@@ -72,7 +99,6 @@ resource postgreSQLTodoDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2
   parent: postgreSQLServer
   properties: {
     charset: 'utf8'
-    collation: 'English_United States.1252'
   }
 }
 
@@ -84,7 +110,6 @@ resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databa
   parent: postgreSQLServer
   properties: {
     charset: 'utf8'
-    collation: 'English_United States.1252'
   }
 }
 
@@ -103,7 +128,7 @@ resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers
 resource allowClientIPFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-03-08-preview' = if (!empty(deploymentClientIPAddress)) {
   name: 'AllowDeploymentClientIP'
   dependsOn: [
-    allowAllAzureIPsFirewallRule
+    postgreSQLPetClinicDB
   ]
   parent: postgreSQLServer
   properties: {
@@ -126,33 +151,6 @@ resource allowAppServiceIPs 'Microsoft.DBforPostgreSQL/flexibleServers/firewallR
     endIpAddress: incomingIpAddress
   }
 }]
-
-resource postgreSQLServerDiagnotsicsLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: '${name}-db-logs'
-  dependsOn: [
-    allowAllAzureIPsFirewallRule
-  ]
-  scope: postgreSQLServer
-  properties: {
-    logs: [
-      {
-        categoryGroup: 'allLogs'
-        enabled: true
-      }
-      {
-        categoryGroup: 'audit'
-        enabled: true
-      }
-    ]
-    metrics: [
-      {
-        category: 'AllMetrics'
-        enabled: true
-      }
-    ]
-    workspaceId: logAnalyticsWorkspaceId
-  }
-}
 
 var tmpIPs = empty(incomingIpAddressesUniqueArray) ? [allowAllAzureIPsFirewallRule.name] : map(incomingIpAddressesUniqueArray, item => 'AppService_${replace(item, '.', '_')}')
 var tmpDeploymentClientIPAddressArray = empty(deploymentClientIPAddress) ? [] : [allowClientIPFirewallRule.name]
