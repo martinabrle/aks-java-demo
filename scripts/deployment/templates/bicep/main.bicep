@@ -135,6 +135,8 @@ module pgsql './components/pgsql.bicep' = {
     name: pgsqlName
     dbServerAADAdminGroupName: pgsqlAADAdminGroupName
     dbServerAADAdminGroupObjectId: pgsqlAADAdminGroupObjectId
+    petClinicDBName: pgsqlTodoAppDbName
+    todoDBName: pgsqlTodoAppDbName
     location: location
     tagsArray: pgsqlTagsArray
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId

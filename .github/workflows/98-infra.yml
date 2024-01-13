@@ -98,6 +98,9 @@ jobs:
           echo "AKS Service name: '${{secrets.AKS_NAME}}'"
           echo "Deployment client IP Address: '${clientIP}'"
           
+          # As all is deployed using the template, I will not need an exception for the current
+          # GH Runner IP Address
+          export clientIP=""
           deploymentOutput=`az deployment group create \
                                         --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
                                         --template-file ./main.bicep \
@@ -248,25 +251,25 @@ jobs:
           done
 
       # Avoid token validity issues (previous step sometimes takes too long)
-      - name: Azure re-login in PGSLQ Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AAD_CLIENT_ID }}
-          tenant-id: ${{ secrets.AAD_TENANT_ID }}
-          subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
+      # - name: Azure re-login in PGSLQ Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+      #   uses: azure/login@v1
+      #   with:
+      #     client-id: ${{ secrets.AAD_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AAD_TENANT_ID }}
+      #     subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
       
-      - name: Create TODO_APP_DB Database
-        working-directory: ./scripts/deployment/utils/
-        run: |
-          # When the database gets created using a script, AAD accounts gets full permissions on public schema and can assign roles
-          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+      # - name: Create TODO_APP_DB Database
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #     # When the database gets created using a script, AAD accounts gets full permissions on public schema and can assign roles
+      #     export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #     ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
       
-      - name: Create PET_CLINIC_APP_DB Database
-        working-directory: ./scripts/deployment/utils/
-        run: |
-          export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-          ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
+      # - name: Create PET_CLINIC_APP_DB Database
+      #   working-directory: ./scripts/deployment/utils/
+      #   run: |
+      #     export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+      #     ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
 
       # - name: Create TODO_APP_DB user(s)
       #   working-directory: ./scripts/deployment/utils/
@@ -326,9 +329,9 @@ jobs:
       #         -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
       #         -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}"
 
-      - name: Remove DB Firewall exception used for DB setup
-        run: |
-            az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
+      # - name: Remove DB Firewall exception used for DB setup
+      #   run: |
+      #       az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
 
       # Switch the subscription back to AKS subscription
       - name: Azure re-login in AKS Subscription

@@ -194,9 +194,15 @@ module aksNodePoolManagedIdentity 'user-assigned-identity.bicep' = {
 }
 
 // TODO: fix
-// resource publicIps 'Microsoft.Network/publicIPAddresses@2023-05-01' existing = [for publicIp in aksService.properties.networkProfile.loadBalancerProfile.effectiveOutboundIPs : {
+// resource tmpOutboundIPAddressIDs 'Microsoft.Network/publicIPAddresses@2023-05-01' existing = [for publicIp in aksService.properties.networkProfile.loadBalancerProfile.outboundIPs.publicIPs : {
 //   name: publicIp.id
 // }]
+
+// var tmp3 = [for (item, index) in tmpOutboundIPAddressIDs: ]
+
+// output tmp2 string[] = map(aksService.properties.networkProfile.loadBalancerProfile.effectiveOutboundIPs, d => d.id)
+
+// outboundIPAddressIDs
 
 // var publicIpsStringArray = [for publicIp in publicIps : publicIp.properties.ipAddress]
 

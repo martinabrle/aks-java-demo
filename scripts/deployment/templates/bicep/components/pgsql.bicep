@@ -9,6 +9,12 @@ param dbServerAADAdminGroupObjectId string
 @description('Name of the Azure AD group that will be the admin of the database server. Must be a valid AAD User Group name.')
 param dbServerAADAdminGroupName string
 
+@description('Todo App database name.')
+param todoDBName string
+
+@description('Pet Clinic database name.')
+param petClinicDBName string
+
 @description('IP Address if the deployment / configuration client, for example the IP address of the Azure DevOps agent. If empty, no IP address will be allowed.')
 param deploymentClientIPAddress string = ''
 
@@ -45,6 +51,24 @@ resource postgreSQLServer 'Microsoft.DBforPostgreSQL/flexibleServers@2022-12-01'
     highAvailability: {
       mode: 'Disabled'
     }
+  }
+}
+
+resource postgreSQLTodoDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name:  todoDBName
+  parent: postgreSQLServer
+  properties: {
+    charset: 'utf8'
+    collation: 'English_United States.1252'
+  }
+}
+
+resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2023-03-01-preview' = {
+  name: petClinicDBName
+  parent: postgreSQLServer
+  properties: {
+    charset: 'utf8'
+    collation: 'English_United States.1252'
   }
 }
 
