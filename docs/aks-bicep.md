@@ -1,7 +1,7 @@
 # Spring Boot Todo App on App Service
 ## Deployment with full managed identities usage (Bicep)
 
-![Architecture Diagram](../diagrams/demo-app-app-service-managed-identities.drawio.png)
+![Architecture Diagram](./aks-java-demo-architecture.drawio.png)
 
 * Start the command line, clone the repo using ```git clone https://github.com/martinabrle/aks-java-demo.git``` and change your current directory to ```aks-java-demo/scripts``` directory:
     ```
@@ -40,75 +40,216 @@
     ```
 * Deploy resource groups for all services:
     ```
+    //TODO: rewrite into CLI for creating RGs
     az deployment sub create \
-        --l $AZURE_LOCATION \
-        --template-file ./templates/resource_groups.bicep \
-        --parameters location="${AZURE_LOCATION}" \
-                    appServiceRG="${APP_SERVICE_RESOURCE_GROUP}" \
-                    appServiceTags="${APP_SERVICE_RESOURCE_TAGS}" \
-                    pgsqlSubscriptionId="${PGSQL_SUBSCRIPTION_ID}" \
-                    pgsqlRG="${PGSQL_RESOURCE_GROUP}" \
-                    pgsqlTags="${PGSQL_RESOURCE_TAGS}" \
-                    logAnalyticsSubscriptionId="${LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}" \
-                    logAnalyticsRG="${LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}" \
-                    logAnalyticsTags="${LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}"
+        -l "${{secrets.AZURE_LOCATION}}" \
+        --template-file ./resource_groups.bicep \
+        --parameters location="${{secrets.AZURE_LOCATION}}" \
+                    aksRG="${{secrets.AKS_RESOURCE_GROUP}}" \
+                    aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
+                    containerRegistrySubscriptionId="${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
+                    containerRegistryRG="${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
+                    containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+                    pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
+                    pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
+                    pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
+                    logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
+                    logAnalyticsRG="${{secrets.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
+                    logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}"
     ```
-* Deploy all services:
+* Deploy all services (and create both app's databases):
     ```
     az deployment group create \
-        --resource-group $APP_SERVICE_RESOURCE_GROUP \
-        --template-file ./templates/main.bicep \
-        --parameters appServiceName="${APP_SERVICE_NAME}" \
-                     appServicePort=443 \
-                     appServiceTags="${APP_SERVICE_RESOURCE_TAGS}" \
-                     pgsqlName="${PGSQL_NAME}" \
-                     pgsqlAADAdminGroupName="${DBA_GROUP_NAME}" \
-                     pgsqlAADAdminGroupObjectId="${DBA_GROUP_ID}" \
-                     pgsqlDbName="${DB_NAME}" \
-                     pgsqlStagingDbName="${DB_NAME_STAGING}" \
-                     pgsqlSubscriptionId="${PGSQL_SUBSCRIPTION_ID}" \
-                     pgsqlRG="${PGSQL_RESOURCE_GROUP}" \
-                     pgsqlTags="${PGSQL_RESOURCE_TAGS}" \
-                     logAnalyticsName="${LOG_ANALYTICS_WRKSPC_NAME}" \
-                     logAnalyticsSubscriptionId="${LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}" \
-                     logAnalyticsRG="${LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}" \
-                     logAnalyticsTags="${LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}" \
-                     healthCheckPath="" \
-                     dbUserName="${DB_USER_MI_NAME}" \
-                     dbStagingUserName="${DB_USER_MI_STAGING_NAME}" \
-                     deploymentClientIPAddress="${clientIPAddress}" \
-                     location="${AZURE_LOCATION}"
+        --resource-group ${AKS_RESOURCE_GROUP} \
+        --template-file ./main.bicep \
+        --parameters aksName="${AKS_NAME}" \
+                        aksAdminGroupObjectId="${aksGroupId}" \
+                        aksTags="${AKS_RESOURCE_TAGS}" \
+                        containerRegistryName="${{CONTAINER_REGISTRY_NAME}" \
+                        containerRegistrySubscriptionId="${CONTAINER_REGISTRY_SUBSCRIPTION_ID}" \
+                        containerRegistryRG="${CONTAINER_REGISTRY_RESOURCE_GROUP}" \
+                        containerRegistryTags="${CONTAINER_REGISTRY_RESOURCE_TAGS}" \
+                        pgsqlName="${PGSQL_NAME}" \
+                        pgsqlAADAdminGroupName="${DBA_GROUP_NAME}" \
+                        pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
+                        pgsqlSubscriptionId="${PGSQL_SUBSCRIPTION_ID}" \
+                        pgsqlRG="${PGSQL_RESOURCE_GROUP}" \
+                        pgsqlPetClinicDbName="${PET_CLINIC_DB_NAME}" \
+                        petClinicCustsSvcDbUserName="${PET_CLINIC_CUSTS_SVC_DB_USER_NAME}" \
+                        petClinicVetsSvcDbUserName="${PET_CLINIC_VETS_SVC_DB_USER_NAME}" \
+                        petClinicVisitsSvcDbUserName="${PET_CLINIC_VISITS_SVC_DB_USER_NAME}" \
+                        pgsqlTodoAppDbName="${TODO_APP_DB_NAME}" \
+                        todoAppDbUserName="${TODO_APP_DB_USER_NAME}" \
+                        pgsqlTags="${PGSQL_RESOURCE_TAGS}" \
+                        logAnalyticsName="${LOG_ANALYTICS_WRKSPC_NAME}" \
+                        logAnalyticsSubscriptionId="${LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}" \
+                        logAnalyticsRG="${LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}" \
+                        logAnalyticsTags="${LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}" \
+                        petClinicGitConfigRepoUri="${PET_CLINIC_GIT_CONFIG_REPO_URI}" \
+                        petClinicGitConfigRepoUserName="${PET_CLINIC_GIT_CONFIG_REPO_USERNAME}" \
+                        petClinicGitConfigRepoPassword="${PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}" \
+                        deploymentClientIPAddress="${clientIP}" \
+                        location="${AZURE_LOCATION}"
     ```
-* Log-in into the newly created Postgresql server as an AAD admin user (assuming the current user is a member of the DBA group):
+* Get AKS credentials:
     ```
-    export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+    az aks get-credentials --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME}
     ```
-* Create databases:
+* Deploy Namespaces:
     ```
-    ./create_aad_db.sh -s "${PGSQL_NAME}" -d "${DB_NAME}" -a "${DBA_GROUP_NAME}"
-    ./create_aad_db.sh -s "${PGSQL_NAME}" -d "${DB_NAME_STAGING}" -a "${DBA_GROUP_NAME}"
-    psql --set=sslmode=require -h ${PGSQL_NAME}.postgres.database.azure.com -p 5432 -d "${DB_NAME}" -U "${DBA_GROUP_NAME}" --file=./create_todo_table.sql
-    psql --set=sslmode=require -h ${PGSQL_NAME}.postgres.database.azure.com -p 5432 -d "${DB_NAME_STAGING}" -U "${DBA_GROUP_NAME}" --file=./create_todo_table.sql
+    # display yaml with namespaces definition
+    cat ./01-namespaces.yml
+    # deploy namespaces
+    kubectl apply -f ./01-namespaces.yml"
     ```
-* Assign a newly created AppService's AppId and staging AppService's AppId to a variable:
+* Deploy Config Maps for Todo App:
     ```
-    DB_APP_USER_APP_ID=`az ad sp list --display-name $APP_SERVICE_NAME --query "[?displayName=='${APP_SERVICE_NAME}'].appId" --out tsv`
-    DB_APP_USER_STAGING_APP_ID=`az ad sp list --display-name "${APP_SERVICE_NAME}/slots/staging" --query "[?displayName=='${APP_SERVICE_NAME}/slots/staging'].appId" --out tsv`
+    # display yaml with Todo App config map
+    cat ./07a-config-map-todo-app.yml
+    # deploy Todo App config map
+    kubectl apply -f ./07a-config-map-todo-app.yml"
     ```
-* Create AAD DB users:
+* Deploy Config Maps for Pet Clinic App:
     ```
-    ./create_aad_pgsql_user.sh -s "${PGSQL_NAME}" \
-                               -d "${DB_NAME}" \
-                               -a "${DBA_GROUP_NAME}" \
-                               -n "${DB_USER_MI_NAME}" \
-                               -o "${DB_APP_USER_APP_ID}"
+    # display yaml with Pet Clinic config map
+    cat ./07b-config-map-pet-clinic-app.yml
+    # deploy Pet Clinic config map
+    kubectl apply -f ./07b-config-map-pet-clinic-app.yml"
+    ```
+* Deploy role bindings for Todo App:
+    ```
+    # prepare and display yaml with role bindings for Todo App
+    cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${TODO_APP_EDIT_AD_GROUP_ID} TODO_APP_VIEW_AD_GROUP_ID=${TODO_APP_VIEW_AD_GROUP_ID} envsubst > ./02a-rolebinding-todo.yml.tmp
+    cat ./02a-rolebinding-todo.yml.tmp
+    # deploy role bindings for Todo App
+    kubectl apply -f ./02a-rolebinding-todo.yml.tmp"
+    ```
+* Deploy role bindings for Pet Clinic App:
+    ```
+    # prepare and display yaml with role bindings for Pet Clinic App
+    cat ./02b-rolebinding-pet-clinic.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${PET_CLINIC_APP_EDIT_AD_GROUP_ID} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${PET_CLINIC_APP_VIEW_AD_GROUP_ID} envsubst > ./02b-rolebinding-pet-clinic.yml.tmp
+            cat ./02b-rolebinding-pet-clinic.yml.tmp
+    # deploy role bindings for Pet Clinic App
+    kubectl apply -f ./02b-rolebinding-pet-clinic.yml.tmp"
+    ```
+* Deploy Todo App KV Secrets manifest:
+    ```
+    cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${KEYVAULT_NAME} TODO_APP_CLIENT_ID=${TODO_APP_CLIENT_ID} TENANT_ID=${TENANT_ID} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
+    cat ./04a-kv-secrets-todo-app.yml.tmp
+    kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp
+    ```
+* Deploy PET_CLINIC_APP General KV Secrets manifest
+    ```
+    cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+    cat ./04b-kv-secrets-pet-clinic-app.yml.tmp
+    kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp
+    ```
+* Deploy PET_CLINIC_CONFIG_SVC KV Secrets manifest
+    ```
+    cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+    cat ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+    kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_CUSTS_SVC KV Secrets manifest
+    ```
+    cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+    cat ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+    kubectl apply -f ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_VETS_SVC KV Secrets manifest
+    ```
+    cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+    cat ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+    kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_VISITS_SVC KV Secrets manifest
+    ```
+    cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+    cat ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+    kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+    ```
+* Deploy TODO_APP workload identity manifest
+    ```
+    cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+    cat ./06a-workload-identity-todo-app.yml.tmp
+    kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp
+    ```
+* Deploy PET_CLINIC_APP workload identity manifest
+    ```
+    cat ./06b-workload-identity-pet-clinic-app.yml | PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}}  envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
+    cat ./06b-workload-identity-pet-clinic-app.yml.tmp
+    kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp
+    ```
+* Deploy PET_CLINIC_CONFIG_SVC workload identity manifest
+    ```
+    cat ./06c-workload-identity-pet-clinic-config-svc.yml | CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} envsubst > ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+    cat ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+    kubectl apply -f ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_CUSTS_SVC workload identity manifest
+    ```
+    kubectl apply -f ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_VETS_SVC workload identity manifest
+    ```
+    kubectl apply -f ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
+    ```
+* Deploy PET_CLINIC_VISITS_SVC workload identity manifest
+    ```
+    cat ./06f-workload-identity-pet-clinic-visits-svc.yml | VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+    cat ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+    kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+    ```
+* Create federated identity for Todo App
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="todo"
+    export SERVICE_ACCOUNT_NAME="todo-app-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${TODO_APP_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
+* Create federated identity for Pet Clinic App (generic service account used by majority of microservices)
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="pet-clinic"
+    export SERVICE_ACCOUNT_NAME="pet-clinic-app-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${PET_CLINIC_APP_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
+* Create federated identity for Pet Clinic Config Service
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="pet-clinic"
+    export SERVICE_ACCOUNT_NAME="pet-clinic-config-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${PET_CLINIC_CONFIG_SVC_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
+* Create federated identity for Pet Clinic Customers Service
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="pet-clinic"
+    export SERVICE_ACCOUNT_NAME="pet-clinic-custs-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${PET_CLINIC_CUSTS_SVC_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
+* Create federated identity for Pet Clinic Vets Service
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="pet-clinic"
+    export SERVICE_ACCOUNT_NAME="pet-clinic-vets-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${PET_CLINIC_VETS_SVC_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
+* Create federated identity for Pet Clinic Visits Service
+    ```
+    export SERVICE_ACCOUNT_NAMESPACE="pet-clinic"
+    export SERVICE_ACCOUNT_NAME="pet-clinic-visits-service-account"
+    export AKS_OIDC_ISSUER="$(az aks show --resource-group ${AKS_RESOURCE_GROUP}} --name ${AKS_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+    echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
+    az identity federated-credential create --name ${FEDERATED_IDENTITY_NAME} --identity-name ${PET_CLINIC_VISITS_SVC_MI_NAME} --resource-group ${AKS_RESOURCE_GROUP} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${SERVICE_ACCOUNT_NAMESPACE}:${SERVICE_ACCOUNT_NAME} --audience api://AzureADTokenExchange
+    ```
 
-    ./create_aad_pgsql_user.sh -s "${PGSQL_NAME}" \
-                               -d "${DB_NAME_STAGING}" \
-                               -a "${DBA_GROUP_NAME}" \
-                               -n "${DB_USER_MI_STAGING_NAME}" \
-                               -o "${DB_APP_USER_STAGING_APP_ID}"
-    ```
+
 
 * Change your current directory to ```aks-java-demo/todo```:
     ```
