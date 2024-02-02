@@ -5,7 +5,7 @@ param aksName string
 param aksAdminGroupObjectId string
 param aksTags string
 
-param pgsqlName string
+param pgsqlName string = '${replace(aksName,'_','-')}-pgsql'
 param pgsqlAADAdminGroupName string
 param pgsqlAADAdminGroupObjectId string
 param pgsqlTodoAppDbName string
@@ -15,9 +15,9 @@ param petClinicCustsSvcDbUserName string // = 'pet_clinic_custs_svc'
 param petClinicVetsSvcDbUserName string // = 'pet_clinic_vets_svc'
 param petClinicVisitsSvcDbUserName string // = 'pet_clinic_visits_svc'
 
-param pgsqlSubscriptionId string
-param pgsqlRG string
-param pgsqlTags string
+param pgsqlSubscriptionId string = subscription().id
+param pgsqlRG string = resourceGroup().name
+param pgsqlTags string = aksTags
 
 param todoAppUserManagedIdentityName string = '${aksName}-todo-app-identity'
 param petClinicAppUserManagedIdentityName string = '${aksName}-pet-clinic-app-identity'
@@ -35,18 +35,18 @@ param petClinicGitConfigRepoUserName string
 param petClinicGitConfigRepoPassword string
 
 @description('Log Analytics Workspace\'s name')
-param logAnalyticsName string
+param logAnalyticsName string = '${replace(aksName, '_', '-')}-${location}'
 @description('Subscription ID of the Log Analytics Workspace')
-param logAnalyticsSubscriptionId string
+param logAnalyticsSubscriptionId string = subscription().id
 @description('Resource Group of the Log Analytics Workspace')
-param logAnalyticsRG string
+param logAnalyticsRG string = resourceGroup().name
 @description('Resource Tags to apply at the Log Analytics Workspace\'s level')
-param logAnalyticsTags string
+param logAnalyticsTags string = aksTags
 
-param containerRegistryName string
-param containerRegistrySubscriptionId string
-param containerRegistryRG string
-param containerRegistryTags string
+param containerRegistryName string = replace(replace(aksName,'_', ''),'-','')
+param containerRegistrySubscriptionId string = subscription().id
+param containerRegistryRG string = resourceGroup().name
+param containerRegistryTags string = aksTags
 
 var aksTagsArray = json(aksTags)
 var pgsqlTagsArray = json(pgsqlTags)
