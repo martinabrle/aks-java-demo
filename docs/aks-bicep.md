@@ -1,5 +1,6 @@
-# Spring Boot Todo App on App Service
-## Deployment with full managed identities usage (Bicep)
+# Spring Boot Todo App and Pet Clinic App on Azure Kubernetes Service (AKS)
+
+## Deploying Todo App and Pet Clinic App into an AKS using az CLI, Azure Bicep template and kubectl
 
 ![Architecture Diagram](./aks-java-demo-architecture.drawio.png)
 

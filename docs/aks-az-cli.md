@@ -1,7 +1,8 @@
-# Spring Boot Todo App on App Service
-## Basic, simplified deployment using AZ CLI
+# Spring Boot Todo App and Pet Clinic App on Azure Kubernetes Service (AKS)
 
-![Architecture Diagram](../diagrams/demo-app-app-service-basic.drawio.png)
+## Deploying Todo App and Pet Clinic App into an AKS using az CLI and kubectl
+
+![Architecture Diagram](./aks-java-demo-architecture.drawio.png)
 
 * Start the command line, clone the repo using ```git clone https://github.com/martinabrle/aks-java-demo.git``` and change your current directory to ```aks-java-demo/scripts``` directory:
     ```

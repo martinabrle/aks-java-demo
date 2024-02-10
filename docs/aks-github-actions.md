@@ -1,6 +1,6 @@
 # Spring Boot Todo App and Pet Clinic App on Azure Kubernetes Service (AKS)
 
-## Deploying Todo App and Pet Clinic App into an AKS with Github actions (CI/CD Pipeline)
+## Deploying Todo App and Pet Clinic App into an AKS using Github actions (CI/CD Pipeline)
 
 ![Architecture Diagram](./aks-java-demo-architecture.drawio.png)
 
