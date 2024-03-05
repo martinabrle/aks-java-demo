@@ -48,10 +48,22 @@ param containerRegistrySubscriptionId string = subscription().id
 param containerRegistryRG string = resourceGroup().name
 param containerRegistryTags string = aksTags
 
+var pgsqlSubscriptionIdVar = empty(pgsqlSubscriptionId) ? subscription().id : pgsqlSubscriptionId
+var pgsqlRGVar = empty(pgsqlRG) ? resourceGroup().name : pgsqlRG
+var pgsqlTagsVar = empty(pgsqlTags) ? aksTags : pgsqlTags
+
+var containerRegistrySubscriptionIdVar = empty(containerRegistrySubscriptionId) ? subscription().id : containerRegistrySubscriptionId
+var containerRegistryRGVar = empty(containerRegistryRG) ? resourceGroup().name : containerRegistryRG
+var containerRegistryTagsVar = empty(containerRegistryTags) ? aksTags : containerRegistryTags
+
+var logAnalyticsSubscriptionIdVar = empty(logAnalyticsSubscriptionId) ? subscription().id : logAnalyticsSubscriptionId
+var logAnalyticsRGVar = empty(logAnalyticsRG) ? resourceGroup().name : logAnalyticsRG
+var logAnalyticsTagsVar = empty(logAnalyticsTags) ? aksTags : logAnalyticsTags
+
 var aksTagsArray = json(aksTags)
-var pgsqlTagsArray = json(pgsqlTags)
-var containerRegistryTagsArray = json(containerRegistryTags)
-var logAnalyticsTagsArray = json(logAnalyticsTags)
+var pgsqlTagsArray = json(pgsqlTagsVar)
+var containerRegistryTagsArray = json(containerRegistryTagsVar)
+var logAnalyticsTagsArray = json(logAnalyticsTagsVar)
 
 var appGatewayName = '${aksName}-appgw'
 var vnetName = '${aksName}-vnet'
@@ -100,7 +112,7 @@ resource petClinicVisitsSvcUserManagedIdentity 'Microsoft.ManagedIdentity/userAs
 
 module logAnalytics 'components/log-analytics.bicep' = {
   name: 'log-analytics'
-  scope: resourceGroup(logAnalyticsSubscriptionId, logAnalyticsRG)
+  scope: resourceGroup(logAnalyticsSubscriptionIdVar, logAnalyticsRGVar)
   params: {
     logAnalyticsName: logAnalyticsName
     location: location
@@ -130,7 +142,7 @@ module petClinicAppInsights 'components/app-insights.bicep' = {
 
 module pgsql './components/pgsql.bicep' = {
   name: 'pgsql'
-  scope: resourceGroup(pgsqlSubscriptionId, pgsqlRG)
+  scope: resourceGroup(pgsqlSubscriptionIdVar, pgsqlRGVar)
   params: {
     name: pgsqlName
     dbServerAADAdminGroupName: pgsqlAADAdminGroupName
@@ -147,7 +159,7 @@ module pgsql './components/pgsql.bicep' = {
 
 module containerRegistry './components/container-registry.bicep' = {
   name: 'container-registry'
-  scope: resourceGroup(containerRegistrySubscriptionId, containerRegistryRG)
+  scope: resourceGroup(containerRegistrySubscriptionIdVar, containerRegistryRGVar)
   params: {
     name: containerRegistryName
     location: location
@@ -322,7 +334,7 @@ module aks 'components/aks.bicep' = {
 
 module rbacContainerRegistryACRPull 'components/role-assignment-container-registry.bicep' = {
   name: 'deployment-rbac-container-registry-acr-pull'
-  scope: resourceGroup(containerRegistrySubscriptionId, containerRegistryRG)
+  scope: resourceGroup(containerRegistrySubscriptionIdVar, containerRegistryRGVar)
   params: {
     containerRegistryName: containerRegistryName
     roleDefinitionId: acrPullRole.id
