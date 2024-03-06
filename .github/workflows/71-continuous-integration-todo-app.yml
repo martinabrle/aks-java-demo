@@ -1,0 +1,165 @@
+name: 71-Continuous-Integration-Delivery-Todo-App
+
+on:
+  push:
+   branches:
+     - main
+   paths:
+     - 'todo-app/**'
+
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: 'Create a new release if needed or deploy the current tagged version'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  versions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    env:
+      SEMVER_NAMESPACE: todo-app
+      SEMVER_CHANGE_PATH: todo-app
+      ARTIFACT_NAME: todo-app
+      SRC_DIR: todo-app
+      JAVA_VERSION: 11
+      DB: ${{secrets.TODO_APP_DB_NAME}}
+      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-todo-app-identity
+      DB_USER_NAME: ${{secrets.TODO_APP_DB_USER_NAME}}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Semver
+      uses: PaulHatch/semantic-version@v5.3.0
+      id: semver_version
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        major_regexp_flags: ""
+        minor_pattern: "(MINOR)"
+        minor_regexp_flags: ""
+        version_format: "${major}.${minor}.${patch}"
+        change_path: ${{env.SEMVER_CHANGE_PATH}}
+        namespace: ${{env.SEMVER_NAMESPACE}}
+        bump_each_commit: true
+        search_commit_body: true
+        user_format_type: "csv"
+
+    - name: Set versions
+      id: versions
+      run: |
+          forceRelease=false
+          createRelease=false
+          if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
+            if [[ "${{github.event.inputs.force_release}}" == "true" ]]; then
+              forceRelease=true
+            fi
+          fi
+          if [[ "${{steps.semver_version.outputs.changed}}" == "true" && "${{steps.semver_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
+            createRelease=true
+          fi
+          echo "CREATE_RELEASE=$createRelease" >> $GITHUB_OUTPUT
+          echo "VERSION=${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
+          echo "VERSION_TAG=${{steps.semver_version.outputs.version_tag}}" >> $GITHUB_OUTPUT
+          
+    - name: Display parameters
+      id: params
+      run: |
+        echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
+        echo "VERSION=${{steps.versions.outputs.VERSION}}"
+        echo "VERSION_TAG=${{steps.versions.outputs.VERSION_TAG}}"
+        echo "CREATE_RELEASE=${{steps.versions.outputs.CREATE_RELEASE}}"
+        echo "RELEASE_DIR_NAME=${{env.artifact_name}}-${{steps.versions.outputs.VERSION}}"
+        echo "JAVA_VERSION=${{env.JAVA_VERSION}}"
+        echo "DB=${{env.DB}}"
+
+        echo "GITHUB_SHA=${{github.sha}}"
+        echo "GITHUB_REF=${{github.ref}}"
+        echo "GITHUB_EVENT_NAME=${{github.event_name}}"
+
+        echo "DB_NAME=${{env.DB}}" >> "$GITHUB_OUTPUT"
+        echo "DB_NAME: ${{env.DB}}"
+        
+    - name: Set up JDK
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{env.JAVA_VERSION}}
+        distribution: 'microsoft'
+
+    - name: Set the release version
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/deployment/utils/JavaUtils.java -update_pom_version ./pom.xml.bak ${{steps.versions.outputs.VERSION}} ./pom.xml
+
+    - name: Set the git commit id
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
+      run: |
+        mv ./pom.xml ./pom.xml.bak
+        ls -la
+        java ../scripts/deployment/utils/JavaUtils.java -update_git_commit_id ./pom.xml.bak "${GITHUB_SHA}" ./pom.xml
+    
+    - name: Build the .jar
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
+      run: |
+        export PORT=8080
+        export SPRING_PROFILES_ACTIVE=local
+        mvn clean package -DskipTests
+    
+    - name: Download Application Insights Agent
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
+      run: |
+         wget -q -O ./ai.jar https://github.com/microsoft/ApplicationInsights-Java/releases/download/3.4.12/applicationinsights-agent-3.4.12.jar
+    
+    - name: Build release ZIP archive
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
+      id: create_archive
+      run: |
+        mkdir ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+        ls -la ./target
+        if [[ ! -f "./target/${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.jar" ]]; then
+          echo "File ./target/${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.jar does not exists. Check the build script."
+          exit 1
+        fi
+        mv ./target/${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.jar ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+        cp ./Dockerfile ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/Dockerfile
+        cp -R ./k8s ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/k8s
+        if [[ -d "./src/main/resources/db" ]]; then
+          cp -R ./src/main/resources/db ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/db
+        fi
+        mv ./ai.jar ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+
+        zip -r ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+        ls -la
+        echo "RELEASE_NAME=${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}" >> $GITHUB_OUTPUT
+
+    # Only for troubleshooting, otherwise not needed, takes a lot of time
+    # - name: Upload build artifact
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+    #     path: ./${{env.ARTIFACT_NAME}}/${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip
+    #     if-no-files-found: error
+    #     retention-days: 1          
+
+    - name: Release build artifact
+      if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        ls -la ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip
+        gh release create ${{steps.versions.outputs.VERSION}} ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip --notes "Auto release ${{steps.versions.outputs.VERSION_TAG}}"
