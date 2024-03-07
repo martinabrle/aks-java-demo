@@ -101,6 +101,7 @@ jobs:
           # As all is deployed using the template, I will not need an exception for the current
           # GH Runner IP Address
           export clientIP=""
+          az account list --output table # test
           deploymentOutput=`az deployment group create \
                                         --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
                                         --template-file ./main.bicep \
