@@ -22,7 +22,6 @@ jobs:
       - name: Create Azure resource group
         working-directory: ./scripts/deployment/templates/bicep/
         run: |
-          az account show
           az deployment sub create \
             -l "${{secrets.AZURE_LOCATION}}" \
             --template-file ./resource_groups.bicep \
