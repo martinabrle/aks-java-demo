@@ -1,0 +1,194 @@
+name: 71-Continuous-Integration-Todo-App
+
+on:
+  # release: - causes problem with az login with a federated identity
+  #   types: [released]
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+        description: Full version tag (e.g. "v1.0.5")
+
+jobs:
+  init:
+    # when called from another workflow directly, it inherits the event name from the caller workflow
+    # (push in this case when called from 10-continuous-integration.yml)
+    runs-on: ubuntu-latest
+    if: ${{ startsWith(github.ref, 'refs/tags/v') || ((github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || (github.event_name == 'push' && github.ref == 'refs/heads/main')) && startsWith(inputs.version,'v')) }} 
+    outputs:
+      RELEASE_VERSION: ${{ steps.init.outputs.RELEASE_VERSION }}
+      RELEASE_VERSION_NUMBER: ${{ steps.init.outputs.RELEASE_VERSION_NUMBER }}
+      RELEASE_DIR_NAME: ${{ steps.init.outputs.RELEASE_DIR_NAME }}
+      RELEASE_ARCHIVE_NAME: ${{ steps.init.outputs.RELEASE_ARCHIVE_NAME }}
+      RELEASE_FILE_NAME: ${{ steps.init.outputs.RELEASE_FILE_NAME }}
+    steps:
+      - name: Init
+        id: init
+        run: |
+          releaseVersion=""
+          if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
+            releaseVersion="${{inputs.version}}" 
+          elif [[ "${{github.event_name}}" == "workflow_call" ]]; then
+            releaseVersion="${{inputs.version}}" 
+          elif [[ "${{github.event_name}}" == "release" ]]; then
+            releaseVersion="${{github.event.release.tag_name}}" 
+          elif [[ "${{github.event_name}}" == "push" ]]; then
+            releaseVersion="${{inputs.version}}" 
+          else
+            echo "Unknown trigger: '${{github.event_name}}'"
+            exit 1
+          fi
+          echo "Release version to deploy: ${releaseVersion}"
+
+          if [[ ${releaseVersion::1} == "v" ]]; then
+            releaseVersionNumber="${releaseVersion:1}"
+          else
+            releaseVersionNumber="${releaseVersion}"
+          fi
+
+          echo "Release version number to deploy: ${releaseVersionNumber}"
+
+          echo "RELEASE_VERSION=${releaseVersion}" >> $GITHUB_OUTPUT
+          echo "RELEASE_VERSION_NUMBER=${releaseVersionNumber}" >> $GITHUB_OUTPUT
+          echo "RELEASE_DIR_NAME=todo-${releaseVersionNumber}" >> $GITHUB_OUTPUT
+          echo "RELEASE_ARCHIVE_NAME=todo-${releaseVersionNumber}.zip" >> $GITHUB_OUTPUT
+          echo "RELEASE_FILE_NAME=todo-${releaseVersionNumber}.jar" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: [init]
+    runs-on: ubuntu-latest
+    # demonstrate if-condition on the job level:
+    if: ${{ contains(needs.init.outputs.RELEASE_VERSION,'v')}}
+    env:
+      RELEASE_VERSION: ${{ needs.init.outputs.RELEASE_VERSION }}
+      RELEASE_VERSION_NUMBER: ${{ needs.init.outputs.RELEASE_VERSION_NUMBER }}
+      RELEASE_DIR_NAME: ${{ needs.init.outputs.RELEASE_DIR_NAME }}
+      RELEASE_ARCHIVE_NAME: ${{ needs.init.outputs.RELEASE_ARCHIVE_NAME }}
+      RELEASE_FILE_NAME: ${{ needs.init.outputs.RELEASE_FILE_NAME }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Azure login # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AAD_CLIENT_ID }}
+          tenant-id: ${{ secrets.AAD_TENANT_ID }}
+          subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
+
+      - name: Init
+        id: init
+        run: |
+          RG_EXISTS=$(az group exists --name ${{secrets.AKS_RESOURCE_GROUP}} --subscription ${{secrets.AKS_SUBSCRIPTION_ID}})
+          if [[ "$RG_EXISTS" == "true" ]]; then
+            echo "ENVIRONMENT_DEPLOYED=true" >> $GITHUB_OUTPUT
+          else
+            echo "ENVIRONMENT_DEPLOYED=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Display environment status
+        run: echo "${{steps.init.outputs.ENVIRONMENT_DEPLOYED}}"
+
+      - uses: robinraju/release-downloader@v1.7
+        if: ${{ steps.init.outputs.ENVIRONMENT_DEPLOYED == 'true' }}
+        with:
+          tag: ${{env.RELEASE_VERSION}}
+          fileName: "${{env.RELEASE_ARCHIVE_NAME}}"
+      
+      - name: Check downloaded files
+        if: ${{ steps.init.outputs.ENVIRONMENT_DEPLOYED == 'true' }}
+        run: |
+          pwd
+          ls -la
+          if [[ ! -f "${{env.RELEASE_ARCHIVE_NAME}}" ]]; then
+            echo "'${{env.RELEASE_ARCHIVE_NAME}}' does not exist."
+            exit 1
+          fi
+      
+      - name: Unzip archive
+        if: ${{ steps.init.outputs.ENVIRONMENT_DEPLOYED == 'true' }}
+        run: |
+          echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
+          unzip ${{env.RELEASE_ARCHIVE_NAME}}
+          if [[ ! -f "${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}" ]]; then
+            echo "'${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}' does not exist."
+            exit 1
+          fi
+      
+      - name: Build a new container image
+        working-directory: ${{env.SRC_DIR}}
+        id: build_container
+        run: |
+            cd ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}
+            ls -la
+            mv ./Dockerfile ./Dockerfile.tmp
+            # Dockerfile syntax is driving me bonkers. This should work...
+            cat ./Dockerfile.tmp | ARTIFACT_NAME_ARG=${{env.ARTIFACT_NAME}} VERSION_ARG=${{steps.versions.outputs.VERSION}} VERSION_ARG=${{steps.versions.outputs.VERSION}} envsubst > ./Dockerfile
+            cat ./Dockerfile
+
+            az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{steps.versions.outputs.VERSION}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
+            cd ..
+
+      - name: Synchronize DB Schema
+        working-directory: ${{env.SRC_DIR}}
+        env:
+            PGSQL_SERVER_NAME: '${{secrets.PGSQL_NAME}}.postgres.database.azure.com'
+        run: |
+            # Figure which service user to use and it's appId .. never know when to use id and when to use appId...
+            appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${{env.USER_IDENTITY_NAME}}'].appId" --out tsv`
+            
+            echo "DB user: ${{env.DB_USER_NAME}}"
+            echo "Managed identity name: ${{env.USER_IDENTITY_NAME}}"
+            echo "Managed identity appClientId: ${appClientId}"
+            
+            # Retrieve PGSQL access token 
+            export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
+            echo "Token: ${PGPASSWORD}"
+            
+            # Create a new service user if needed
+            dbUserExists=`psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "SELECT 1 FROM pg_roles WHERE rolname='${{env.DB_USER_NAME}}';" -v ON_ERROR_STOP=1`
+            if [[ $dbUserExists -ne '1' ]]; then
+            echo "User '${{env.DB_USER_NAME}}' does not exist yet, creating the user"
+            psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "CREATE ROLE ${{env.DB_USER_NAME}} LOGIN;" -v ON_ERROR_STOP=1
+            else
+            echo "User '${{env.DB_USER_NAME}}' already exists, skipping the creation"
+            fi
+            psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "security label for pgaadauth on role ${{env.DB_USER_NAME}} is 'aadauth,oid=${appClientId},type=service';" -v ON_ERROR_STOP=1
+            
+            # Sync DB Schema
+            psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/db/pgsql/schema.sql -v ON_ERROR_STOP=1
+            # Load (demo) data
+            psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" --file=./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/db/pgsql/data.sql -v ON_ERROR_STOP=1
+            
+            # Grant the newly create service user all necessary rights
+            psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT CONNECT ON DATABASE ${{env.DB}} TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
+            psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT USAGE ON SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
+            psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{secrets.DBA_GROUP_NAME}}" -tAc "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
+
+    # - name: Test connection to AKS
+    #   run: |
+    #     az aks command invoke \
+    #       --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+    #       --name ${{secrets.AKS_NAME}} \
+    #       --command "kubectl get ns" \
+    #       --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
+
+      - name: Deploy app into AKS
+        env:
+            DEPLOYMENT_SUFFIX: ""
+            CONTAINER_IMAGE: ${{secrets.CONTAINER_REGISTRY_NAME}}.azurecr.io/${{env.ARTIFACT_NAME}}:${{steps.versions.outputs.VERSION}}
+        run: |
+            cat ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}/k8s/deployment.yml | CONTAINER_IMAGE=${{env.CONTAINER_IMAGE}} DEPLOYMENT_SUFFIX=${{env.DEPLOYMENT_SUFFIX}} envsubst > ./deployment.yml.tmp
+            cat ./deployment.yml.tmp
+            az aks command invoke \
+            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+            --name ${{secrets.AKS_NAME}} \
+            --command "kubectl apply -f deployment.yml.tmp" \
+            --file deployment.yml.tmp \
+            --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"

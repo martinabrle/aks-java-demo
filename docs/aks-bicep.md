@@ -89,7 +89,6 @@
                         petClinicGitConfigRepoUri="${PET_CLINIC_GIT_CONFIG_REPO_URI}" \
                         petClinicGitConfigRepoUserName="${PET_CLINIC_GIT_CONFIG_REPO_USERNAME}" \
                         petClinicGitConfigRepoPassword="${PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}" \
-                        deploymentClientIPAddress="${clientIP}" \
                         location="${AZURE_LOCATION}"
     ```
 * Get AKS credentials:

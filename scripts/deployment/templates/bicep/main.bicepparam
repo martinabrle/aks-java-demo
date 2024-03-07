@@ -34,4 +34,3 @@ param containerRegistrySubscriptionId = '00000000-0000-0000-0000-000000000000'
 param containerRegistryRG = 'container_registry_rg'
 param containerRegistryTags = '{ "CostCentre": "DEV", "Department": "RESEARCH", "WorkloadType": "TEST", "DeleteNightly": "false", "ArchitectureType": "CONTAINER_REGISTRY" }'
 
-param deploymentClientIPAddress = '127.0.0.1' // Replace with your actual IP address (type 'what is my IP address' into https://bing.com)

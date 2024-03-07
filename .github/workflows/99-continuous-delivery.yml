@@ -163,12 +163,6 @@ jobs:
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
           subscription-id: "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
 
-      - name: Add DB Firewall exception used for Schema sync
-        if: ${{ steps.init.outputs.DB_NAME != '' }}
-        run: |
-          deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
-          az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
-      
       - name: Synchronize DB Schema
         if: ${{ steps.init.outputs.DB_NAME != '' }}
         env:
@@ -242,9 +236,3 @@ jobs:
            --name ${{secrets.AKS_NAME}} \
            --command "kubectl apply -f deployment.yml.tmp" \
            --file deployment.yml.tmp
-      
-      - name: Remove DB Firewall exception used for Schema sync
-        if: ${{ steps.init.outputs.DB_NAME != '' }}
-        run: |
-          az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
-      

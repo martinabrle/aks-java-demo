@@ -70,8 +70,6 @@ var vnetName = '${aksName}-vnet'
 var aksSubnetName = 'aks-default'
 var appGatewaySubnetName = 'appgw-subnet'
 
-param deploymentClientIPAddress string
-
 param location string
 
 resource todoAppUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
@@ -152,8 +150,6 @@ module pgsql './components/pgsql.bicep' = {
     location: location
     tagsArray: pgsqlTagsArray
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    // incomingIpAddresses: aks.outputs.outboundIpAddresses TODO: fix
-    deploymentClientIPAddress: deploymentClientIPAddress
   }
 }
 
@@ -699,5 +695,3 @@ output petClinicVisitsSvcUserManagedIdentityName string = petClinicVisitsSvcUser
 output petClinicVisitsSvcUserManagedIdentityPrincipalId string = petClinicVisitsSvcUserManagedIdentity.properties.principalId
 output petClinicVisitsSvcUserManagedIdentityClientId string = petClinicVisitsSvcUserManagedIdentity.properties.clientId
 output petClinicVisitsSvcDbUserName string = petClinicVisitsSvcDbUserName
-
-output pgsqlUpdatedFirewallRulesSet array = pgsql.outputs.validFirewallRules
