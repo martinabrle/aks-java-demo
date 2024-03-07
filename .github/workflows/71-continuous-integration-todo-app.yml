@@ -16,7 +16,7 @@ on:
         default: false
 
 jobs:
-  versions:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -158,8 +158,9 @@ jobs:
 
     - name: Release build artifact
       if: steps.versions.outputs.CREATE_RELEASE == 'true'
+      working-directory: ${{env.SRC_DIR}}
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        ls -la ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip
+        ls -la ./${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip
         gh release create ${{steps.versions.outputs.VERSION}} ${{env.ARTIFACT_NAME}}-${{steps.versions.outputs.VERSION}}.zip --notes "Auto release ${{steps.versions.outputs.VERSION_TAG}}"
