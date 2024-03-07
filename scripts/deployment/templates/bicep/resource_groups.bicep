@@ -24,9 +24,9 @@ targetScope = 'subscription'
 
 module logAnalyticsResourceGroup 'components/rg.bicep' = {
   name: 'log-analytics-rg'
-  scope: subscription(logAnalyticsSubscriptionId)
+  scope: subscription(logAnalyticsSubscriptionId == '' ? subscription().id : logAnalyticsSubscriptionId)
   params: {
-    name: logAnalyticsRG
+    name: logAnalyticsRG == '' ? aksRG : logAnalyticsRG
     location: location
     tagsArray: logAnalyticsTagsArray
   }
@@ -34,9 +34,9 @@ module logAnalyticsResourceGroup 'components/rg.bicep' = {
 
 module pgsqlResourceGroup 'components/rg.bicep' = {
   name: 'pgsql-rg'
-  scope: subscription(pgsqlSubscriptionId)
+  scope: subscription(pgsqlSubscriptionId == '' ? subscription().id : pgsqlSubscriptionId)
   params: {
-    name: pgsqlRG
+    name: pgsqlRG == '' ? aksRG : pgsqlRG
     location: location
     tagsArray: pgsqlTagsArray
   }
@@ -44,9 +44,9 @@ module pgsqlResourceGroup 'components/rg.bicep' = {
 
 module containerRegistryResourceGroup 'components/rg.bicep' = {
   name: 'container-registry-rg'
-  scope: subscription(containerRegistrySubscriptionId)
+  scope: subscription(containerRegistrySubscriptionId == '' ? subscription().id : containerRegistrySubscriptionId)
   params: {
-    name: containerRegistryRG
+    name: containerRegistryRG == '' ? aksRG : containerRegistryRG
     location: location
     tagsArray: containerRegistryTagsArray
   }
