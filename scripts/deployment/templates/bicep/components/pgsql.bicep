@@ -13,9 +13,6 @@ param todoDBName string
 @description('Pet Clinic database name.')
 param petClinicDBName string
 
-@description('Comma separated list of IP addresses to allow access to the database server. If empty, all Azure IPs will be allowed.')
-param incomingIpAddresses string = ''
-
 param location string
 param tagsArray object
 
@@ -108,7 +105,7 @@ resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databa
   }
 }
 
-resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = if (empty(incomingIpAddresses)) {
+resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = {
   name: 'AllowAllAzureIps'
   dependsOn: [
     postgreSQLPetClinicDB
