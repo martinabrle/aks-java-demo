@@ -1,5 +1,3 @@
-// Deploys PostgreSQL server with firewall rules; requires inactive rules (those not returned by this module in validFirewallRules) to be deleted by script
-
 @description('Name of the PostgreSQL database server, must be unique across Azure, as the FQDN of the server will be <name>.postgres.database.azure.com.')
 param name string
 
@@ -14,12 +12,6 @@ param todoDBName string
 
 @description('Pet Clinic database name.')
 param petClinicDBName string
-
-@description('IP Address if the deployment / configuration client, for example the IP address of the Azure DevOps agent. If empty, no IP address will be allowed.')
-param deploymentClientIPAddress string = ''
-
-@description('Comma separated list of IP addresses to allow access to the database server. If empty, all Azure IPs will be allowed.')
-param incomingIpAddresses string = ''
 
 param location string
 param tagsArray object
@@ -113,7 +105,7 @@ resource postgreSQLPetClinicDB 'Microsoft.DBforPostgreSQL/flexibleServers/databa
   }
 }
 
-resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = if (empty(incomingIpAddresses)) {
+resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-12-01' = {
   name: 'AllowAllAzureIps'
   dependsOn: [
     postgreSQLPetClinicDB
@@ -125,36 +117,3 @@ resource allowAllAzureIPsFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers
   }
 }
 
-resource allowClientIPFirewallRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2022-03-08-preview' = if (!empty(deploymentClientIPAddress)) {
-  name: 'AllowDeploymentClientIP'
-  dependsOn: [
-    postgreSQLPetClinicDB
-  ]
-  parent: postgreSQLServer
-  properties: {
-    endIpAddress: deploymentClientIPAddress
-    startIpAddress: deploymentClientIPAddress
-  }
-}
-
-var incomingIpAddressesArray = !empty(incomingIpAddresses) ? split(incomingIpAddresses, ',') : []
-var incomingIpAddressesUniqueArray = !empty(incomingIpAddresses) ? union(incomingIpAddressesArray, incomingIpAddressesArray) : []
-
-resource allowAppServiceIPs 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2023-03-01-preview' = [for incomingIpAddress in incomingIpAddressesUniqueArray: {
-  name: 'AKS_${replace(incomingIpAddress, '.', '_')}'
-  dependsOn: [
-    postgreSQLPetClinicDB
-  ]
-  parent: postgreSQLServer
-  properties: {
-    startIpAddress: incomingIpAddress
-    endIpAddress: incomingIpAddress
-  }
-}]
-
-var tmpIPs = empty(incomingIpAddressesUniqueArray) ? [allowAllAzureIPsFirewallRule.name] : map(incomingIpAddressesUniqueArray, item => 'AppService_${replace(item, '.', '_')}')
-var tmpDeploymentClientIPAddressArray = empty(deploymentClientIPAddress) ? [] : [allowClientIPFirewallRule.name]
-
-var allIPs = union(tmpDeploymentClientIPAddressArray, tmpIPs)
-
-output validFirewallRules array = allIPs

@@ -42,10 +42,6 @@ jobs:
         id: deployment
         working-directory: ./scripts/deployment/templates/bicep/
         run: |
-          clientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
-          echo "DEPLOYMENT_CLIENT_IP=${clientIP}" >> $GITHUB_OUTPUT
-          echo "Client IP: $clientIP"
-
           if [[ -z "${{secrets.DBA_GROUP_NAME}}" ]]; then
             echo "DBA Group name is not set"
             exit 1
@@ -131,7 +127,6 @@ jobs:
                                                      petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
                                                      petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
                                                      petClinicGitConfigRepoPassword="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
-                                                     deploymentClientIPAddress="${clientIP}" \
                                                      location="${{secrets.AZURE_LOCATION}}"`
 
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
@@ -163,8 +158,6 @@ jobs:
           petClinicVisitsSvcUserManagedIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityPrincipalId.value"`
           petClinicVisitsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityClientId.value"`
           petClinicVisitsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcDbUserName.value"`
-
-          pgsqlUpdatedFirewallRules=`echo $deploymentOutput|jq ".properties.outputs.pgsqlUpdatedFirewallRulesSet.value"`
 
           echo "TODO_APP_USER_MI_NAME: ${todoAppUserManagedIdentityName}"
           echo "TODO_APP_USER_MI_NAME=${todoAppUserManagedIdentityName}" >> $GITHUB_OUTPUT
@@ -215,10 +208,7 @@ jobs:
           echo "PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID=${petClinicVisitsSvcUserManagedIdentityClientId}" >> $GITHUB_OUTPUT
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME: ${petClinicVisitsSvcDbUserName}"
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME=${petClinicVisitsSvcDbUserName}" >> $GITHUB_OUTPUT
-
-          echo "PGSQL_UPDATED_FIREWALL_RULES: ${pgsqlUpdatedFirewallRules}"
-          echo "$pgsqlUpdatedFirewallRules" > ./PGSQL_UPDATED_FIREWALL_RULES.txt
-
+      
       # Avoid token validity issues (previous step sometimes takes too long)
       - name: Azure re-login in PGSQL Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v1
@@ -226,113 +216,6 @@ jobs:
           client-id: ${{ secrets.AAD_CLIENT_ID }}
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
-
-      - name: Remove obsolete PGSQL firewall rules
-        run: |
-          jsonUpdatedFirewallRuleNamesArray=`cat ./scripts/deployment/templates/bicep/PGSQL_UPDATED_FIREWALL_RULES.txt`
-          echo "jsonUpdatedFirewallRuleNamesArray: $jsonUpdatedFirewallRuleNamesArray"
-
-          shellUpdatedFirewallRuleNamesArray=`echo "$jsonUpdatedFirewallRuleNamesArray"| jq -r '.[]'`
-          echo "shellUpdatedFirewallRuleNamesArray: $shellUpdatedFirewallRuleNamesArray"
-
-          shellAllFirewallRuleNamesArray=`az postgres flexible-server firewall-rule list -n ${{secrets.PGSQL_NAME}} -g ${{secrets.PGSQL_RESOURCE_GROUP}} --query "[].name" -o tsv`
-          echo "shellAllFirewallRuleNamesArray: $shellAllFirewallRuleNamesArray"
-
-          for firewallRuleName in $shellAllFirewallRuleNamesArray;
-          do
-            echo "Testing Firewall rule: $firewallRuleName"
-            delete="false"
-            if [[ $shellUpdatedFirewallRuleNamesArray =~ $firewallRuleName ]]; then
-              echo "Firewall rule: $firewallRuleName is still valid"
-            else
-              echo "Firewall rule: $firewallRuleName is obsolete"
-              az postgres flexible-server firewall-rule delete --rule-name $firewallRuleName -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
-              echo "Firewall rule: $firewallRuleName has been deleted"
-            fi
-          done
-
-      # Avoid token validity issues (previous step sometimes takes too long)
-      # - name: Azure re-login in PGSLQ Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
-      #   uses: azure/login@v1
-      #   with:
-      #     client-id: ${{ secrets.AAD_CLIENT_ID }}
-      #     tenant-id: ${{ secrets.AAD_TENANT_ID }}
-      #     subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
-
-      # - name: Create TODO_APP_DB Database
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #     # When the database gets created using a script, AAD accounts gets full permissions on public schema and can assign roles
-      #     export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #     ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.TODO_APP_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
-
-      # - name: Create PET_CLINIC_APP_DB Database
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #     export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #     ./create_aad_db.sh -s "${{secrets.PGSQL_NAME}}" -d "${{secrets.PET_CLINIC_DB_NAME}}" -a "${{secrets.DBA_GROUP_NAME}}"
-
-      # - name: Create TODO_APP_DB user(s)
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #       ./create_aad_pgsql_user.sh \
-      #         -s "${{secrets.PGSQL_NAME}}" \
-      #         -d "${{secrets.TODO_APP_DB_NAME}}" \
-      #         -a "${{secrets.DBA_GROUP_NAME}}" \
-      #         -n "${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}" \
-      #         -o "${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}"
-
-      #       dbServerName="${{secrets.PGSQL_NAME}}"
-      #       dbName="${{secrets.TODO_APP_DB_NAME}}"
-      #       dbUserName="${{steps.deployment.outputs.TODO_APP_DB_USER_NAME}}"
-      #       dbAADAdminName="${{secrets.DBA_GROUP_NAME}}"
-
-      #       grantStatement="GRANT CONNECT ON DATABASE ${dbName} TO ${dbUserName};"
-      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
-
-      #       grantStatement="GRANT USAGE ON SCHEMA public TO ${dbUserName};"
-      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
-
-      #       grantStatement="GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${dbUserName};"
-      #       psql --set=sslmode=require -h ${dbServerName}.postgres.database.azure.com -p 5432 -d ${dbName} -U "${dbAADAdminName}" -tAc "${grantStatement}" -v ON_ERROR_STOP=1
-
-      # - name: Create PET_CLINIC_CUSTS_SVC DB user(s)
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #       ./create_aad_pgsql_user.sh \
-      #         -s "${{secrets.PGSQL_NAME}}" \
-      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-      #         -a "${{secrets.DBA_GROUP_NAME}}" \
-      #         -n "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
-      #         -o "${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}"
-
-      # - name: Create PET_CLINIC_VETS_SVC DB user(s)
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #       ./create_aad_pgsql_user.sh \
-      #         -s "${{secrets.PGSQL_NAME}}" \
-      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-      #         -a "${{secrets.DBA_GROUP_NAME}}" \
-      #         -n "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
-      #         -o "${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}"
-
-      # - name: Create PET_CLINIC_VISITS_SVC DB user(s)
-      #   working-directory: ./scripts/deployment/utils/
-      #   run: |
-      #       export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
-      #       ./create_aad_pgsql_user.sh \
-      #         -s "${{secrets.PGSQL_NAME}}" \
-      #         -d "${{secrets.PET_CLINIC_DB_NAME}}" \
-      #         -a "${{secrets.DBA_GROUP_NAME}}" \
-      #         -n "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
-      #         -o "${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}"
-
-      # - name: Remove DB Firewall exception used for DB setup
-      #   run: |
-      #       az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
 
       # Switch the subscription back to AKS subscription
       - name: Azure re-login in AKS Subscription

@@ -48,17 +48,17 @@ param containerRegistrySubscriptionId string = subscription().id
 param containerRegistryRG string = resourceGroup().name
 param containerRegistryTags string = aksTags
 
-var pgsqlSubscriptionIdVar = empty(pgsqlSubscriptionId) ? subscription().id : pgsqlSubscriptionId
-var pgsqlRGVar = empty(pgsqlRG) ? resourceGroup().name : pgsqlRG
-var pgsqlTagsVar = empty(pgsqlTags) ? aksTags : pgsqlTags
+var pgsqlSubscriptionIdVar = (pgsqlSubscriptionId == '') ? subscription().id : pgsqlSubscriptionId
+var pgsqlRGVar = (pgsqlRG == '') ? resourceGroup().name : pgsqlRG
+var pgsqlTagsVar = (pgsqlTags == '') ? aksTags : pgsqlTags
 
-var containerRegistrySubscriptionIdVar = empty(containerRegistrySubscriptionId) ? subscription().id : containerRegistrySubscriptionId
-var containerRegistryRGVar = empty(containerRegistryRG) ? resourceGroup().name : containerRegistryRG
-var containerRegistryTagsVar = empty(containerRegistryTags) ? aksTags : containerRegistryTags
+var containerRegistrySubscriptionIdVar = (containerRegistrySubscriptionId == '') ? subscription().id : containerRegistrySubscriptionId
+var containerRegistryRGVar = (containerRegistryRG == '') ? resourceGroup().name : containerRegistryRG
+var containerRegistryTagsVar = (containerRegistryTags == '') ? aksTags : containerRegistryTags
 
-var logAnalyticsSubscriptionIdVar = empty(logAnalyticsSubscriptionId) ? subscription().id : logAnalyticsSubscriptionId
-var logAnalyticsRGVar = empty(logAnalyticsRG) ? resourceGroup().name : logAnalyticsRG
-var logAnalyticsTagsVar = empty(logAnalyticsTags) ? aksTags : logAnalyticsTags
+var logAnalyticsSubscriptionIdVar = (logAnalyticsSubscriptionId == '') ? subscription().id : logAnalyticsSubscriptionId
+var logAnalyticsRGVar = (logAnalyticsRG == '') ? resourceGroup().name : logAnalyticsRG
+var logAnalyticsTagsVar = (logAnalyticsTags == '') ? aksTags : logAnalyticsTags
 
 var aksTagsArray = json(aksTags)
 var pgsqlTagsArray = json(pgsqlTagsVar)
@@ -69,8 +69,6 @@ var appGatewayName = '${aksName}-appgw'
 var vnetName = '${aksName}-vnet'
 var aksSubnetName = 'aks-default'
 var appGatewaySubnetName = 'appgw-subnet'
-
-param deploymentClientIPAddress string
 
 param location string
 
@@ -152,8 +150,6 @@ module pgsql './components/pgsql.bicep' = {
     location: location
     tagsArray: pgsqlTagsArray
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
-    // incomingIpAddresses: aks.outputs.outboundIpAddresses TODO: fix
-    deploymentClientIPAddress: deploymentClientIPAddress
   }
 }
 
@@ -699,5 +695,3 @@ output petClinicVisitsSvcUserManagedIdentityName string = petClinicVisitsSvcUser
 output petClinicVisitsSvcUserManagedIdentityPrincipalId string = petClinicVisitsSvcUserManagedIdentity.properties.principalId
 output petClinicVisitsSvcUserManagedIdentityClientId string = petClinicVisitsSvcUserManagedIdentity.properties.clientId
 output petClinicVisitsSvcDbUserName string = petClinicVisitsSvcDbUserName
-
-output pgsqlUpdatedFirewallRulesSet array = pgsql.outputs.validFirewallRules

@@ -40,19 +40,8 @@ jobs:
         fetch-depth: 0
     
     # Not very nice to have to repeat this for each service, but
-    # in case of no change in a service, only this job will run,
-    # in case of a change in one servive, this job (+ one release job)
-    # will run etc (n+1 jobs for n services changed)
-    # And on top of that, this can be used as a demo for a dynamically
-    # generated matrix.
-    # However, the best solution would be to split this monorepo into
-    # multiple repos, one for each service, and let each of these re-
-    # pos to take care of their own release and deployment needs. 
-    # But that would require some coordination between these jobs,
-    # as otherwise, they would overwrite each others' PGSQL firewall
-    # settings. Of course... the best would be just to get real,
-    # implement a VNET/Private endpoint architecture + deploy a GH
-    # agent
+    # maybe as a demonstration for auto-generated strategy.matrix
+    # it's ok
     - name: Semver for TODO-APP
       uses: PaulHatch/semantic-version@v5.3.0
       id: semver_todo_app_version
@@ -306,7 +295,7 @@ jobs:
       id-token: write
 
     strategy:
-      max-parallel: 1
+      max-parallel: 11
       matrix: ${{fromJson(needs.versions.outputs.matrix)}}
     env:
       ARTIFACT_NAME: ${{ matrix.artifact }}
@@ -446,12 +435,6 @@ jobs:
         az acr build ./ -r ${{secrets.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile --subscription "${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
         cd ..
 
-    - name: Add DB Firewall exception used for Schema sync
-      if: ${{ steps.params.outputs.DB_NAME != '' }}
-      run: |
-        deploymentClientIP=`dig +short myip.opendns.com @resolver1.opendns.com.`
-        az postgres flexible-server firewall-rule create --rule-name "AllowDeploymentClientIP" --resource-group ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --start-ip-address ${deploymentClientIP} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}"
-  
     - name: Synchronize DB Schema
       if: ${{ steps.params.outputs.DB_NAME != '' }}
       env:
@@ -528,8 +511,3 @@ jobs:
           --command "kubectl apply -f deployment.yml.tmp" \
           --file deployment.yml.tmp \
           --subscription "${{secrets.AKS_SUBSCRIPTION_ID}}"
-
-    - name: Remove DB Firewall exception used for Schema sync
-      if: ${{ steps.params.outputs.DB_NAME != '' }}
-      run: |
-        az postgres flexible-server firewall-rule delete --rule-name "AllowDeploymentClientIP" -g ${{secrets.PGSQL_RESOURCE_GROUP}} --name ${{secrets.PGSQL_NAME}} --subscription "${{secrets.PGSQL_SUBSCRIPTION_ID}}" --yes
