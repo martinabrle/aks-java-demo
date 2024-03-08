@@ -7,8 +7,17 @@ jobs:
   deploy_infra:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
-      contents: read
+        id-token: write
+        contents: read
+    env:
+      AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
+      AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+      PGSQL_SUBSCRIPTION_ID: ${{secrets.PGSQL_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
+      PGSQL_RESOURCE_GROUP: ${{secrets.PGSQL_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
+      CONTAINER_REGISTRY_SUBSCRIPTION_ID: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
+      CONTAINER_REGISTRY_RESOURCE_GROUP: ${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
+      LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID: ${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
+      LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP: ${{secrets.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
     steps:
       - uses: actions/checkout@v4
 
@@ -17,27 +26,27 @@ jobs:
         with:
           client-id: "${{secrets.AAD_CLIENT_ID}}"
           tenant-id: "${{secrets.AAD_TENANT_ID}}"
-          subscription-id: "${{secrets.AKS_SUBSCRIPTION_ID}}"
+          subscription-id: "${{env.AKS_SUBSCRIPTION_ID}}"
 
       - name: Create Azure resource group
         working-directory: ./scripts/deployment/templates/bicep/
         run: |
-          az deployment sub create \
-            -l "${{secrets.AZURE_LOCATION}}" \
-            --template-file ./resource_groups.bicep \
-            --parameters location="${{secrets.AZURE_LOCATION}}" \
-                         aksRG="${{secrets.AKS_RESOURCE_GROUP}}" \
-                         aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
-                         containerRegistrySubscriptionId="${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
-                         containerRegistryRG="${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
-                         containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
-                         pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
-                         pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
-                         pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
-                         logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
-                         logAnalyticsRG="${{secrets.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
-                         logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}"
-
+            az deployment sub create \
+              -l "${{secrets.AZURE_LOCATION}}" \
+              --template-file ./resource_groups.bicep \
+              --parameters location="${{secrets.AZURE_LOCATION}}" \
+                           aksRG="${{env.AKS_RESOURCE_GROUP}}" \
+                           aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
+                           containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
+                           containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
+                           containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+                           pgsqlSubscriptionId="${{env.PGSQL_SUBSCRIPTION_ID}}" \
+                           pgsqlRG="${{env.PGSQL_RESOURCE_GROUP}}" \
+                           pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
+                           logAnalyticsSubscriptionId="${{env.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
+                           logAnalyticsRG="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
+                           logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}"
+        
       - name: Deploy Azure resources
         id: deployment
         working-directory: ./scripts/deployment/templates/bicep/
@@ -99,19 +108,19 @@ jobs:
           export clientIP=""
           az account list --output table # test
           deploymentOutput=`az deployment group create \
-                                        --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
+                                        --resource-group ${{env.AKS_RESOURCE_GROUP}} \
                                         --template-file ./main.bicep \
                                         --parameters aksName="${{secrets.AKS_NAME}}" \
                                                      aksAdminGroupObjectId="${aksGroupId}" \
                                                      aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
                                                      containerRegistryName="${{secrets.CONTAINER_REGISTRY_NAME}}" \
-                                                     containerRegistrySubscriptionId="${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
-                                                     containerRegistryRG="${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
+                                                     containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
+                                                     containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
                                                      containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
                                                      pgsqlName="${{secrets.PGSQL_NAME}}" \
                                                      pgsqlAADAdminGroupName="${{secrets.DBA_GROUP_NAME}}" \
                                                      pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
-                                                     pgsqlSubscriptionId="${{secrets.PGSQL_SUBSCRIPTION_ID}}" \
+                                                     pgsqlSubscriptionId="${{env.PGSQL_SUBSCRIPTION_ID}}" \
                                                      pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
                                                      pgsqlPetClinicDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
                                                      petClinicCustsSvcDbUserName="${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
@@ -121,8 +130,8 @@ jobs:
                                                      todoAppDbUserName="${{secrets.TODO_APP_DB_USER_NAME}}" \
                                                      pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
                                                      logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
-                                                     logAnalyticsSubscriptionId="${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
-                                                     logAnalyticsRG="${{secrets.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
+                                                     logAnalyticsSubscriptionId="${{env.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
+                                                     logAnalyticsRG="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
                                                      logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}" \
                                                      petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
                                                      petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
@@ -209,51 +218,43 @@ jobs:
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME: ${petClinicVisitsSvcDbUserName}"
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME=${petClinicVisitsSvcDbUserName}" >> $GITHUB_OUTPUT
       
-      # Avoid token validity issues (previous step sometimes takes too long)
-      - name: Azure re-login in PGSQL Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AAD_CLIENT_ID }}
-          tenant-id: ${{ secrets.AAD_TENANT_ID }}
-          subscription-id: ${{ secrets.PGSQL_SUBSCRIPTION_ID }}
-
       # Switch the subscription back to AKS subscription
       - name: Azure re-login in AKS Subscription
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AAD_CLIENT_ID }}
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
-          subscription-id: ${{ secrets.AKS_SUBSCRIPTION_ID }}
+          subscription-id: ${{ env.AKS_SUBSCRIPTION_ID }}
 
       - name: Deploy Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          cat ./01-namespaces.yml
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./01-namespaces.yml" \
-            --file ./01-namespaces.yml
+            cat ./01-namespaces.yml
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./01-namespaces.yml" \
+              --file ./01-namespaces.yml
 
       - name: Deploy Config Maps for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          cat ./07a-config-map-todo-app.yml
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./07a-config-map-todo-app.yml" \
-            --file ./07a-config-map-todo-app.yml
+            cat ./07a-config-map-todo-app.yml
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./07a-config-map-todo-app.yml" \
+              --file ./07a-config-map-todo-app.yml
 
       - name: Deploy Config Maps for PET_CLINIC_APP
         working-directory: ./scripts/deployment/templates/k8s/
         run: |
-          cat ./07b-config-map-pet-clinic-app.yml
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./07b-config-map-pet-clinic-app.yml" \
-            --file ./07b-config-map-pet-clinic-app.yml
+            cat ./07b-config-map-pet-clinic-app.yml
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./07b-config-map-pet-clinic-app.yml" \
+              --file ./07b-config-map-pet-clinic-app.yml
 
       - name: Deploy K8S role bindings for TODO_APP
         working-directory: ./scripts/deployment/templates/k8s/
@@ -261,13 +262,13 @@ jobs:
           TODO_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_VIEW_AD_GROUP_ID}}
           TODO_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.TODO_APP_EDIT_AD_GROUP_ID}}
         run: |
-          cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${{env.TODO_APP_EDIT_AD_GROUP_ID}} TODO_APP_VIEW_AD_GROUP_ID=${{env.TODO_APP_VIEW_AD_GROUP_ID}} envsubst > ./02a-rolebinding-todo.yml.tmp
-          cat ./02a-rolebinding-todo.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp" \
-            --file ./02a-rolebinding-todo.yml.tmp
+            cat ./02a-rolebinding-todo.yml | TODO_APP_EDIT_AD_GROUP_ID=${{env.TODO_APP_EDIT_AD_GROUP_ID}} TODO_APP_VIEW_AD_GROUP_ID=${{env.TODO_APP_VIEW_AD_GROUP_ID}} envsubst > ./02a-rolebinding-todo.yml.tmp
+            cat ./02a-rolebinding-todo.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./02a-rolebinding-todo.yml.tmp" \
+              --file ./02a-rolebinding-todo.yml.tmp
 
       - name: Deploy K8S role bindings for PET_CLINIC_APP
         working-directory: ./scripts/deployment/templates/k8s/
@@ -275,13 +276,13 @@ jobs:
           PET_CLINIC_APP_VIEW_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_VIEW_AD_GROUP_ID}}
           PET_CLINIC_APP_EDIT_AD_GROUP_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_EDIT_AD_GROUP_ID}}
         run: |
-          cat ./02b-rolebinding-pet-clinic.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-pet-clinic.yml.tmp
-          cat ./02b-rolebinding-pet-clinic.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./02b-rolebinding-pet-clinic.yml.tmp" \
-            --file ./02b-rolebinding-pet-clinic.yml.tmp
+            cat ./02b-rolebinding-pet-clinic.yml | PET_CLINIC_APP_EDIT_AD_GROUP_ID=${{env.PET_CLINIC_APP_EDIT_AD_GROUP_ID}} PET_CLINIC_APP_VIEW_AD_GROUP_ID=${{env.PET_CLINIC_APP_VIEW_AD_GROUP_ID}} envsubst > ./02b-rolebinding-pet-clinic.yml.tmp
+            cat ./02b-rolebinding-pet-clinic.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./02b-rolebinding-pet-clinic.yml.tmp" \
+              --file ./02b-rolebinding-pet-clinic.yml.tmp
 
       - name: Deploy TODO_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -290,13 +291,13 @@ jobs:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
-          cat ./04a-kv-secrets-todo-app.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp" \
-            --file ./04a-kv-secrets-todo-app.yml.tmp
+            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
+            cat ./04a-kv-secrets-todo-app.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04a-kv-secrets-todo-app.yml.tmp" \
+              --file ./04a-kv-secrets-todo-app.yml.tmp
 
       - name: Deploy PET_CLINIC_APP General KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -305,14 +306,14 @@ jobs:
           PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
-          cat ./04b-kv-secrets-pet-clinic-app.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp" \
-            --file ./04b-kv-secrets-pet-clinic-app.yml.tmp
-
+            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+            cat ./04b-kv-secrets-pet-clinic-app.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04b-kv-secrets-pet-clinic-app.yml.tmp" \
+              --file ./04b-kv-secrets-pet-clinic-app.yml.tmp
+      
       - name: Deploy PET_CLINIC_CONFIG_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
@@ -320,13 +321,13 @@ jobs:
           CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
-          cat ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp" \
-            --file ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+            cat ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp" \
+              --file ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_CUSTS_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -335,13 +336,13 @@ jobs:
           CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
-          cat ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp" \
-            --file ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp" \
+              --file ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_VETS_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
@@ -350,14 +351,14 @@ jobs:
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
-          cat ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp" \
-            --file ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
-
+            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp" \
+              --file ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+            
       - name: Deploy PET_CLINIC_VISITS_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
@@ -365,96 +366,96 @@ jobs:
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
           TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-          cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
-          cat ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp" \
-            --file ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp" \
+              --file ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
 
       - name: Deploy TODO_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
-          cat ./06a-workload-identity-todo-app.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp" \
-            --file ./06a-workload-identity-todo-app.yml.tmp
+            cat ./06a-workload-identity-todo-app.yml | TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} envsubst > ./06a-workload-identity-todo-app.yml.tmp
+            cat ./06a-workload-identity-todo-app.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06a-workload-identity-todo-app.yml.tmp" \
+              --file ./06a-workload-identity-todo-app.yml.tmp
 
       - name: Deploy PET_CLINIC_APP workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06b-workload-identity-pet-clinic-app.yml | PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}}  envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
-          cat ./06b-workload-identity-pet-clinic-app.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp" \
-            --file ./06b-workload-identity-pet-clinic-app.yml.tmp
+            cat ./06b-workload-identity-pet-clinic-app.yml | PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}}  envsubst > ./06b-workload-identity-pet-clinic-app.yml.tmp
+            cat ./06b-workload-identity-pet-clinic-app.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06b-workload-identity-pet-clinic-app.yml.tmp" \
+              --file ./06b-workload-identity-pet-clinic-app.yml.tmp
 
       - name: Deploy PET_CLINIC_CONFIG_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06c-workload-identity-pet-clinic-config-svc.yml | CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} envsubst > ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
-          cat ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06c-workload-identity-pet-clinic-config-svc.yml.tmp" \
-            --file ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+            cat ./06c-workload-identity-pet-clinic-config-svc.yml | CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} envsubst > ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+            cat ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06c-workload-identity-pet-clinic-config-svc.yml.tmp" \
+              --file ./06c-workload-identity-pet-clinic-config-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_CUSTS_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06d-workload-identity-pet-clinic-custs-svc.yml | CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} envsubst > ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
-          cat ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp" \
-            --file ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
+            cat ./06d-workload-identity-pet-clinic-custs-svc.yml | CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} envsubst > ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
+            cat ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp" \
+              --file ./06d-workload-identity-pet-clinic-custs-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_VETS_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06e-workload-identity-pet-clinic-vets-svc.yml | VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} envsubst > ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
-          cat ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp" \
-            --file ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
+            cat ./06e-workload-identity-pet-clinic-vets-svc.yml | VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} envsubst > ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
+            cat ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp" \
+              --file ./06e-workload-identity-pet-clinic-vets-svc.yml.tmp
 
       - name: Deploy PET_CLINIC_VISITS_SVC workload identity manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
         run: |
-          cat ./06f-workload-identity-pet-clinic-visits-svc.yml | VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
-          cat ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
-          az aks command invoke \
-            --resource-group ${{secrets.AKS_RESOURCE_GROUP}} \
-            --name ${{secrets.AKS_NAME}} \
-            --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp" \
-            --file ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
-
+            cat ./06f-workload-identity-pet-clinic-visits-svc.yml | VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} envsubst > ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+            cat ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+            az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{secrets.AKS_NAME}} \
+              --command "kubectl apply -f ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp" \
+              --file ./06f-workload-identity-pet-clinic-visits-svc.yml.tmp
+      
       - name: Create federated identity for TODO_APP on AKS
         env:
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{secrets.AKS_NAME}}-fi-todo-app
           SERVICE_ACCOUNT_NAMESPACE: "todo"
           SERVICE_ACCOUNT_NAME: "todo-app-service-account"
@@ -467,7 +468,7 @@ jobs:
       - name: Create federated identity for PET_CLINIC_APP on AKS
         env:
           PET_CLINIC_APP_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{secrets.AKS_NAME}}-fi-pet-clinic-app
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-app-service-account"
