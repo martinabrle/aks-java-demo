@@ -60,22 +60,22 @@ jobs:
     - name: Set versions
       id: versions
       run: |
-          forceRelease=false
-          createRelease=false
-          if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
-            if [[ "${{github.event.inputs.force_release}}" == "true" ]]; then
-              forceRelease=true
-            fi
+        forceRelease=false
+        createRelease=false
+        if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
+          if [[ "${{github.event.inputs.force_release}}" == "true" ]]; then
+            forceRelease=true
           fi
-          if [[ "${{steps.semver_version.outputs.changed}}" == "true" && "${{steps.semver_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-            createRelease=true
-          fi
-          echo "CREATE_RELEASE=$createRelease" >> $GITHUB_OUTPUT
-          echo "VERSION=${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
-          echo "VERSION_TAG=${{steps.semver_version.outputs.version_tag}}" >> $GITHUB_OUTPUT
-          echo "RELEASE_ARCHIVE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.zip" >> $GITHUB_OUTPUT
-          echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
-          echo "RELEASE_FILE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.jar" >> $GITHUB_OUTPUT
+        fi
+        if [[ "${{steps.semver_version.outputs.changed}}" == "true" && "${{steps.semver_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
+          createRelease=true
+        fi
+        echo "CREATE_RELEASE=$createRelease" >> $GITHUB_OUTPUT
+        echo "VERSION=${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
+        echo "VERSION_TAG=${{steps.semver_version.outputs.version_tag}}" >> $GITHUB_OUTPUT
+        echo "RELEASE_ARCHIVE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.zip" >> $GITHUB_OUTPUT
+        echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
+        echo "RELEASE_FILE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.jar" >> $GITHUB_OUTPUT
 
     - name: Display parameters
       id: params
