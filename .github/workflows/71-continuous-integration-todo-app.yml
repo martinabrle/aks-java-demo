@@ -183,21 +183,23 @@ jobs:
         RELEASE_ARCHIVE_NAME: ${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}
       run: |
         ls -la ./${{env.RELEASE_ARCHIVE_NAME}}
-        gh release create ${{env.VERSION}} ${{env.RELEASE_ARCHIVE_NAME}} --notes "Auto release ${{env.VERSION_TAG}}"
+        gh release create ${{env.VERSION_TAG}} ${{env.RELEASE_ARCHIVE_NAME}} --notes "Auto release ${{env.VERSION_TAG}}"
     
     - name: Build a new container image
       id: build_container
       env: 
         VERSION: ${{steps.versions.outputs.VERSION}}
+        VERSION_TAG: ${{steps.versions.outputs.VERSION_TAG}}
         RELEASE_ARCHIVE_NAME: ${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}
         RELEASE_DIR_NAME: ${{steps.versions.outputs.RELEASE_DIR_NAME}}
         RELEASE_FILE_NAME: ${{steps.versions.outputs.RELEASE_FILE_NAME}}
       run: |
         if [[ "${{steps.versions.outputs.CREATE_RELEASE}}" == 'false' ]]; then
           echo "Release was not created as it exists already, downloading the existing release..."
-          gh release download ${{env.VERSION}} -D ./
+          gh release download ${{env.VERSION_TAG}} -D ./
           echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
           unzip ${{env.RELEASE_ARCHIVE_NAME}}
+          ls -la
           if [[ ! -f "${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}" ]]; then
             echo "'${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}' does not exist."
             exit 1
