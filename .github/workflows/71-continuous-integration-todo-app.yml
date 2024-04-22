@@ -193,7 +193,7 @@ jobs:
         RELEASE_DIR_NAME: ${{steps.versions.outputs.RELEASE_DIR_NAME}}
         RELEASE_FILE_NAME: ${{steps.versions.outputs.RELEASE_FILE_NAME}}
       run: |
-        if [[ steps.versions.outputs.CREATE_RELEASE == 'false' ]]; then
+        if [[ "${{steps.versions.outputs.CREATE_RELEASE}}" == 'false' ]]; then
           echo "Release was not created as it exists already, downloading the existing release..."
           gh release download ${{env.VERSION}} -D ./
           echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
