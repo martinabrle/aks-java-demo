@@ -62,18 +62,6 @@ jobs:
     - name: Set versions
       id: versions
       run: |
-      /*TODO::::::FIX*/
-        forceRelease=false
-        createRelease=false
-        if [[ "${{github.event_name}}" == "workflow_dispatch" ]]; then
-          if [[ "${{github.event.inputs.force_release}}" == "true" ]]; then
-            forceRelease=true
-          fi
-        fi
-        if [[ "${{steps.semver_version.outputs.changed}}" == "true" && "${{steps.semver_version.outputs.is_tagged}}" == "false" || "$forceRelease" == "true" ]]; then
-          createRelease=true
-        fi
-
         echo "RELEASE_EXISTS=${{steps.check_release_exists.outputs.RELEASE_EXISTS}}" >> $GITHUB_OUTPUT
         echo "VERSION=${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
         echo "VERSION_TAG=${{steps.semver_version.outputs.version_tag}}" >> $GITHUB_OUTPUT
@@ -111,10 +99,12 @@ jobs:
     - name: Set the release version
       if: steps.versions.outputs.RELEASE_EXISTS == 'false'
       working-directory: ${{env.SRC_DIR}}
+      env:
+        VERSION: ${{steps.versions.outputs.VERSION}}
       run: |
         mv ./pom.xml ./pom.xml.bak
         ls -la
-        java ../scripts/deployment/utils/JavaUtils.java -update_pom_version ./pom.xml.bak ${{steps.versions.outputs.VERSION}} ./pom.xml
+        java ../scripts/deployment/utils/JavaUtils.java -update_pom_version ./pom.xml.bak ${{env.VERSION}} ./pom.xml
 
     - name: Set the git commit id
       if: steps.versions.outputs.RELEASE_EXISTS == 'false'
@@ -202,11 +192,12 @@ jobs:
       env: 
         VERSION: ${{steps.versions.outputs.VERSION}}
         VERSION_TAG: ${{steps.versions.outputs.VERSION_TAG}}
+        RELEASE_EXISTS: ${{steps.versions.outputs.RELEASE_EXISTS}}
         RELEASE_ARCHIVE_NAME: ${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}
         RELEASE_DIR_NAME: ${{steps.versions.outputs.RELEASE_DIR_NAME}}
         RELEASE_FILE_NAME: ${{steps.versions.outputs.RELEASE_FILE_NAME}}
       run: |
-        if [[ "${{steps.versions.outputs.RELEASE_EXISTS}}" == 'true' ]]; then
+        if [[ "${{env.RELEASE_EXISTS}}" == 'true' ]]; then
           echo "Release was not created as it exists already, downloading the existing release..."
           gh release download ${{env.VERSION_TAG}} -D ./
           echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
