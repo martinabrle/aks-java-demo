@@ -187,6 +187,7 @@ jobs:
     
     - name: Build a new container image
       id: build_container
+      working-directory: ${{env.SRC_DIR}}
       env: 
         VERSION: ${{steps.versions.outputs.VERSION}}
         VERSION_TAG: ${{steps.versions.outputs.VERSION_TAG}}
@@ -205,9 +206,7 @@ jobs:
             exit 1
           fi
         fi
-        echo "RELEASE_DIR_NAME: ${{env.RELEASE_DIR_NAME}}"
 
-        ls -la
         cd ./${{env.RELEASE_DIR_NAME}}
         mv ./Dockerfile ./Dockerfile.tmp
         # Dockerfile syntax is driving me bonkers. This should work...
