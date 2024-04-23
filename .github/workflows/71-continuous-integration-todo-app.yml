@@ -191,7 +191,8 @@ jobs:
     - name: Build a new container image
       id: build_container
       working-directory: ${{env.SRC_DIR}}
-      env: 
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION: ${{steps.versions.outputs.VERSION}}
         VERSION_TAG: ${{steps.versions.outputs.VERSION_TAG}}
         RELEASE_EXISTS: ${{steps.versions.outputs.RELEASE_EXISTS}}
