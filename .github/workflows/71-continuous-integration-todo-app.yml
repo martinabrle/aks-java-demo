@@ -54,6 +54,8 @@ jobs:
     - name: Check release exists
       id: check_release_exists
       continue-on-error: true
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         echo "RELEASE_EXISTS=true" >> $GITHUB_OUTPUT
         gh release view -R ${{steps.semver_version.outputs.version_tag}}
