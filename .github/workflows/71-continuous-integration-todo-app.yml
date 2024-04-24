@@ -58,7 +58,7 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         echo "RELEASE_EXISTS=false" >> $GITHUB_OUTPUT
-        gh release view -R ${{steps.semver_version.outputs.version_tag}}
+        gh release view ${{ github.repository }} -R ${{steps.semver_version.outputs.version_tag}}
         echo "RELEASE_EXISTS=true" >> $GITHUB_OUTPUT
     
     - name: Set versions
