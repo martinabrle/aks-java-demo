@@ -90,7 +90,7 @@ jobs:
           echo "ARTIFACT_NAME=${{env.ARTIFACT_NAME}}"
           echo "VERSION=${{steps.versions.outputs.VERSION}}"
           echo "VERSION_TAG=${{steps.versions.outputs.VERSION_TAG}}"
-          echo "RELEASE_EXISTS=${{steps.versions.outputs.RELEASE_EXISTS}}"
+          echo "RELEASE_EXISTS=${{steps.download_release.outputs.RELEASE_EXISTS}}"
           echo "RELEASE_ARCHIVE_NAME=${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}"
           echo "RELEASE_DIR_NAME=${{steps.versions.outputs.RELEASE_DIR_NAME}}"
           echo "RELEASE_FILE_NAME=${{steps.versions.outputs.RELEASE_FILE_NAME}}"
