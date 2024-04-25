@@ -83,7 +83,7 @@ jobs:
           RELEASE_ARCHIVE_NAME: ${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}
         run: |
             echo "RELEASE_EXISTS=false" >> $GITHUB_OUTPUT
-            gh release download -R ${{env.VERSION_TAG}} -D ./
+            gh release download ${{env.VERSION_TAG}} -D ./
             echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
             unzip ${{env.RELEASE_ARCHIVE_NAME}}
             echo "RELEASE_EXISTS=true" >> $GITHUB_OUTPUT
