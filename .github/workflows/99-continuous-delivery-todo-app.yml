@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/v') || ((github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_call' || (github.event_name == 'push' && github.ref == 'refs/heads/main')) && startsWith(inputs.version,'v')) }} 
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Init version numbers
         id: versions
         run: |
@@ -79,7 +83,7 @@ jobs:
           RELEASE_ARCHIVE_NAME: ${{steps.versions.outputs.RELEASE_ARCHIVE_NAME}}
         run: |
             echo "RELEASE_EXISTS=false" >> $GITHUB_OUTPUT
-            gh release download ${{env.VERSION_TAG}} -D ./
+            gh release download -R ${{env.VERSION_TAG}} -D ./
             echo "Unzipping the release archive file: ${{env.RELEASE_ARCHIVE_NAME}}"
             unzip ${{env.RELEASE_ARCHIVE_NAME}}
             echo "RELEASE_EXISTS=true" >> $GITHUB_OUTPUT
