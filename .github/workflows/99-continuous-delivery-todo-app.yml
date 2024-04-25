@@ -1,4 +1,4 @@
-name: 71-Continuous-Integration-Todo-App
+name: 71-Continuous-Delivery-Todo-App
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported
