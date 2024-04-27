@@ -221,9 +221,9 @@ jobs:
         az acr build ./ -r ${{env.CONTAINER_REGISTRY_NAME}} -t "${{env.ARTIFACT_NAME}}:${{env.VERSION}}" --file ./Dockerfile --subscription "${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
         cd ..
 
-  # deploy:
-  #   needs: [build]
-  #   uses: ./.github/workflows/99-continuous-delivery-todo-app.yml
-  #   with:
-  #     version: ${{needs.build.outputs.VERSION_TAG}}
-  #   secrets: inherit
+  deploy:
+    needs: [build]
+    uses: ./.github/workflows/99-continuous-delivery-todo-app.yml
+    with:
+      version: 'v${{needs.build.outputs.VERSION}}'
+    secrets: inherit

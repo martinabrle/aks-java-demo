@@ -168,7 +168,7 @@ jobs:
         run: |
           # Figure which service user to use and it's appId .. never know when to use id and when to use appId.
           appClientId=`az ad sp list --display-name "${userManagedIdentityName}" --query "[?displayName=='${{env.USER_IDENTITY_NAME}}'].appId" --out tsv`
-          
+        
           echo "DB user: ${{env.DB_USER_NAME}}"
           echo "Managed identity name: ${{env.USER_IDENTITY_NAME}}"
           echo "Managed identity appClientId: ${appClientId}"
