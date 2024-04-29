@@ -1,11 +1,11 @@
-name: 71-Continuous-Integration-Todo-App
+name: 72-Continuous-Integration-Pets-Config-Srv
 
 on:
   push:
    branches:
      - main
    paths:
-     - 'todo-app/**'
+     - 'spring-petclinic-config-server/**'
 
   workflow_dispatch:
 
@@ -17,14 +17,14 @@ jobs:
       packages: write
       id-token: write
     env:
-      SEMVER_NAMESPACE: todo-app
-      SEMVER_CHANGE_PATH: todo-app
-      ARTIFACT_NAME: todo-app
-      SRC_DIR: todo-app
-      JAVA_VERSION: 11
-      DB: ${{secrets.TODO_APP_DB_NAME}}
-      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-todo-app-identity
-      DB_USER_NAME: ${{secrets.TODO_APP_DB_USER_NAME}}
+      SEMVER_NAMESPACE: spring-petclinic-config-server
+      SEMVER_CHANGE_PATH: spring-petclinic-config-server
+      ARTIFACT_NAME: spring-petclinic-config-server
+      SRC_DIR: spring-petclinic-config-server
+      JAVA_VERSION: 17
+      DB: ''
+      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-config-identity
+      DB_USER_NAME: ''
       CONTAINER_REGISTRY_SUBSCRIPTION_ID: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}
       CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
     outputs:
@@ -223,7 +223,7 @@ jobs:
 
   deploy:
     needs: [build]
-    uses: ./.github/workflows/91-continuous-delivery-todo-app.yml
+    uses: ./.github/workflows/92-continuous-delivery-pets-config-srv.yml
     with:
       version: 'v${{needs.build.outputs.VERSION}}'
     secrets: inherit
