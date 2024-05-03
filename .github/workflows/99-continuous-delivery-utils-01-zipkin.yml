@@ -144,6 +144,7 @@ jobs:
           RELEASE_FILE_NAME: ${{steps.versions.outputs.RELEASE_FILE_NAME}}
         run: |
           ls -la
+          ls -la ${{env.RELEASE_DIR_NAME}}
           if [[ ! -f "${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}" ]]; then
             echo "'${{env.RELEASE_DIR_NAME}}/${{env.RELEASE_FILE_NAME}}' does not exist."
             exit 1
