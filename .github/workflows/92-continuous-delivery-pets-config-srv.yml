@@ -1,4 +1,4 @@
-name: 71-Continuous-Delivery-Pets-Config-Srv
+name: 92-Continuous-Delivery-Pets-Config-Srv
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported

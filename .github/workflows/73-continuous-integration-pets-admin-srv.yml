@@ -1,4 +1,4 @@
-name: 72-Continuous-Integration-Pets-Admin-Srv
+name: 73-Continuous-Integration-Pets-Admin-Srv
 
 on:
   push:
