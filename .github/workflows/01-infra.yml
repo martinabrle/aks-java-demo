@@ -1,4 +1,4 @@
-name: 001-Infra
+name: 01-Infra
 
 on:
   workflow_dispatch:
