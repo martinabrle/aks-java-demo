@@ -1,14 +1,10 @@
-name: 00-Init-Repository
+name: 00-Init-Repository-Pet-Clinic
 
 on:
   workflow_dispatch:
 
 jobs:
-    todo-app:
-        uses: ./.github/workflows/71-continuous-integration-todo-app.yml
-        secrets: inherit
     pets-config-svc:
-        needs: todo-app
         uses: ./.github/workflows/72-continuous-integration-pets-config-srv.yml
         secrets: inherit
     pets-admin-svc:
