@@ -17,7 +17,7 @@ jobs:
       packages: write
       id-token: write
     env:
-      APP_INSIGHTS: false
+      APP_INSIGHTS: true
       SEMVER_NAMESPACE: spring-petclinic-visits-service
       SEMVER_CHANGE_PATH: spring-petclinic-visits-service
       ARTIFACT_NAME: spring-petclinic-visits-service
