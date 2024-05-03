@@ -13,11 +13,11 @@ jobs:
         secrets: inherit
     pets-config-svc:
         needs: todo-app
-        uses: ./.github/workflows/72-continuous-integration-pets-config-svc.yml
+        uses: ./.github/workflows/72-continuous-integration-pets-config-srv.yml
         secrets: inherit
     pets-admin-svc:
         needs: pets-config-svc
-        uses: ./.github/workflows/73-continuous-integration-pets-admin-svc.yml
+        uses: ./.github/workflows/73-continuous-integration-pets-admin-srv.yml
         secrets: inherit
     pets-disco-svc:
         needs: pets-admin-svc
