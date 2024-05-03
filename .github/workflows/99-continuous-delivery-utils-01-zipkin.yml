@@ -1,4 +1,4 @@
-name: 94-Continuous-Delivery-Pets-Disco-Svc
+name: 98-Continuous-Delivery-Pets-Visits-Svc
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported
@@ -18,12 +18,10 @@ on:
 jobs:
   deploy:
     env:
-      SEMVER_NAMESPACE: spring-petclinic-discovery-server
-      SEMVER_CHANGE_PATH: spring-petclinic-discovery-server
-      ARTIFACT_NAME: spring-petclinic-discovery-server
-      SRC_DIR: spring-petclinic-discovery-server
-      JAVA_VERSION: 17
-      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-app-identity
+      ARTIFACT_NAME: zipkin
+      SRC_DIR: spring-petclinic-visits-service
+      JAVA_VERSION: ''
+      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-visits-identity
       PGSQL_NAME: ''
       DB: ''
       DB_USER_NAME: ''
