@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-    infra:
-        uses: ./.github/workflows/01-infra.yml
-        secrets: inherit
     todo-app:
-        needs: infra
         uses: ./.github/workflows/71-continuous-integration-todo-app.yml
         secrets: inherit
     pets-config-svc:
