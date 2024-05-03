@@ -18,10 +18,10 @@ jobs:
       id-token: write
     env:
       APP_INSIGHTS: false
-      SEMVER_NAMESPACE: spring-petclinic-discovery-server
-      SEMVER_CHANGE_PATH: spring-petclinic-discovery-server
-      ARTIFACT_NAME: docker/zipkin
-      SRC_DIR: spring-petclinic-discovery-server
+      SEMVER_NAMESPACE: zipkin
+      SEMVER_CHANGE_PATH: docker/zipkin
+      ARTIFACT_NAME: zipkin
+      SRC_DIR: docker/zipkin
       JAVA_VERSION: ''
       DB: ''
       USER_IDENTITY_NAME: '${{secrets.AKS_NAME}}-pet-clinic-app-identity'
