@@ -19,7 +19,6 @@ jobs:
   deploy:
     env:
       ARTIFACT_NAME: zipkin
-      SRC_DIR: spring-petclinic-visits-service
       JAVA_VERSION: ''
       USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-visits-identity
       PGSQL_NAME: ''
