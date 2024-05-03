@@ -73,7 +73,7 @@ jobs:
           echo "VERSION_TAG=v${releaseVersionNumber}-${{env.ARTIFACT_NAME}}" >> $GITHUB_OUTPUT
           echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${releaseVersionNumber}" >> $GITHUB_OUTPUT
           echo "RELEASE_ARCHIVE_NAME=${{env.ARTIFACT_NAME}}-${releaseVersionNumber}.zip" >> $GITHUB_OUTPUT
-          echo "RELEASE_FILE_NAME=${{env.ARTIFACT_NAME}}-${releaseVersionNumber}.jar" >> $GITHUB_OUTPUT
+          echo "RELEASE_FILE_NAME=Dockerfile" >> $GITHUB_OUTPUT
 
       - name: Download release
         id: download_release
