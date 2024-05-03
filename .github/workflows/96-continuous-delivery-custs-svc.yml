@@ -1,4 +1,4 @@
-name: 92-Continuous-Delivery-Pets-Config-Srv
+name: 96-Continuous-Delivery-Pets-Custs-Svc
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported
@@ -18,12 +18,12 @@ on:
 jobs:
   deploy:
     env:
-      SEMVER_NAMESPACE: spring-petclinic-config-server
-      SEMVER_CHANGE_PATH: spring-petclinic-config-server
-      ARTIFACT_NAME: spring-petclinic-config-server
-      SRC_DIR: spring-petclinic-config-server
+      SEMVER_NAMESPACE: spring-petclinic-customers-service
+      SEMVER_CHANGE_PATH: spring-petclinic-customers-service
+      ARTIFACT_NAME: spring-petclinic-customers-service
+      SRC_DIR: spring-petclinic-customers-service
       JAVA_VERSION: 17
-      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-config-identity
+      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-custs-identity
       PGSQL_NAME: ${{secrets.PGSQL_NAME}}
       DB: ${{secrets.PET_CLINIC_DB_NAME}}
       DB_USER_NAME: ${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}
