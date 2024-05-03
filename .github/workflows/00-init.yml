@@ -1,0 +1,53 @@
+name: 00-Init-Repository
+
+on:
+  workflow_dispatch:
+
+jobs:
+    infra:
+        uses: ./.github/workflows/01-infra.yml
+        secrets: inherit
+    todo-app:
+        needs: infra
+        uses: ./.github/workflows/71-continuous-integration-todo-app.yml
+        secrets: inherit
+    pets-config-svc:
+        needs: todo-app
+        uses: ./.github/workflows/72-continuous-integration-pets-config-svc.yml
+        secrets: inherit
+    pets-admin-svc:
+        needs: pets-config-svc
+        uses: ./.github/workflows/73-continuous-integration-pets-admin-svc.yml
+        secrets: inherit
+    pets-disco-svc:
+        needs: pets-admin-svc
+        uses: ./.github/workflows/74-continuous-integration-pets-disco-svc.yml
+        secrets: inherit
+    pets-api-gw:
+        needs: pets-disco-svc
+        uses: ./.github/workflows/75-continuous-integration-pets-api-gw.yml
+        secrets: inherit
+    pets-custs-svc:
+        needs: pets-api-gw
+        uses: ./.github/workflows/76-continuous-integration-pets-custs-svc.yml
+        secrets: inherit
+    pets-vets-svc:
+        needs: pets-custs-svc
+        uses: ./.github/workflows/77-continuous-integration-pets-vets-svc.yml
+        secrets: inherit
+    pets-visits-svc:
+        needs: pets-vets-svc
+        uses: ./.github/workflows/78-continuous-integration-pets-visits-svc.yml
+        secrets: inherit
+    pets-utils-01-zipkin:
+        needs: pets-visits-svc
+        uses: ./.github/workflows/79-continuous-integration-utils-01-zipkin.yml
+        secrets: inherit
+    pets-utils-02-prometheus:
+        needs: pets-utils-01-zipkin
+        uses: ./.github/workflows/79-continuous-integration-utils-02-prometheus.yml
+        secrets: inherit
+    pets-utils-03-grafana:
+        needs: pets-utils-02-prometheus
+        uses: ./.github/workflows/79-continuous-integration-utils-03-grafana.yml
+        secrets: inherit

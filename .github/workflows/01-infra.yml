@@ -1,6 +1,8 @@
 name: 01-Infra
 
 on:
+  workflow_call:
+  
   workflow_dispatch:
 
 jobs:

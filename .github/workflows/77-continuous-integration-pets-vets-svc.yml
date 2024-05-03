@@ -7,6 +7,8 @@ on:
    paths:
      - 'spring-petclinic-vets-service/**'
 
+  workflow_call:
+  
   workflow_dispatch:
 
 jobs:

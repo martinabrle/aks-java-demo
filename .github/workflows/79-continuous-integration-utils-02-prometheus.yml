@@ -7,6 +7,8 @@ on:
    paths:
      - 'docker/prometheus/**'
 
+  workflow_call:
+  
   workflow_dispatch:
 
 jobs:
