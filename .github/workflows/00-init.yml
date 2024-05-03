@@ -39,15 +39,15 @@ jobs:
         needs: pets-vets-svc
         uses: ./.github/workflows/78-continuous-integration-pets-visits-svc.yml
         secrets: inherit
-    pets-utils-01-zipkin:
-        needs: pets-visits-svc
-        uses: ./.github/workflows/79-continuous-integration-utils-01-zipkin.yml
-        secrets: inherit
-    pets-utils-02-prometheus:
-        needs: pets-utils-01-zipkin
-        uses: ./.github/workflows/79-continuous-integration-utils-02-prometheus.yml
-        secrets: inherit
-    pets-utils-03-grafana:
-        needs: pets-utils-02-prometheus
-        uses: ./.github/workflows/79-continuous-integration-utils-03-grafana.yml
-        secrets: inherit
+    # pets-utils-01-zipkin:
+    #     needs: pets-visits-svc
+    #     uses: ./.github/workflows/79-continuous-integration-utils-01-zipkin.yml
+    #     secrets: inherit
+    # pets-utils-02-prometheus:
+    #     needs: pets-utils-01-zipkin
+    #     uses: ./.github/workflows/79-continuous-integration-utils-02-prometheus.yml
+    #     secrets: inherit
+    # pets-utils-03-grafana:
+    #     needs: pets-utils-02-prometheus
+    #     uses: ./.github/workflows/79-continuous-integration-utils-03-grafana.yml
+    #     secrets: inherit
