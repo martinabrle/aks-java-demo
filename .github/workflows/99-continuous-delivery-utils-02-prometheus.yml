@@ -1,4 +1,4 @@
-name: 98-Continuous-Delivery-Utils-01-Zipkin
+name: 98-Continuous-Delivery-Utils-02-Prometheus
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported
@@ -18,7 +18,7 @@ on:
 jobs:
   deploy:
     env:
-      ARTIFACT_NAME: zipkin
+      ARTIFACT_NAME: prometheus
       JAVA_VERSION: ''
       USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-app-identity
       PGSQL_NAME: ''
