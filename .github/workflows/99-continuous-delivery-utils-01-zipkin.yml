@@ -1,4 +1,4 @@
-name: 98-Continuous-Delivery-Pets-Visits-Svc
+name: 98-Continuous-Delivery-Utils-01-Zipkin
 
 on:
   # release: - causes problem with az login with a federated identity - asterisk not supported
