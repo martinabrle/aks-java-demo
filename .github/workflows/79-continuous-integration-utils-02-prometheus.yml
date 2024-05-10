@@ -7,6 +7,8 @@ on:
    paths:
      - 'docker/prometheus/**'
 
+  workflow_call:
+  
   workflow_dispatch:
 
 jobs:
@@ -70,7 +72,7 @@ jobs:
         echo "VERSION_TAG=${{steps.semver_version.outputs.version_tag}}" >> $GITHUB_OUTPUT
         echo "RELEASE_ARCHIVE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.zip" >> $GITHUB_OUTPUT
         echo "RELEASE_DIR_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}" >> $GITHUB_OUTPUT
-        echo "RELEASE_FILE_NAME=${{env.ARTIFACT_NAME}}-${{steps.semver_version.outputs.version}}.jar" >> $GITHUB_OUTPUT
+        echo "RELEASE_FILE_NAME=Dockerfile" >> $GITHUB_OUTPUT
 
     - name: Display parameters
       id: params
