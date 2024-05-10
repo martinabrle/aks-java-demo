@@ -82,8 +82,8 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
     ]
     backendAddressPools: [
       {
-        name: 'myBackendPool'
-        properties: {}
+        name: 'defaultaddresspool'
+        //properties: {}
       }
     ]
     backendHttpSettingsCollection: [

@@ -21,6 +21,10 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' e
   name: appGatewayName
 }
 
+// resource appGatewayUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+//   name: '${name}-identity'
+// }
+
 resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-preview' = {
   name: name
   location: location
@@ -97,7 +101,9 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
         enabled: true
         config: {
           applicationGatewayId: applicationGateway.id
-        }
+          // userAssignedIdentityId: appGatewayUserManagedIdentity.id
+          // subnetId: aksSubnet.id}  
+        }      
       }
       omsAgent: {
         enabled: true
