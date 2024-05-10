@@ -83,7 +83,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
     backendAddressPools: [
       {
         name: 'defaultaddresspool'
-        properties: {}
+        //properties: {}
       }
     ]
     backendHttpSettingsCollection: [
@@ -126,7 +126,7 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', name, 'myListener')
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', name, 'myBackendPool')
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', name, 'defaultaddresspool')
           }
           backendHttpSettings: {
             id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', name, 'myHTTPSetting')
