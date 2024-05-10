@@ -139,5 +139,5 @@ spec:
             name: todoapp
             namespace: todo
             port:
-              number: 80
+              number: 8080
         pathType: Exact
