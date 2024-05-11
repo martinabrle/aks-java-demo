@@ -385,6 +385,17 @@ module rbacAppGwAGIC 'components/role-assignment-user-managed-identity.bicep' = 
   }
 }
 
+// When AGIC's identity does not have the write permission over Application Gateway RG, there are errors in the AKS log(?)
+module rbacAppGwResourceGroupContributor 'components/role-assignment-resource-group.bicep' = {
+  name: 'rbac-app-gw-rg-contributor'
+  scope: resourceGroup()
+  params: {
+    roleAssignmentNameGuid: guid(aks.outputs.aksIngressApplicationGatewayPrincipalId, resourceGroup().id, contributor.id)
+    roleDefinitionId: contributor.id
+    principalId: aks.outputs.aksIngressApplicationGatewayPrincipalId
+  }
+}
+
 module rbacKVSecretTodoDSUri './components/role-assignment-kv-secret.bicep' = {
   name: 'rbac-kv-secret-todo-ds-url'
   params: {
