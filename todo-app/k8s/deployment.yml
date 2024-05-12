@@ -119,19 +119,20 @@ spec:
     targetPort: 8080
   selector:
     app: todoapp
-
+  type: LoadBalancer
+  
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: todoapp
-  namespace: default
 spec:
   type: ExternalName
   externalName: todoapp.todo.svc.cluster.local
   ports:
   - protocol: TCP
     port: 80
+    targetPort: 80
 
 ---
 apiVersion: networking.k8s.io/v1
