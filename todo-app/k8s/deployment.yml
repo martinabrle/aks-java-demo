@@ -126,18 +126,20 @@ kind: Ingress
 metadata:
   name: todoapp
   namespace: todo
-  annotations:
-    kubernetes.io/ingress.class: azure/application-gateway
+  # annotations:
+  #   kubernetes.io/ingress.class: azure/application-gateway
 spec:
   ingressClassName: azure-application-gateway
   rules:
-  - host: test.agic.contoso.com
-    http:
+  - http:
       paths:
       - path: /
         backend:
-          serviceName: todoapp
-          servicePort: 80
+          service:
+            name: todoapp
+            port:
+              number: 80
+        pathType: Exact
 
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress
