@@ -116,11 +116,11 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 8080
+    targetPort: 80
   selector:
     app: todoapp
   type: LoadBalancer
-  
+
 ---
 apiVersion: v1
 kind: Service
