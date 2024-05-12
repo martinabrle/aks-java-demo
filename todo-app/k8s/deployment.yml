@@ -118,7 +118,7 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 80
+    targetPort: 8080
 
 ---
 apiVersion: networking.k8s.io/v1
@@ -126,8 +126,8 @@ kind: Ingress
 metadata:
   name: todoapp
   namespace: todo
-  # annotations:
-  #   kubernetes.io/ingress.class: azure/application-gateway
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
 spec:
   ingressClassName: azure-application-gateway
   rules:
@@ -141,3 +141,24 @@ spec:
             port:
               number: 80
         pathType: Exact
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: todoapp
+#   namespace: todo
+#   annotations:
+#     kubernetes.io/ingress.class: azure/application-gateway
+# spec:
+#   ingressClassName: azure-application-gateway
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         backend:
+#           service:
+#             name: todoapp
+#             namespace: todo
+#             port:
+#               number: 80
+#         pathType: Exact
