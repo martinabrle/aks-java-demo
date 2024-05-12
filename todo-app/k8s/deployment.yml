@@ -113,19 +113,31 @@ metadata:
   name: todoapp
   namespace: todo
 spec:
-  selector:
-    app: todoapp
   ports:
   - protocol: TCP
     port: 80
     targetPort: 8080
+  selector:
+    app: todoapp
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todoapp
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: todoapp.todo.svc.cluster.local
+  ports:
+  - protocol: TCP
+    port: 80
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: todoapp
-  namespace: todo
   # annotations:
   #   kubernetes.io/ingress.class: azure/application-gateway
 spec:
