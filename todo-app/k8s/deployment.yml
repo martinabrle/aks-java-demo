@@ -150,6 +150,7 @@ spec:
         backend:
           service:
             name: todoapp
+            namespace: todo
             port:
               number: 80
         pathType: Exact
