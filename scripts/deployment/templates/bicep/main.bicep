@@ -48,6 +48,10 @@ param containerRegistrySubscriptionId string = subscription().id
 param containerRegistryRG string = resourceGroup().name
 param containerRegistryTags string = aksTags
 
+param parentDnsZoneName string = ''
+param todoAppDnsRecordName string = ''
+param petClinicDnsRecordName string = ''
+
 var pgsqlSubscriptionIdVar = (pgsqlSubscriptionId == '') ? subscription().id : pgsqlSubscriptionId
 var pgsqlRGVar = (pgsqlRG == '') ? resourceGroup().name : pgsqlRG
 var pgsqlTagsVar = (pgsqlTags == '') ? aksTags : pgsqlTags
@@ -646,6 +650,16 @@ module rbacKVSecretPetVisitsSvcAppInsightsInstrKey './components/role-assignment
     roleAssignmentNameGuid: guid(petClinicVisitsSvcUserManagedIdentity.properties.principalId, kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretId, keyVaultSecretsUser.id)
     kvName: keyVault.outputs.keyVaultName
     kvSecretName: kvSecretPetClinicAppInsightsInstrumentationKey.outputs.kvSecretName
+  }
+}
+
+module dnsZone './components/dns-zone.bicep' = if (parentDnsZoneName != '') {
+  name: 'dns-zone'
+  params: {
+    zoneName: '${aksName}.${parentDnsZoneName}'
+    recordName: todoAppDnsRecordName
+    publicIPAddressName: '${appGatewayName}-ip'
+    tagsArray: aksTagsArray
   }
 }
 

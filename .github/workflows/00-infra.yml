@@ -137,6 +137,9 @@ jobs:
                                                      petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
                                                      petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
                                                      petClinicGitConfigRepoPassword="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
+                                                     parentDnsZoneName="${{vars.PARENT_DNS_ZONE_NAME}}" \
+                                                     todoAppDnsRecordName="${{vars.TODO_APP_DNS_RECORD_NAME}}" \
+                                                     petClinicDnsRecordName="${{vars.PET_CLINIC_DNS_RECORD_NAME}}" \
                                                      location="${{secrets.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
