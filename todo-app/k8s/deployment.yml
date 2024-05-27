@@ -119,7 +119,7 @@ spec:
   selector:
     app: todoapp
     # namespace: todo
-  type: LoadBalancer
+  type: ClusterIP
 
 # ---
 # apiVersion: v1
