@@ -121,7 +121,6 @@ spec:
     # namespace: todo
   type: LoadBalancer
 
-
 # ---
 # apiVersion: v1
 # kind: Service
