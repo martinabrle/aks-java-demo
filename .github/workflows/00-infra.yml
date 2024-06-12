@@ -118,6 +118,11 @@ jobs:
                                                      containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
                                                      containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
                                                      containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+                                                     dnsZoneName="${{secrets.DNS_ZONE_NAME}}" \
+                                                     parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
+                                                     parentDnsZoneSubscriptionId="${{secrets.PARENT_DNS_SUBSCRIPTION_ID}}" \
+                                                     parentDnsZoneRG="${{secrets.PARENT_DNS_ZONE_RESOURCE_GROUP}}" \
+                                                     parentDnsZoneTags="${{vars.PARENT_DNS_ZONE_TAGS}}" \
                                                      pgsqlName="${{secrets.PGSQL_NAME}}" \
                                                      pgsqlAADAdminGroupName="${{secrets.DBA_GROUP_NAME}}" \
                                                      pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
@@ -137,7 +142,7 @@ jobs:
                                                      petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
                                                      petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
                                                      petClinicGitConfigRepoPassword="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
-                                                     parentDnsZoneName="${{vars.PARENT_DNS_ZONE_NAME}}" \
+                                                     parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
                                                      todoAppDnsRecordName="${{vars.TODO_APP_DNS_RECORD_NAME}}" \
                                                      petClinicDnsRecordName="${{vars.PET_CLINIC_DNS_RECORD_NAME}}" \
                                                      location="${{secrets.AZURE_LOCATION}}"`

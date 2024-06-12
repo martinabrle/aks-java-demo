@@ -48,7 +48,12 @@ param containerRegistrySubscriptionId string = subscription().id
 param containerRegistryRG string = resourceGroup().name
 param containerRegistryTags string = aksTags
 
+param dnsZoneName string = aksName
 param parentDnsZoneName string = ''
+param parentDnsZoneSubscriptionId string = ''
+param parentDnsZoneRG string = ''
+param parentDnsZoneTags string = ''
+
 param todoAppDnsRecordName string = ''
 param petClinicDnsRecordName string = ''
 
@@ -64,10 +69,15 @@ var logAnalyticsSubscriptionIdVar = (logAnalyticsSubscriptionId == '') ? subscri
 var logAnalyticsRGVar = (logAnalyticsRG == '') ? resourceGroup().name : logAnalyticsRG
 var logAnalyticsTagsVar = (logAnalyticsTags == '') ? aksTags : logAnalyticsTags
 
+var parentDnsZoneSubscriptionIdVar = (parentDnsZoneSubscriptionId == '') ? subscription().id : parentDnsZoneSubscriptionId
+var parentDnsZoneRGVar = (parentDnsZoneRG == '') ? resourceGroup().name : parentDnsZoneRG
+var parentDnsZoneTagsVar = (parentDnsZoneTags == '') ? aksTags : parentDnsZoneTags
+
 var aksTagsArray = json(aksTags)
 var pgsqlTagsArray = json(pgsqlTagsVar)
 var containerRegistryTagsArray = json(containerRegistryTagsVar)
 var logAnalyticsTagsArray = json(logAnalyticsTagsVar)
+var parentDnsZoneTagsArray = json(parentDnsZoneTagsVar)
 
 var appGatewayName = '${aksName}-appgw'
 var vnetName = '${aksName}-vnet'
@@ -653,12 +663,16 @@ module rbacKVSecretPetVisitsSvcAppInsightsInstrKey './components/role-assignment
   }
 }
 
-module dnsZone './components/dns-zone.bicep' = if (parentDnsZoneName != '') {
-  name: 'dns-zone'
+module dnsZone './components/dns-zone.bicep' = if (dnsZoneName != '') {
+  name: 'child-dns-zone'
   params: {
-    zoneName: '${aksName}.${parentDnsZoneName}'
+    zoneName: '${dnsZoneName}.${parentDnsZoneName}'
     recordName: todoAppDnsRecordName
     publicIPAddressName: '${appGatewayName}-ip'
+    parentZoneName: parentDnsZoneName
+    parentZoneRG: parentDnsZoneRGVar
+    parentZoneSubscriptionId: parentDnsZoneSubscriptionIdVar
+    parentZoneTagsArray: parentDnsZoneTagsArray
     tagsArray: aksTagsArray
   }
 }
