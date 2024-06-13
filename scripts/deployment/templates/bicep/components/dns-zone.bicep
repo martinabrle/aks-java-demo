@@ -34,7 +34,7 @@ module parentDnsZoneModule './dns-zone-parent.bicep' = {
 }
 
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
-  name: '${zoneName}.{parentZoneName}'
+  name: '${zoneName}.${parentZoneName}'
   location: 'global'
   dependsOn: [
     parentDnsZoneModule

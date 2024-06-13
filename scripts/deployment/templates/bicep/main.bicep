@@ -666,7 +666,7 @@ module rbacKVSecretPetVisitsSvcAppInsightsInstrKey './components/role-assignment
 module dnsZone './components/dns-zone.bicep' = if (dnsZoneName != '') {
   name: 'child-dns-zone'
   params: {
-    zoneName: '${dnsZoneName}.${parentDnsZoneName}'
+    zoneName: dnsZoneName
     recordName: todoAppDnsRecordName
     publicIPAddressName: '${appGatewayName}-ip'
     parentZoneName: parentDnsZoneName
