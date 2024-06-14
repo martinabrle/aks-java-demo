@@ -667,7 +667,7 @@ module dnsZone './components/dns-zone.bicep' = if (dnsZoneName != '') {
   name: 'child-dns-zone'
   params: {
     zoneName: dnsZoneName
-    recordName: todoAppDnsRecordName
+    recordNames: [todoAppDnsRecordName, petClinicDnsRecordName]
     publicIPAddressName: '${appGatewayName}-ip'
     parentZoneName: parentDnsZoneName
     parentZoneRG: parentDnsZoneRGVar

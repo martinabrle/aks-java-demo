@@ -2,7 +2,7 @@
 param zoneName string
 
 @description('The name of the DNS record to be created.  The name is relative to the zone, not the FQDN.')
-param recordName string
+param recordNames array
 
 @description('The name of the Azure Public IP resource.')
 param publicIPAddressName string
@@ -45,7 +45,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }
 
-resource dnsZoneRecord 'Microsoft.Network/dnszones/A@2023-07-01-preview' = {
+resource dnsZoneRecord 'Microsoft.Network/dnszones/A@2023-07-01-preview' = [for recordName in recordNames: {
   parent: dnsZone
   name: recordName
   properties: {
@@ -53,5 +53,15 @@ resource dnsZoneRecord 'Microsoft.Network/dnszones/A@2023-07-01-preview' = {
     targetResource: {
       id: publicIPAddress.id
     }
+  }
+}]
+
+module dnsZoneParentRecordNS './dns-zone-parent-ns-record.bicep' = {
+  name: 'dns-zone-parent-record'
+  scope: resourceGroup(parentZoneSubscriptionId, parentZoneRG)
+  params: {
+    nameServers: dnsZone.properties.nameServers
+    parentZoneName: parentZoneName
+    zoneName: zoneName
   }
 }
