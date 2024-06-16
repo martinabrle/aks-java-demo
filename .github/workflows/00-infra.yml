@@ -240,8 +240,7 @@ jobs:
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}
           RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{secrets.AKS_NAME}}-fi-todo-app
-          SERVICE_ACCOUNT_NAMESPACE: "default"
-          # "todo"
+          SERVICE_ACCOUNT_NAMESPACE: "todo"
           SERVICE_ACCOUNT_NAME: "todo-app-service-account"
           AKS_NAME: ${{secrets.AKS_NAME}}
         run: |

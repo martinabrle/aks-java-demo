@@ -97,14 +97,16 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
         }
       }
       // https://learn.microsoft.com/en-us/samples/azure-samples/aks-agic/aks-agic/
-      ingressApplicationGateway: {
-        enabled: true
-        config: {
-          applicationGatewayId: applicationGateway.id
-          // userAssignedIdentityId: appGatewayUserManagedIdentity.id
-          // subnetId: aksSubnet.id}  
-        }      
-      }
+      // AddOn Profile for AGIC can only be used when the default namespace is used exclusively for ingress
+      // for multiple namespaces, use the AGIC Helm chart
+      // ingressApplicationGateway: {
+      //   enabled: true
+      //   config: {
+      //     applicationGatewayId: applicationGateway.id
+      //     // userAssignedIdentityId: appGatewayUserManagedIdentity.id
+      //     // subnetId: aksSubnet.id}  
+      //   }      
+      // }
       omsAgent: {
         enabled: true
         config: {

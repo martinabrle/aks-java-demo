@@ -4,4 +4,4 @@ metadata:
   annotations:
     azure.workload.identity/client-id: ${TODO_APP_CLIENT_ID}
   name: todo-app-service-account
-  # namespace: todo
+  namespace: todo

@@ -1,4 +1,3 @@
-// TODO: check the identity thing works - maybe this is not needed if the systemAssignedIdentity is used instead of userAssignedIdentity
 param miName string
 param roleAssignmentNameGuid string
 param roleDefinitionId string
