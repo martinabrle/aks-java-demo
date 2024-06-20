@@ -209,6 +209,8 @@ resource appGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
 output appGatewayId string = appGateway.id
 output appGatewayName string = appGateway.name
 output appGatewayIdentityPrincipalId string = appGatewayUserManagedIdentity.properties.principalId
+output appGatewayIdentityClientId string = appGatewayUserManagedIdentity.properties.clientId
+output appGatewayIdentityResourceId string = appGatewayUserManagedIdentity.id
 output appGatewayIdentityName string = appGatewayUserManagedIdentity.name
 output appGatewayPolicyId string = appGatewayPolicy.id
 output appGatewayPolicyName string = appGatewayPolicy.name

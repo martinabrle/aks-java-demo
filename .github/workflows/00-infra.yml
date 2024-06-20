@@ -177,6 +177,11 @@ jobs:
           petClinicVisitsSvcUserManagedIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcUserManagedIdentityClientId.value"`
           petClinicVisitsSvcDbUserName=`echo $deploymentOutput|jq ".properties.outputs.petClinicVisitsSvcDbUserName.value"`
 
+          appGatewayIdentityResourceId=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityResourceId.value"`
+          appGatewayIdentityName=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityName.value"`
+          appGatewayIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityPrincipalId.value"`
+          appGatewayIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityClientId.value"`
+
           echo "TODO_APP_USER_MI_NAME: ${todoAppUserManagedIdentityName}"
           echo "TODO_APP_USER_MI_NAME=${todoAppUserManagedIdentityName}" >> $GITHUB_OUTPUT
           echo "TODO_APP_USER_MI_PRINCIPAL_ID: ${todoAppUserManagedIdentityPrincipalId}"
@@ -227,6 +232,15 @@ jobs:
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME: ${petClinicVisitsSvcDbUserName}"
           echo "PET_CLINIC_VISITS_SVC_DB_USER_NAME=${petClinicVisitsSvcDbUserName}" >> $GITHUB_OUTPUT
       
+          echo "APP_GATEWAY_IDENTITY_RESOURCE_ID: ${appGatewayIdentityResourceId}"
+          echo "APP_GATEWAY_IDENTITY_RESOURCE_ID=${appGatewayIdentityResourceId}" >> $GITHUB_OUTPUT
+          echo "APP_GATEWAY_IDENTITY_NAME: ${appGatewayIdentityName}"
+          echo "APP_GATEWAY_IDENTITY_NAME=${appGatewayIdentityName}" >> $GITHUB_OUTPUT
+          echo "APP_GATEWAY_IDENTITY_PRINCIPAL_ID: ${appGatewayIdentityPrincipalId}"
+          echo "APP_GATEWAY_IDENTITY_PRINCIPAL_ID=${appGatewayIdentityPrincipalId}" >> $GITHUB_OUTPUT
+          echo "APP_GATEWAY_IDENTITY_CLIENT_ID: ${appGatewayIdentityClientId}"
+          echo "APP_GATEWAY_IDENTITY_CLIENT_ID=${appGatewayIdentityClientId}" >> $GITHUB_OUTPUT
+
       # Switch the subscription back to AKS subscription
       - name: Azure re-login in AKS Subscription
         uses: azure/login@v2
@@ -235,6 +249,50 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ env.AKS_SUBSCRIPTION_ID }}
 
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials --resource-group ${{secrets.AKS_RESOURCE_GROUP}} --name ${{secrets.AKS_NAME}}
+      
+      - name: Install Helm
+        run: |
+          kubectl create serviceaccount --namespace kube-system tiller-sa
+          kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller-sa
+          helm init --tiller-namespace kube-system --service-account tiller-sa
+      
+      - name: Add AGIC Helm repository
+        # https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-install-new
+        run: |
+          helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+          helm repo update
+      
+      - name: Download and configure AGIC helm-config.yaml
+        run: |
+          curl -o helm-config.yaml https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml
+          echo "helm-config.yaml:"
+          echo "-----------------"
+          cat helm-config.yaml
+
+      - name: Configure AGIC helm-config.yaml
+        env: 
+          AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
+          AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+          APP_GATEWAY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_NAME}}
+          APP_GATEWAY_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_RESOURCE_ID}}
+          APP_GATEWAY_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_CLIENT_ID}}
+        run: |
+          sed -i "s|<subscriptionId>|${{env.AKS_SUBSCRIPTION_ID}}|g" helm-config.yaml
+          sed -i "s|<resourceGroupName>|${{env.AKS_RESOURCE_GROUP}}|g" helm-config.yaml
+          sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
+          sed -i "s|<identityResourceId>|${{env.APP_GATEWAY_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
+          sed -i "s|<identityClientId>|${{env.APP_GATEWAY_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
+          echo "helm-config.yaml:"
+          echo "-----------------"
+          cat helm-config.yaml
+      
+      - name: Install AGIC
+        run: |
+          helm install -f helm-config.yaml --generate-name application-gateway-kubernetes-ingress/ingress-azure
+      
       - name: Create federated identity for TODO_APP on AKS
         env:
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}

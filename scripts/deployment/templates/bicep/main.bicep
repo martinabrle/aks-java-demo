@@ -734,3 +734,9 @@ output petClinicVisitsSvcUserManagedIdentityName string = petClinicVisitsSvcUser
 output petClinicVisitsSvcUserManagedIdentityPrincipalId string = petClinicVisitsSvcUserManagedIdentity.properties.principalId
 output petClinicVisitsSvcUserManagedIdentityClientId string = petClinicVisitsSvcUserManagedIdentity.properties.clientId
 output petClinicVisitsSvcDbUserName string = petClinicVisitsSvcDbUserName
+
+output appGatewayName string = appGateway.outputs.appGatewayName
+output appGatewayIdentityName string = appGateway.outputs.appGatewayIdentityName
+output appGatewayIdentityResourceId string = appGateway.outputs.appGatewayIdentityResourceId
+output appGatewayIdentityPrincipalId string = appGateway.outputs.appGatewayIdentityPrincipalId
+output appGatewayIdentityClientId string = appGateway.outputs.appGatewayIdentityClientId
