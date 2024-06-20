@@ -25,6 +25,13 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' e
 //   name: '${name}-identity'
 // }
 
+
+resource agicUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${name}-agic-identity'
+  location: location
+  tags: tagsArray
+}
+
 resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-preview' = {
   name: name
   location: location
@@ -216,7 +223,7 @@ module aksNodePoolManagedIdentity 'user-assigned-identity.bicep' = {
 
 
 output aksNodePoolIdentityPrincipalId string = aksNodePoolManagedIdentity.outputs.principalId // aksNodePoolManagedIdentity.properties.principalId
-output aksIngressApplicationGatewayPrincipalId string = aksService.properties.addonProfiles.ingressApplicationGateway.identity.objectId
+//Not using AGIC Addon - output aksIngressApplicationGatewayPrincipalId string = aksService.properties.addonProfiles.ingressApplicationGateway.identity.objectId
 @description('This output can be directly leveraged when creating a ManagedId Federated Identity')
 output aksOidcFedIdentityProperties object = {
   issuer: aksService.properties.oidcIssuerProfile.issuerURL
@@ -227,3 +234,7 @@ output aksOidcFedIdentityProperties object = {
 // TODO: fix
 // output outboundIpAddresses string = concat(publicIpsStringArray)
 
+output agicIdentityPrincipalId string = agicUserManagedIdentity.properties.principalId
+output agicIdentityClientId string = agicUserManagedIdentity.properties.clientId
+output agicIdentityResourceId string = agicUserManagedIdentity.id
+output agicIdentityName string = agicUserManagedIdentity.name

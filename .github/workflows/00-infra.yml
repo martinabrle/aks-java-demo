@@ -182,6 +182,11 @@ jobs:
           appGatewayIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityPrincipalId.value"`
           appGatewayIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.appGatewayIdentityClientId.value"`
 
+          agicIdentityResourceId=`echo $deploymentOutput|jq ".properties.outputs.agicIdentityResourceId.value"`
+          agicIdentityName=`echo $deploymentOutput|jq ".properties.outputs.agicIdentityName.value"`
+          agicIdentityPrincipalId=`echo $deploymentOutput|jq ".properties.outputs.agicIdentityPrincipalId.value"`
+          agicIdentityClientId=`echo $deploymentOutput|jq ".properties.outputs.agicIdentityClientId.value"`
+
           echo "TODO_APP_USER_MI_NAME: ${todoAppUserManagedIdentityName}"
           echo "TODO_APP_USER_MI_NAME=${todoAppUserManagedIdentityName}" >> $GITHUB_OUTPUT
           echo "TODO_APP_USER_MI_PRINCIPAL_ID: ${todoAppUserManagedIdentityPrincipalId}"
@@ -241,6 +246,15 @@ jobs:
           echo "APP_GATEWAY_IDENTITY_CLIENT_ID: ${appGatewayIdentityClientId}"
           echo "APP_GATEWAY_IDENTITY_CLIENT_ID=${appGatewayIdentityClientId}" >> $GITHUB_OUTPUT
 
+          echo "AGIC_IDENTITY_RESOURCE_ID: ${agicIdentityResourceId}"
+          echo "AGIC_IDENTITY_RESOURCE_ID=${agicIdentityResourceId}" >> $GITHUB_OUTPUT
+          echo "AGIC_IDENTITY_NAME: ${agicIdentityName}"
+          echo "AGIC_IDENTITY_NAME=${agicIdentityName}" >> $GITHUB_OUTPUT
+          echo "AGIC_IDENTITY_PRINCIPAL_ID: ${agicIdentityPrincipalId}"
+          echo "AGIC_IDENTITY_PRINCIPAL_ID=${agicIdentityPrincipalId}" >> $GITHUB_OUTPUT
+          echo "AGIC_IDENTITY_CLIENT_ID: ${agicIdentityClientId}"
+          echo "AGIC_IDENTITY_CLIENT_ID=${agicIdentityClientId}" >> $GITHUB_OUTPUT
+
       # Switch the subscription back to AKS subscription
       - name: Azure re-login in AKS Subscription
         uses: azure/login@v2
@@ -277,14 +291,14 @@ jobs:
           AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
           AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
           APP_GATEWAY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_NAME}}
-          APP_GATEWAY_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_RESOURCE_ID}}
-          APP_GATEWAY_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_CLIENT_ID}}
+          AGIC_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_RESOURCE_ID}}
+          AGIC_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_CLIENT_ID}}
         run: |
           sed -i "s|<subscriptionId>|${{env.AKS_SUBSCRIPTION_ID}}|g" helm-config.yaml
           sed -i "s|<resourceGroupName>|${{env.AKS_RESOURCE_GROUP}}|g" helm-config.yaml
           sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
-          sed -i "s|<identityResourceId>|${{env.APP_GATEWAY_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
-          sed -i "s|<identityClientId>|${{env.APP_GATEWAY_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
+          sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
+          sed -i "s|<identityClientId>|${{env.AGIC_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
           echo "helm-config.yaml:"
           echo "-----------------"
           cat helm-config.yaml

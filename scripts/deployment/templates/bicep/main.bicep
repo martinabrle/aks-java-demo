@@ -370,9 +370,9 @@ module rbacAppGatewayAGICContributor 'components/rolle-assignment-app-gateway.bi
   name: 'rbac-app-gw-agic-contributor'
   params: {
     appGatewayName: appGateway.outputs.appGatewayName
-    roleAssignmentNameGuid: guid(aks.outputs.aksIngressApplicationGatewayPrincipalId, appGateway.outputs.appGatewayId, contributor.id)
+    roleAssignmentNameGuid: guid(aks.outputs.agicIdentityPrincipalId, appGateway.outputs.appGatewayId, contributor.id) //aksIngressApplicationGatewayPrincipalId
     roleDefinitionId: managedIdentityOperator.id
-    principalId: aks.outputs.aksIngressApplicationGatewayPrincipalId
+    principalId: aks.outputs.agicIdentityPrincipalId //aksIngressApplicationGatewayPrincipalId
   }
 }
 
@@ -381,9 +381,9 @@ module rbacAppGwAGICResourceGroupReader 'components/role-assignment-resource-gro
   name: 'rbac-app-gw-agic-rg-reader'
   scope: resourceGroup()
   params: {
-    roleAssignmentNameGuid:  guid(aks.outputs.aksIngressApplicationGatewayPrincipalId, resourceGroup().id, reader.id)
+    roleAssignmentNameGuid:  guid(aks.outputs.agicIdentityPrincipalId, resourceGroup().id, reader.id) //aksIngressApplicationGatewayPrincipalId
     roleDefinitionId: reader.id
-    principalId: aks.outputs.aksIngressApplicationGatewayPrincipalId
+    principalId: aks.outputs.agicIdentityPrincipalId //aksIngressApplicationGatewayPrincipalId
   }
 }
 
@@ -393,9 +393,9 @@ module rbacAppGwAGIC 'components/role-assignment-user-managed-identity.bicep' = 
   scope: resourceGroup()
   params: {
     userManagedIdentityName: appGateway.outputs.appGatewayIdentityName
-    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, aks.outputs.aksIngressApplicationGatewayPrincipalId, managedIdentityOperator.id)
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, aks.outputs.agicIdentityPrincipalId, managedIdentityOperator.id) //aksIngressApplicationGatewayPrincipalId
     roleDefinitionId: managedIdentityOperator.id
-    principalId: aks.outputs.aksIngressApplicationGatewayPrincipalId
+    principalId: aks.outputs.agicIdentityPrincipalId //aksIngressApplicationGatewayPrincipalId
   }
 }
 
@@ -404,9 +404,9 @@ module rbacAppGwResourceGroupContributor 'components/role-assignment-resource-gr
   name: 'rbac-app-gw-rg-contributor'
   scope: resourceGroup()
   params: {
-    roleAssignmentNameGuid: guid(aks.outputs.aksIngressApplicationGatewayPrincipalId, resourceGroup().id, contributor.id)
+    roleAssignmentNameGuid: guid(aks.outputs.agicIdentityPrincipalId, resourceGroup().id, contributor.id) //aksIngressApplicationGatewayPrincipalId
     roleDefinitionId: contributor.id
-    principalId: aks.outputs.aksIngressApplicationGatewayPrincipalId
+    principalId: aks.outputs.agicIdentityPrincipalId
   }
 }
 
