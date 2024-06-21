@@ -292,7 +292,7 @@ jobs:
           echo "-----------------"
           cat helm-config.yaml
   
-      - name: Add AGIC Helm repository
+      - name: Install AGIC
         # https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-install-new
         run: |
           az aks command invoke \
