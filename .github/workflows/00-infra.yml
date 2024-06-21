@@ -263,6 +263,10 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ env.AKS_SUBSCRIPTION_ID }}
 
+      - name: Install kubelogin
+        run: |
+          az aks install-cli
+      
       - name: Get AKS credentials
         run: |
           az aks get-credentials --resource-group ${{secrets.AKS_RESOURCE_GROUP}} --name ${{secrets.AKS_NAME}}
