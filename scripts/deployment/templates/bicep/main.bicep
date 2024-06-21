@@ -740,3 +740,8 @@ output appGatewayIdentityName string = appGateway.outputs.appGatewayIdentityName
 output appGatewayIdentityResourceId string = appGateway.outputs.appGatewayIdentityResourceId
 output appGatewayIdentityPrincipalId string = appGateway.outputs.appGatewayIdentityPrincipalId
 output appGatewayIdentityClientId string = appGateway.outputs.appGatewayIdentityClientId
+
+output agicIdentityName string = aks.outputs.agicIdentityName
+output agicIdentityPrincipalId string = aks.outputs.agicIdentityPrincipalId
+output agicIdentityClientId string = aks.outputs.agicIdentityClientId
+output agicIdentityResourceId string = aks.outputs.agicIdentityResourceId
