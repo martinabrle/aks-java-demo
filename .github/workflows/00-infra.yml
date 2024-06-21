@@ -268,7 +268,7 @@ jobs:
           tenant-id: ${{ secrets.AAD_TENANT_ID }}
           subscription-id: ${{ env.AKS_SUBSCRIPTION_ID }}
 
-      - name: Download and configure AGIC helm-config.yaml
+      - name: Download AGIC helm-config.yaml
         run: |
           curl -o helm-config.yaml https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml
           echo "helm-config.yaml:"
@@ -278,7 +278,7 @@ jobs:
       - name: Configure AGIC helm-config.yaml
         env:
           APP_GATEWAY_IDENTITY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_NAME}}
-          APP_GATEWAY_NAME: ${{secrets.APP_GATEWAY_NAME}}
+          APP_GATEWAY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_NAME}}
           AGIC_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_RESOURCE_ID}}
           AGIC_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_CLIENT_ID}}
         run: |
