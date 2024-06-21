@@ -274,13 +274,13 @@ jobs:
         env: 
           AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
           AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
-          APP_GATEWAY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_NAME}}
+          APP_GATEWAY_IDENTITY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_IDENTITY_NAME}}
           AGIC_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_RESOURCE_ID}}
           AGIC_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_CLIENT_ID}}
         run: |
           sed -i "s|<subscriptionId>|${{env.AKS_SUBSCRIPTION_ID}}|g" helm-config.yaml
           sed -i "s|<resourceGroupName>|${{env.AKS_RESOURCE_GROUP}}|g" helm-config.yaml
-          sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
+          sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_IDENTITY_NAME}}|g" helm-config.yaml
           sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
           sed -i "s|<identityClientId>|${{env.AGIC_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
           echo "helm-config.yaml:"
