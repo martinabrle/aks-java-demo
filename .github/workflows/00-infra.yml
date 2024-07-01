@@ -274,7 +274,6 @@ jobs:
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-ingress-azure
           SERVICE_ACCOUNT_NAMESPACE: "default"
           SERVICE_ACCOUNT_NAME: "ingress-azure"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
             export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
@@ -326,80 +325,68 @@ jobs:
       - name: Create federated identity for TODO_APP on AKS
         env:
           TODO_APP_MI_NAME: ${{steps.deployment.outputs.TODO_APP_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-todo-app
           SERVICE_ACCOUNT_NAMESPACE: "todo"
           SERVICE_ACCOUNT_NAME: "todo-app-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.TODO_APP_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
       - name: Create federated identity for PET_CLINIC_APP on AKS
         env:
           PET_CLINIC_APP_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-pet-clinic-app
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-app-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_APP_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_APP_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
       - name: Create federated identity for PET_CLINIC_CONFIG_SVC on AKS
         env:
           PET_CLINIC_CONFIG_SVC_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-pet-clinic-config-svc
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-config-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_CONFIG_SVC_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_CONFIG_SVC_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
       - name: Create federated identity for PET_CLINIC_CUSTS_SVC on AKS
         env:
           PET_CLINIC_CUSTS_SVC_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-pet-clinic-custs-svc
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-custs-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_CUSTS_SVC_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_CUSTS_SVC_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
       - name: Create federated identity for PET_CLINIC_VETS_SVC on AKS
         env:
           PET_CLINIC_VETS_SVC_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-pet-clinic-vets-svc
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-vets-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_VETS_SVC_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_VETS_SVC_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
       - name: Create federated identity for PET_CLINIC_VISITS_SVC on AKS
         env:
           PET_CLINIC_VISITS_SVC_MI_NAME: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_NAME}}
-          RESOURCE_GROUP: ${{env.AKS_RESOURCE_GROUP}}
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-pet-clinic-visits-svc
           SERVICE_ACCOUNT_NAMESPACE: "pet-clinic"
           SERVICE_ACCOUNT_NAME: "pet-clinic-visits-service-account"
-          AKS_NAME: ${{env.AKS_NAME}}
         run: |
-            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
+            export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_VISITS_SVC_MI_NAME}} --resource-group ${{env.RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.PET_CLINIC_VISITS_SVC_MI_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
                     
       - name: Deploy Namespaces
         working-directory: ./scripts/deployment/templates/k8s/
