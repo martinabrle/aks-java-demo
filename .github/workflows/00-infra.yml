@@ -287,6 +287,8 @@ jobs:
           sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
           sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
           sed -i "s|<identityClientId>|${{env.AGIC_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
+          sed -i "s|aadPodIdentity|workloadIdentity|g" helm-config.yaml
+          
           sed -i '/rbac:/,/^\s*$/s/enabled: false/enabled: true/' helm-config.yaml
           echo "helm-config.yaml:"
           echo "-----------------"
