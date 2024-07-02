@@ -307,11 +307,12 @@ jobs:
   
       - name: Install AGIC
         # https://learn.microsoft.com/en-us/azure/application-gateway/ingress-controller-install-new
+        # https://azure.github.io/application-gateway-kubernetes-ingress/how-tos/deploy-AGIC-with-Workload-Identity-using-helm/
         run: |
           az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
               --name ${{env.AKS_NAME}} \
-              --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm install -f helm-config.yaml --generate-name application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
+              --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm install azure-ingress -f helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
               --file helm-config.yaml
 
           # helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
