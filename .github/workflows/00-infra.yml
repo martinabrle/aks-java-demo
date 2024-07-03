@@ -312,7 +312,7 @@ jobs:
           az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
               --name ${{env.AKS_NAME}} \
-              --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm install ingress-azure -f helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
+              --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm install --replace ingress-azure -f helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
               --file helm-config.yaml
 
           # helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
