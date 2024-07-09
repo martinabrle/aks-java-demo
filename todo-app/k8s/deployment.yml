@@ -112,7 +112,8 @@ metadata:
 spec:
   ingressClassName: azure-application-gateway
   rules:
-  - http:
+  - host: $HOST_NAME
+    http:
       paths:
       - path: /
         backend:
