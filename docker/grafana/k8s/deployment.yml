@@ -44,19 +44,41 @@ spec:
             requests:
               cpu: 250m
               memory: 750Mi
+
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: grafana-server
   name: grafana-server
   namespace: pet-clinic
 spec:
-  ports:
-    - port: 3000
-      protocol: TCP
-      targetPort: 3000
   selector:
     app: grafana-server
-  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-server
+  namespace: pet-clinic
+  # annotations:
+  #   kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  ingressClassName: azure-application-gateway
+  rules:
+  - host: $HOST_NAME
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: grafana-server
+            port:
+              number: 80
+        pathType: Exact

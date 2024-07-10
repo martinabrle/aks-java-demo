@@ -83,18 +83,39 @@ spec:
               secretProviderClass: kv-secrets-pet-clinic-app
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    app: tracing-server
   name: tracing-server
   namespace: pet-clinic
 spec:
-  ports:
-  - port: 9411
-    protocol: TCP
-    targetPort: 9411
   selector:
     app: tracing-server
-  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9411
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tracing-server
+  namespace: pet-clinic
+  # annotations:
+  #   kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  ingressClassName: azure-application-gateway
+  rules:
+  - host: $HOST_NAME
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: tracing-server
+            port:
+              number: 80
+        pathType: Exact
