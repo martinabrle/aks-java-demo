@@ -56,6 +56,9 @@ param parentDnsZoneTags string = ''
 
 param todoAppDnsRecordName string = ''
 param petClinicDnsRecordName string = ''
+param petClinicAdminDnsRecordName string = 'admin.${petClinicDnsRecordName}' 
+param petClinicGrafanaDnsRecordName string = 'grafana.${petClinicDnsRecordName}' 
+param petClinicTracingServerDnsRecordName string = 'tracing-server.${petClinicDnsRecordName}' 
 
 var pgsqlSubscriptionIdVar = (pgsqlSubscriptionId == '') ? subscription().id : pgsqlSubscriptionId
 var pgsqlRGVar = (pgsqlRG == '') ? resourceGroup().name : pgsqlRG
@@ -667,7 +670,7 @@ module dnsZone './components/dns-zone.bicep' = if (dnsZoneName != '') {
   name: 'child-dns-zone'
   params: {
     zoneName: dnsZoneName
-    recordNames: [todoAppDnsRecordName, petClinicDnsRecordName]
+    recordNames: [todoAppDnsRecordName, petClinicDnsRecordName, petClinicAdminDnsRecordName, petClinicGrafanaDnsRecordName, petClinicTracingServerDnsRecordName ]
     publicIPAddressName: '${appGatewayName}-ip'
     parentZoneName: parentDnsZoneName
     parentZoneRG: parentDnsZoneRGVar
