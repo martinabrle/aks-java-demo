@@ -330,12 +330,12 @@ resource sslCertKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (s
   scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
 }
 
-resource sslCertKeyVaultToDoCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+resource sslCertKeyVaultToDoCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (!empty(sslCertKeyVaultSubscriptionId) != '' && !empty(sslCertKeyVaultToDoCertSecretName)) {
   parent: sslCertKeyVault
   name: sslCertKeyVaultToDoCertSecretName
 }
 
-resource sslCertKeyVaultPetClinicCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+resource sslCertKeyVaultPetClinicCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (!empty(sslCertKeyVaultSubscriptionId) && !empty(sslCertKeyVaultPetClinicCertSecretName)) {
   parent: sslCertKeyVault
   name: sslCertKeyVaultPetClinicCertSecretName
 }
@@ -346,8 +346,8 @@ module appGateway 'components/app-gateway.bicep' = {
     name: appGatewayName
     vnetName: vnet.outputs.vnetName
     appGatewaySubnetName: vnet.outputs.appGatewaySubnetName
-    sslCertKeyVaultToDoSecretUri: sslCertKeyVaultSubscriptionId != '' ? sslCertKeyVaultToDoCertSecret.properties.secretUri : ''
-    sslCertKeyVaultPetClinicSecretUri: sslCertKeyVaultSubscriptionId != '' ? sslCertKeyVaultPetClinicCertSecret.properties.secretUri : ''
+    sslCertKeyVaultToDoSecretUri: (!empty(sslCertKeyVaultSubscriptionId) != '' && !empty(sslCertKeyVaultToDoCertSecretName)) ? sslCertKeyVaultToDoCertSecret.properties.secretUri : ''
+    sslCertKeyVaultPetClinicSecretUri: (!empty(sslCertKeyVaultSubscriptionId) && !empty(sslCertKeyVaultPetClinicCertSecretName)) ? sslCertKeyVaultPetClinicCertSecret.properties.secretUri : ''
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
     location: location
     tagsArray: aksTagsArray

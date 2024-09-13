@@ -100,22 +100,22 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
         }
       }
     ]
-    sslCertificates: sslCertKeyVaultToDoSecretUri != '' && sslCertKeyVaultPetClinicSecretUri != '' ? [
-      {
-        name: 'appGatewaySslCertToDo'
-        properties: {
-          keyVaultSecretId: sslCertKeyVaultToDoSecretUri
-        }
-      }
-      {
-        name: 'appGatewaySslCertPetClinic'
-        properties: {
-          keyVaultSecretId: sslCertKeyVaultPetClinicSecretUri
-        }
-      }
-    ] : [
-      // no ssl cert
-    ]
+    sslCertificates: concat(
+      [
+        !empty(sslCertKeyVaultToDoSecretUri) ? {
+          name: 'appGatewaySslCertToDo'
+          properties: {
+            keyVaultSecretId: sslCertKeyVaultToDoSecretUri
+          }
+        } : {}],
+      [
+        !empty(sslCertKeyVaultPetClinicSecretUri) ? {
+          name: 'appGatewaySslCertPetClinic'
+          properties: {
+            keyVaultSecretId: sslCertKeyVaultPetClinicSecretUri
+          }
+        } : { }
+      ])
 
     httpListeners: [
       {
