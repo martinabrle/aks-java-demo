@@ -68,7 +68,7 @@ metadata:
   namespace: pet-clinic
   annotations:
     kubernetes.io/ingress.class: azure/application-gateway
-    appgw.ingress.kubernetes.io/appgw-ssl-certificate: appGatewaySslCert
+    appgw.ingress.kubernetes.io/appgw-ssl-certificate: appGatewaySslCertPetClinic
     appgw.ingress.kubernetes.io/request-timeout: "90"
     appgw.ingress.kubernetes.io/cookie-based-affinity: "true"
     appgw.ingress.kubernetes.io/backend-path-prefix: "/"
