@@ -97,7 +97,7 @@ spec:
     app: todoapp
   ports:
   - protocol: TCP
-    port: 80
+    port: 443 #80
     targetPort: 80
 
 ---
@@ -120,7 +120,7 @@ spec:
           service:
             name: todoapp
             port:
-              number: 80
+              number: 443 #80
         pathType: Exact
 
 ########################################################################
