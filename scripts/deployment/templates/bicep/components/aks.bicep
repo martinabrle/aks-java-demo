@@ -1,7 +1,7 @@
 param name string
 param vnetName string
 param aksSubnetName string
-param appGatewayName string
+//param appGatewayName string
 param nodePoolRG string = '${((endsWith(resourceGroup().name, '_rg')) ? substring(resourceGroup().name, 0, length(resourceGroup().name) - 3) : resourceGroup().name)}_managed_resources_rg'
 param aksAdminGroupObjectId string
 param logAnalyticsWorkspaceId string
@@ -17,9 +17,9 @@ resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' existi
   name: aksSubnetName
 }
 
-resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' existing = {
-  name: appGatewayName
-}
+// resource applicationGateway 'Microsoft.Network/applicationGateways@2023-05-01' existing = {
+//   name: appGatewayName
+// }
 
 // resource appGatewayUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
 //   name: '${name}-identity'

@@ -353,7 +353,7 @@ module aks 'components/aks.bicep' = {
     name: aksName
     vnetName: vnet.outputs.vnetName
     aksSubnetName: vnet.outputs.aksSubnetName
-    appGatewayName: appGateway.outputs.appGatewayName
+    //appGatewayName: appGateway.outputs.appGatewayName
     aksAdminGroupObjectId: aksAdminGroupObjectId
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
     location: location
