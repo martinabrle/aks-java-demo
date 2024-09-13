@@ -60,6 +60,11 @@ param petClinicAdminDnsRecordName string = 'admin.${petClinicDnsRecordName}'
 param petClinicGrafanaDnsRecordName string = 'grafana.${petClinicDnsRecordName}' 
 param petClinicTracingServerDnsRecordName string = 'tracing-server.${petClinicDnsRecordName}' 
 
+param sslCertKeyVaultSubscriptionId string = ''
+param sslCertKeyVaultRG string = ''
+param sslCertKeyVaultName string = ''
+param sslCertKeyVaultCertSecretName string = ''
+
 var pgsqlSubscriptionIdVar = (pgsqlSubscriptionId == '') ? subscription().id : pgsqlSubscriptionId
 var pgsqlRGVar = (pgsqlRG == '') ? resourceGroup().name : pgsqlRG
 var pgsqlTagsVar = (pgsqlTags == '') ? aksTags : pgsqlTags
@@ -319,12 +324,23 @@ module vnet 'components/vnet.bicep' = {
   }
 }
 
+resource sslCertKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+  name: sslCertKeyVaultName
+  scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
+}
+
+resource sslCertKeyVaultCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+  parent: sslCertKeyVault
+  name: sslCertKeyVaultCertSecretName
+}
+
 module appGateway 'components/app-gateway.bicep' = {
   name: 'app-gateway'
   params: {
     name: appGatewayName
     vnetName: vnet.outputs.vnetName
     appGatewaySubnetName: vnet.outputs.appGatewaySubnetName
+    sslCertKeyVaultSecretUri: sslCertKeyVaultCertSecret.properties.secretUri
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
     location: location
     tagsArray: aksTagsArray

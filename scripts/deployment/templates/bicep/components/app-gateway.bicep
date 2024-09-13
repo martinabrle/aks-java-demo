@@ -1,6 +1,7 @@
 param name string
 param vnetName string
 param appGatewaySubnetName string
+param sslCertKeyVaultSecretUri string = ''
 param location string
 param tagsArray object
 
@@ -98,6 +99,17 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
         }
       }
     ]
+    sslCertificates: sslCertKeyVaultSecretUri != '' ? [
+      {
+        name: 'appGatewaySslCert'
+        properties: {
+          keyVaultSecretId: sslCertKeyVaultSecretUri
+        }
+      }
+    ] : [
+      // no ssl cert
+    ]
+
     httpListeners: [
       {
         name: 'myListener'

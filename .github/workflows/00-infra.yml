@@ -146,6 +146,10 @@ jobs:
                                                      parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
                                                      todoAppDnsRecordName="${{vars.TODO_APP_DNS_RECORD_NAME}}" \
                                                      petClinicDnsRecordName="${{vars.PET_CLINIC_DNS_RECORD_NAME}}" \
+                                                     sslCertKeyVaultSubscriptionId="${{secrets.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}" \
+                                                     sslCertKeyVaultRG="${{secrets.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}" \
+                                                     sslCertKeyVaultName="${{secrets.SSL_CERT_KEYVAULT_NAME}}" \
+                                                     sslCertKeyVaultCertSecretName="${{secrets.SSL_CERT_KEYVAULT_CERT_SECRET_NAME}}" \
                                                      location="${{secrets.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
