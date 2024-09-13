@@ -104,13 +104,13 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
       {
         name: 'appGatewaySslCertToDo'
         properties: {
-          keyVaultSecretId: sslCertKeyVaultPetClinicSecretUri
+          keyVaultSecretId: sslCertKeyVaultToDoSecretUri
         }
       }
       {
         name: 'appGatewaySslCertPetClinic'
         properties: {
-          keyVaultSecretId: sslCertKeyVaultToDoSecretUri
+          keyVaultSecretId: sslCertKeyVaultPetClinicSecretUri
         }
       }
     ] : [
