@@ -63,7 +63,8 @@ param petClinicTracingServerDnsRecordName string = 'tracing-server.${petClinicDn
 param sslCertKeyVaultSubscriptionId string = ''
 param sslCertKeyVaultRG string = ''
 param sslCertKeyVaultName string = ''
-param sslCertKeyVaultCertSecretName string = ''
+param sslCertKeyVaultToDoCertSecretName string = ''
+param sslCertKeyVaultPetClinicCertSecretName string = ''
 
 var pgsqlSubscriptionIdVar = (pgsqlSubscriptionId == '') ? subscription().id : pgsqlSubscriptionId
 var pgsqlRGVar = (pgsqlRG == '') ? resourceGroup().name : pgsqlRG
@@ -329,9 +330,14 @@ resource sslCertKeyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = if (s
   scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
 }
 
-resource sslCertKeyVaultCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+resource sslCertKeyVaultToDoCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
   parent: sslCertKeyVault
-  name: sslCertKeyVaultCertSecretName
+  name: sslCertKeyVaultToDoCertSecretName
+}
+
+resource sslCertKeyVaultPetClinicCertSecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = if (sslCertKeyVaultSubscriptionId != '') {
+  parent: sslCertKeyVault
+  name: sslCertKeyVaultPetClinicCertSecretName
 }
 
 module appGateway 'components/app-gateway.bicep' = {
@@ -340,7 +346,8 @@ module appGateway 'components/app-gateway.bicep' = {
     name: appGatewayName
     vnetName: vnet.outputs.vnetName
     appGatewaySubnetName: vnet.outputs.appGatewaySubnetName
-    sslCertKeyVaultSecretUri: sslCertKeyVaultCertSecret.properties.secretUri
+    sslCertKeyVaultToDoSecretUri: sslCertKeyVaultSubscriptionId != '' ? sslCertKeyVaultToDoCertSecret.properties.secretUri : ''
+    sslCertKeyVaultPetClinicSecretUri: sslCertKeyVaultSubscriptionId != '' ? sslCertKeyVaultPetClinicCertSecret.properties.secretUri : ''
     logAnalyticsWorkspaceId: logAnalytics.outputs.logAnalyticsWorkspaceId
     location: location
     tagsArray: aksTagsArray

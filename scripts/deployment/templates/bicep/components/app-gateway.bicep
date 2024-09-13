@@ -1,7 +1,8 @@
 param name string
 param vnetName string
 param appGatewaySubnetName string
-param sslCertKeyVaultSecretUri string = ''
+param sslCertKeyVaultToDoSecretUri string = ''
+param sslCertKeyVaultPetClinicSecretUri string = ''
 param location string
 param tagsArray object
 
@@ -99,11 +100,17 @@ resource appGateway 'Microsoft.Network/applicationGateways@2023-05-01' = {
         }
       }
     ]
-    sslCertificates: sslCertKeyVaultSecretUri != '' ? [
+    sslCertificates: sslCertKeyVaultToDoSecretUri != '' && sslCertKeyVaultPetClinicSecretUri != '' ? [
       {
-        name: 'appGatewaySslCert'
+        name: 'appGatewaySslCertToDo'
         properties: {
-          keyVaultSecretId: sslCertKeyVaultSecretUri
+          keyVaultSecretId: sslCertKeyVaultPetClinicSecretUri
+        }
+      }
+      {
+        name: 'appGatewaySslCertPetClinic'
+        properties: {
+          keyVaultSecretId: sslCertKeyVaultToDoSecretUri
         }
       }
     ] : [

@@ -149,7 +149,8 @@ jobs:
                                                      sslCertKeyVaultSubscriptionId="${{secrets.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}" \
                                                      sslCertKeyVaultRG="${{secrets.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}" \
                                                      sslCertKeyVaultName="${{secrets.SSL_CERT_KEYVAULT_NAME}}" \
-                                                     sslCertKeyVaultCertSecretName="${{secrets.SSL_CERT_KEYVAULT_CERT_SECRET_NAME}}" \
+                                                     sslCertKeyVaultToDoCertSecretName="${{secrets.SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME}}" \
+                                                     sslCertKeyVaultPetClinicCertSecretName="${{secrets.SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME}}" \
                                                      location="${{secrets.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
