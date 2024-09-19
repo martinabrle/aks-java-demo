@@ -198,7 +198,7 @@ resource appGatewayPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFir
       managedRuleSets: [
         {
           ruleSetType: 'OWASP'
-          ruleSetVersion: '3.1'
+           ruleSetVersion: '3.2'
         }
       ]
     }
