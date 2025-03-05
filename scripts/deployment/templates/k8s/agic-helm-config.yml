@@ -32,9 +32,7 @@ appgw:
 # - Option 1: Azure-AD-workload-identity
 armAuth:
     type: workloadIdentity
-    identityClientID:  56b38307-d433-4695-a413-fbe003250744
-
-#<#identityClientId>
+    identityClientID:  <identityClientId>
 
 ## Alternatively you can use Service Principal credentials
 # armAuth:
