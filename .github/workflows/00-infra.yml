@@ -297,12 +297,13 @@ jobs:
           APP_GATEWAY_NAME: ${{steps.deployment.outputs.APP_GATEWAY_NAME}}
           AGIC_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_RESOURCE_ID}}
           AGIC_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_CLIENT_ID}}
+          FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-ingress-azure
         run: |
           cp scripts/deployment/templates/k8s/agic-helm-config.yml helm-config.yaml
           sed -i "s|<subscriptionId>|${{env.AKS_SUBSCRIPTION_ID}}|g" helm-config.yaml
           sed -i "s|<resourceGroupName>|${{env.AKS_RESOURCE_GROUP}}|g" helm-config.yaml
           sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
-          # sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
+          sed -i "s|<identityResourceId>|${{env.FEDERATED_IDENTITY_NAME}}|g" helm-config.yaml
           sed -i "s|<identityClientId>|${{env.AGIC_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
           # sed -i "s|aadPodIdentity|workloadIdentity|g" helm-config.yaml
           
@@ -318,7 +319,7 @@ jobs:
           az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
               --name ${{env.AKS_NAME}} \
-              --command "helm upgrade --install agic-controller -f helm-config.yaml oci://mcr.microsoft.com/azure-application-gateway/charts/ingress-azure --version 1.8.0" \
+              --command "helm upgrade --install agic-controller -f helm-config.yaml oci://mcr.microsoft.com/azure-application-gateway/charts/ingress-azure --version 1.7.1" \
               --file helm-config.yaml
 
           # az aks command invoke \
