@@ -284,12 +284,12 @@ jobs:
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
             az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.AGIC_IDENTITY_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
 
-      - name: Download AGIC helm-config.yaml
-        run: |
-          curl -o helm-config.yaml https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml
-          echo "helm-config.yaml:"
-          echo "-----------------"
-          cat helm-config.yaml
+      # - name: Download AGIC helm-config.yaml
+      #   run: |
+      #     curl -o helm-config.yaml https://raw.githubusercontent.com/Azure/application-gateway-kubernetes-ingress/master/docs/examples/sample-helm-config.yaml
+      #     echo "helm-config.yaml:"
+      #     echo "-----------------"
+      #     cat helm-config.yaml
 
       - name: Configure AGIC helm-config.yaml
         env:
@@ -298,14 +298,15 @@ jobs:
           AGIC_IDENTITY_RESOURCE_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_RESOURCE_ID}}
           AGIC_IDENTITY_CLIENT_ID: ${{steps.deployment.outputs.AGIC_IDENTITY_CLIENT_ID}}
         run: |
+          cp scripts/deployment/templates/k8s/agic-helm-config.yml helm-config.yaml
           sed -i "s|<subscriptionId>|${{env.AKS_SUBSCRIPTION_ID}}|g" helm-config.yaml
           sed -i "s|<resourceGroupName>|${{env.AKS_RESOURCE_GROUP}}|g" helm-config.yaml
           sed -i "s|<applicationGatewayName>|${{env.APP_GATEWAY_NAME}}|g" helm-config.yaml
-          sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
+          # sed -i "s|<identityResourceId>|${{env.AGIC_IDENTITY_RESOURCE_ID}}|g" helm-config.yaml
           sed -i "s|<identityClientId>|${{env.AGIC_IDENTITY_CLIENT_ID}}|g" helm-config.yaml
-          sed -i "s|aadPodIdentity|workloadIdentity|g" helm-config.yaml
+          # sed -i "s|aadPodIdentity|workloadIdentity|g" helm-config.yaml
           
-          sed -i '/rbac:/,/^\s*$/s/enabled: false/enabled: true/' helm-config.yaml
+          # sed -i '/rbac:/,/^\s*$/s/enabled: false/enabled: true/' helm-config.yaml
           echo "helm-config.yaml:"
           echo "-----------------"
           cat helm-config.yaml
@@ -317,8 +318,14 @@ jobs:
           az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
               --name ${{env.AKS_NAME}} \
-              --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm upgrade --install ingress-azure -f helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
+              --command "helm upgrade --install agic-controller -f helm-config.yaml oci://mcr.microsoft.com/azure-application-gateway/charts/ingress-azure --version 1.8.0" \
               --file helm-config.yaml
+
+          # az aks command invoke \
+          #     --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+          #     --name ${{env.AKS_NAME}} \
+          #     --command "helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/;helm repo update;helm upgrade --install ingress-azure -f helm-config.yaml application-gateway-kubernetes-ingress/ingress-azure --version 1.7.1" \
+          #     --file helm-config.yaml
 
           # helm repo add application-gateway-kubernetes-ingress https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
           # helm repo update
