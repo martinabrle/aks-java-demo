@@ -279,10 +279,12 @@ jobs:
           FEDERATED_IDENTITY_NAME: ${{env.AKS_NAME}}-fi-ingress-azure
           SERVICE_ACCOUNT_NAMESPACE: "default"
           SERVICE_ACCOUNT_NAME: "ingress-azure"
+          
         run: |
             export AKS_OIDC_ISSUER="$(az aks show --resource-group ${{env.AKS_RESOURCE_GROUP}} --name ${{env.AKS_NAME}} --query "oidcIssuerProfile.issuerUrl" -o tsv)"
             echo "AKS_OIDC_ISSUER: $AKS_OIDC_ISSUER"
-            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.AGIC_IDENTITY_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            #az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.AGIC_IDENTITY_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:${{env.SERVICE_ACCOUNT_NAMESPACE}}:${{env.SERVICE_ACCOUNT_NAME}} --audience api://AzureADTokenExchange
+            az identity federated-credential create --name ${{env.FEDERATED_IDENTITY_NAME}} --identity-name ${{env.AGIC_IDENTITY_NAME}} --resource-group ${{env.AKS_RESOURCE_GROUP}} --issuer ${AKS_OIDC_ISSUER} --subject system:serviceaccount:default:agic-controller-sa-ingress-azure --audience api://AzureADTokenExchange
 
       # - name: Download AGIC helm-config.yaml
       #   run: |
@@ -319,7 +321,7 @@ jobs:
           az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
               --name ${{env.AKS_NAME}} \
-              --command "helm upgrade --install agic-controller -f helm-config.yaml oci://mcr.microsoft.com/azure-application-gateway/charts/ingress-azure --version 1.7.1" \
+              --command "helm upgrade --install agic-controller -f helm-config.yaml oci://mcr.microsoft.com/azure-application-gateway/charts/ingress-azure --version 1.8.0" \
               --file helm-config.yaml
 
           # az aks command invoke \
