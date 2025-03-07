@@ -439,12 +439,12 @@ module rbacAppGwResourceGroupContributor 'components/role-assignment-resource-gr
 // APPGW needs Key Vault Reader permissions for the KeyVault containing the certificate - note: Reader can read the metadata, not  secrets
 module rbacAppGwDomainKVCertificateUser './components/role-assignment-kv.bicep' = {
   name: 'rbac-app-gw-domain-kv-reader'
-  scope: resourceGroup(parentDnsZoneRGVar, parentDnsZoneSubscriptionIdVar)
+  scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
   params: {
     roleDefinitionId: keyVaultReader.id
     principalId: appGateway.outputs.appGatewayIdentityPrincipalId
-    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, keyVault.outputs.keyVaultId, keyVaultReader.id)
-    kvName: keyVault.outputs.keyVaultName
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVault.id, keyVaultReader.id)
+    kvName: sslCertKeyVault.name
   }
 }
 
