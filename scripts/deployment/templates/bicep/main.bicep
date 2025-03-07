@@ -455,9 +455,9 @@ module rbacAppGwDomainKVReaderTodoApp './components/role-assignment-kv-secret.bi
   params: {
     roleDefinitionId: keyVaultCertificateUser.id
     principalId: appGateway.outputs.appGatewayIdentityPrincipalId
-    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultPetClinicCertSecret.id, keyVaultCertificateUser.id)
-    kvName: keyVault.outputs.keyVaultName
-    kvSecretName: sslCertKeyVaultPetClinicCertSecret.name
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultToDoCertSecret.id, keyVaultCertificateUser.id)
+    kvName: sslCertKeyVault.name
+    kvSecretName: sslCertKeyVaultToDoCertSecret.name
   }
 }
 
@@ -468,9 +468,9 @@ module rbacAppGwDomainKVReaderPetClinic './components/role-assignment-kv-secret.
   params: {
     roleDefinitionId: keyVaultCertificateUser.id
     principalId: appGateway.outputs.appGatewayIdentityPrincipalId
-    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultToDoCertSecret.id, keyVaultCertificateUser.id)
-    kvName: sslCertKeyVault.name 
-    kvSecretName: sslCertKeyVaultToDoCertSecret.name
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultPetClinicCertSecret.id, keyVaultCertificateUser.id)
+    kvName: sslCertKeyVault.name
+    kvSecretName: sslCertKeyVaultPetClinicCertSecret.name
   }
 }
 
