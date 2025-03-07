@@ -176,7 +176,7 @@ jobs:
           # Retrieve PGSQL access token 
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           echo "Token: ${PGPASSWORD}"
-            
+          
           # Create a new service user if needed
           dbUserExists=`psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "SELECT 1 FROM pg_roles WHERE rolname='${{env.DB_USER_NAME}}';" -v ON_ERROR_STOP=1`
           if [[ $dbUserExists -ne '1' ]]; then
@@ -196,14 +196,6 @@ jobs:
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT CONNECT ON DATABASE ${{env.DB}} TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT USAGE ON SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
-
-    # - name: Test connection to AKS
-    #   run: |
-    #     az aks command invoke \
-    #       --resource-group ${{env.AKS_RESOURCE_GROUP}} \
-    #       --name ${{env.AKS_NAME}} \
-    #       --command "kubectl get ns" \
-    #       --subscription "${{env.AKS_SUBSCRIPTION_ID}}"
 
       - name: Deploy app into AKS
         env:

@@ -436,6 +436,44 @@ module rbacAppGwResourceGroupContributor 'components/role-assignment-resource-gr
   }
 }
 
+// APPGW needs Key Vault Reader permissions for the KeyVault containing the certificate - note: Reader can read the metadata, not  secrets
+module rbacAppGwDomainKVCertificateUser './components/role-assignment-kv.bicep' = {
+  name: 'rbac-app-gw-domain-kv-reader'
+  scope: resourceGroup(parentDnsZoneRGVar, parentDnsZoneSubscriptionIdVar)
+  params: {
+    roleDefinitionId: keyVaultReader.id
+    principalId: appGateway.outputs.appGatewayIdentityPrincipalId
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, keyVault.outputs.keyVaultId, keyVaultReader.id)
+    kvName: keyVault.outputs.keyVaultName
+  }
+}
+
+// APPGW needs permissions to be the Certificate Reader to read the certificate from the KeyVault - Todo App
+module rbacAppGwDomainKVReaderTodoApp './components/role-assignment-kv-secret.bicep' = {
+  name: 'rbac-app-gw-domain-kv-cert-reader-todo'
+  scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
+  params: {
+    roleDefinitionId: keyVaultCertificateUser.id
+    principalId: appGateway.outputs.appGatewayIdentityPrincipalId
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultPetClinicCertSecret.id, keyVaultCertificateUser.id)
+    kvName: keyVault.outputs.keyVaultName
+    kvSecretName: sslCertKeyVaultPetClinicCertSecret.name
+  }
+}
+
+// APPGW needs permissions to be the Certificate Reader to read the certificate from the KeyVault - Pet Clinic
+module rbacAppGwDomainKVReaderPetClinic './components/role-assignment-kv-secret.bicep' = {
+  name: 'rbac-app-gw-domain-kv-cert-reader-petclinic'
+  scope: resourceGroup(sslCertKeyVaultSubscriptionId, sslCertKeyVaultRG)
+  params: {
+    roleDefinitionId: keyVaultCertificateUser.id
+    principalId: appGateway.outputs.appGatewayIdentityPrincipalId
+    roleAssignmentNameGuid: guid(appGateway.outputs.appGatewayIdentityPrincipalId, sslCertKeyVaultToDoCertSecret.id, keyVaultCertificateUser.id)
+    kvName: sslCertKeyVault.name 
+    kvSecretName: sslCertKeyVaultToDoCertSecret.name
+  }
+}
+
 module rbacKVSecretTodoDSUri './components/role-assignment-kv-secret.bicep' = {
   name: 'rbac-kv-secret-todo-ds-url'
   params: {
@@ -713,6 +751,18 @@ resource acrPullRole 'Microsoft.Authorization/roleDefinitions@2022-04-01' existi
 resource keyVaultSecretsUser 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: resourceGroup()
   name: '4633458b-17de-408a-b874-0445c86b69e6'
+}
+
+@description('This is the built-in Key Vault Reader User role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-reader')
+resource keyVaultReader 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: resourceGroup()
+  name: '21090545-7ca7-4776-b22c-e363652d74d2'
+}
+
+@description('This is the built-in Key Vault Certificates User role. See https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/security#key-vault-certificate-user')
+resource keyVaultCertificateUser 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: resourceGroup()
+  name: 'db79e9a7-68ee-4b58-9aeb-b90e7c24fcba'
 }
 
 @description('This is the built-in Contributor role. See https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#contributor')
