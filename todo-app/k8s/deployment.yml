@@ -125,7 +125,7 @@ spec:
             name: todoapp
             port:
               number: 80
-        pathType: Exact
+        pathType: Prefix
 
 ########################################################################
 # AGIC as an add-on - service needs to run in the default namespace

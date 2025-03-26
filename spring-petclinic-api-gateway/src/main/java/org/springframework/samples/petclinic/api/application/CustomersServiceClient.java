@@ -16,10 +16,15 @@
 package org.springframework.samples.petclinic.api.application;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.samples.petclinic.api.dto.OwnerDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import io.netty.resolver.DefaultAddressResolverGroup;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 /**
  * @author Maciej Szarlinski
@@ -28,12 +33,14 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class CustomersServiceClient {
 
-    private final WebClient.Builder webClientBuilder;
+    //without this modification, the webclient will not resolve the hostname on an internal network
+    private final WebClient webClient = WebClient.builder().clientConnector(new ReactorClientHttpConnector(HttpClient.create().resolver(DefaultAddressResolverGroup.INSTANCE))).build();
 
     public Mono<OwnerDetails> getOwner(final int ownerId) {
-        return webClientBuilder.build().get()
-            .uri("http://customers-service/owners/{ownerId}", ownerId)
-            .retrieve()
-            .bodyToMono(OwnerDetails.class);
+        
+        return webClient.get()
+                .uri("http://customers-service:8081/owners/{ownerId}", ownerId)
+                .retrieve()
+                .bodyToMono(OwnerDetails.class);
     }
 }

@@ -31,7 +31,8 @@
     <dependency>
       <groupId>com.microsoft.azure</groupId>
       <artifactId>applicationinsights-runtime-attach</artifactId>
-      <version>3.4.17</version>
+      <version>3.7.1</version>
+      <!-- https://learn.microsoft.com/en-us/azure/azure-monitor/app/java-spring-boot -->
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>

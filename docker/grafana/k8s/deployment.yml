@@ -84,5 +84,5 @@ spec:
           service:
             name: grafana-server
             port:
-              number: 80
-        pathType: Exact
+              number: 3000
+        pathType: Prefix

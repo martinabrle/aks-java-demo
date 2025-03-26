@@ -72,6 +72,11 @@ class VisitResource {
         return new Visits(byPetIdIn);
     }
 
+    // @GetMapping("pets/{petId}/visits") //test if this fixes the display issue - this did not work
+    // public List<Visit> readOne(@PathVariable("petId") @Min(1) int petId) {
+    //     return visitRepository.findByPetId(petId);
+    // }
+
     @Value
     static class Visits {
         List<Visit> items;

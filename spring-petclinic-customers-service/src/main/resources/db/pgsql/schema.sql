@@ -3,10 +3,17 @@ CREATE TABLE IF NOT EXISTS types (
   "name" VARCHAR(80)
 );
 
+CREATE SEQUENCE IF NOT EXISTS owners_id_seq
+  INCREMENT BY 1
+  START WITH 99
+  MINVALUE 11
+  MAXVALUE 9223372036854775807
+  CACHE 1;
+
 CREATE INDEX IF NOT EXISTS types_name_idx ON types ( "name" );
 
 CREATE TABLE IF NOT EXISTS owners (
-  "id" SERIAL PRIMARY KEY NOT NULL,
+  "id" INT PRIMARY KEY NOT NULL DEFAULT nextval('owners_id_seq'),
   "first_name" VARCHAR(30),
   "last_name" VARCHAR(30),
   "address" VARCHAR(255),
@@ -16,8 +23,15 @@ CREATE TABLE IF NOT EXISTS owners (
 
 CREATE INDEX IF NOT EXISTS owners_last_name_idx ON owners ( "last_name" );
 
+CREATE SEQUENCE IF NOT EXISTS pets_id_seq
+  INCREMENT BY 1
+  START WITH 14
+  MINVALUE 1
+  MAXVALUE 9223372036854775807
+  CACHE 1;
+
 CREATE TABLE IF NOT EXISTS pets (
-  "id" SERIAL PRIMARY KEY NOT NULL,
+  "id" INT PRIMARY KEY NOT NULL DEFAULT nextval('pets_id_seq'),
   "name" VARCHAR(30),
   "birth_date" DATE,
   "type_id" INT NOT NULL,

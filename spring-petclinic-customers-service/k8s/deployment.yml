@@ -69,7 +69,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 8081
             scheme: HTTP
           initialDelaySeconds: 180
           successThreshold: 1
@@ -77,12 +77,12 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 8081
             scheme: HTTP
           initialDelaySeconds: 30
           successThreshold: 1
         ports:
-        - containerPort: 8080
+        - containerPort: 8081
           name: http
           protocol: TCP
         - containerPort: 9779
@@ -115,9 +115,9 @@ metadata:
   namespace: pet-clinic
 spec:
   ports:
-  - port: 8080
+  - port: 8081
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8081
   selector:
     app: customers-service
   type: ClusterIP

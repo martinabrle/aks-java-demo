@@ -41,9 +41,27 @@ spec:
         - name: APPLICATIONINSIGHTS_CONFIGURATION_CONTENT
           value: >-
             {
-                "role": {
-                    "name": "api-gateway"
+              "role": {
+                  "name": "api-gateway",
+                  "instance": "api-gateway"
+              },
+              "instrumentation": {
+                  "logging": {
+                      "level": "ALL"
                   }
+              },
+              "preview": {
+                  "captureLogbackMarker":  true,
+                  "captureLog4jMarker":  true,
+                  "captureLogbackCodeAttributes": true,
+                  "captureHttpServer4xxAsError": true,
+                  "springIntegration": {
+                      "enabled": true
+                  },
+                  "browserSdkLoader": {
+                      "enabled": true
+                  }
+              }
             }
         - name: ENVIRONMENT
           value: AKS
@@ -100,7 +118,7 @@ spec:
     app: api-gateway
   ports:
   - protocol: TCP
-    port: 80
+    port: 8080
     targetPort: 8080
 
 ---
@@ -127,5 +145,5 @@ spec:
           service:
             name: api-gateway
             port:
-              number: 80
-        pathType: Exact
+              number: 8080
+        pathType: Prefix

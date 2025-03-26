@@ -171,6 +171,7 @@ resource appGatewayPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFir
         priority: 100
         ruleType: 'MatchRule'
         action: 'Block'
+        state: 'Disabled'
         matchConditions: [
           {
             matchVariables: [
@@ -198,7 +199,19 @@ resource appGatewayPolicy 'Microsoft.Network/ApplicationGatewayWebApplicationFir
       managedRuleSets: [
         {
           ruleSetType: 'OWASP'
-           ruleSetVersion: '3.2'
+          ruleSetVersion: '3.2'
+           ruleGroupOverrides: [
+             {
+              ruleGroupName: 'REQUEST-931-APPLICATION-ATTACK-RFI'
+               rules: [
+                {
+                  ruleId: '931130'
+                  state: 'Disabled'
+                  action: 'Log'
+                 }
+               ]
+             }
+           ]
         }
       ]
     }
@@ -227,6 +240,8 @@ resource appGatewayDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01
 
 output appGatewayId string = appGateway.id
 output appGatewayName string = appGateway.name
+output appGatewayPublicIpAddressId string = appGatewayPublicIPAddress.id
+output appGatewayPublicIpAddressName string = appGatewayPublicIPAddress.name
 output appGatewayIdentityPrincipalId string = appGatewayUserManagedIdentity.properties.principalId
 output appGatewayIdentityClientId string = appGatewayUserManagedIdentity.properties.clientId
 output appGatewayIdentityResourceId string = appGatewayUserManagedIdentity.id

@@ -52,7 +52,7 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 9090
             scheme: HTTP
           initialDelaySeconds: 180
           successThreshold: 1
@@ -60,12 +60,12 @@ spec:
           failureThreshold: 3
           httpGet:
             path: /actuator/health
-            port: 8080
+            port: 9090
             scheme: HTTP
           initialDelaySeconds: 30
           successThreshold: 1
         ports:
-        - containerPort: 8080
+        - containerPort: 9090
           name: http
           protocol: TCP
         - containerPort: 9779
@@ -100,8 +100,8 @@ spec:
     app: admin-server
   ports:
   - protocol: TCP
-    port: 80
-    targetPort: 8080
+    port: 9090
+    targetPort: 9090
 
 ---
 
@@ -127,5 +127,5 @@ spec:
           service:
             name: admin-server
             port:
-              number: 80
-        pathType: Exact
+              number: 9090
+        pathType: Prefix

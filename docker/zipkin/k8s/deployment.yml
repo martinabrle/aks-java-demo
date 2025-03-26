@@ -94,7 +94,7 @@ spec:
     app: tracing-server
   ports:
   - protocol: TCP
-    port: 80
+    port: 9411
     targetPort: 9411
 
 ---
@@ -121,5 +121,5 @@ spec:
           service:
             name: tracing-server
             port:
-              number: 80
-        pathType: Exact
+              number: 9411
+        pathType: Prefix
