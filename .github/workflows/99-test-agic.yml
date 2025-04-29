@@ -10,9 +10,9 @@ jobs:
         id-token: write
         contents: read
     env:
-      AKS_NAME: ${{secrets.AKS_NAME}}
+      AKS_NAME: ${{vars.AKS_NAME}}
       AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
-      AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+      AKS_RESOURCE_GROUP: ${{vars.AKS_RESOURCE_GROUP}}
     steps:
       - uses: actions/checkout@v4
       

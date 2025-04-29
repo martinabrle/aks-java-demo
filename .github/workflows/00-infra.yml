@@ -12,96 +12,153 @@ jobs:
         id-token: write
         contents: read
     env:
-      AKS_NAME: ${{secrets.AKS_NAME}}
+      AAD_CLIENT_ID: "${{secrets.AAD_CLIENT_ID}}"
+      AAD_TENANT_ID: "${{secrets.AAD_TENANT_ID}}"
+
+      AZURE_LOCATION: ${{vars.AZURE_LOCATION}}
+
+      AKS_NAME: ${{vars.AKS_NAME}}
       AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
-      AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
+      AKS_RESOURCE_GROUP: ${{vars.AKS_RESOURCE_GROUP}}
+      AKS_RESOURCE_TAGS: ${{vars.AKS_RESOURCE_TAGS}}
+      AKS_ADMIN_GROUP_NAME: ${{vars.AKS_ADMIN_GROUP_NAME}}
+      TODO_APP_VIEW_AD_GROUP_NAME: ${{vars.TODO_APP_VIEW_AD_GROUP_NAME}}
+      TODO_APP_EDIT_AD_GROUP_NAME: ${{vars.TODO_APP_EDIT_AD_GROUP_NAME}}
+      PET_CLINIC_APP_VIEW_AD_GROUP_NAME: ${{vars.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}
+      PET_CLINIC_APP_EDIT_AD_GROUP_NAME: ${{vars.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}
+
+      KEYVAULT_NAME: '${{vars.AKS_NAME}}-kv'
+      
+      CONTAINER_REGISTRY_NAME: ${{vars.CONTAINER_REGISTRY_NAME}}
+      
+      PGSQL_NAME: ${{vars.PGSQL_NAME}}
       PGSQL_SUBSCRIPTION_ID: ${{secrets.PGSQL_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
-      PGSQL_RESOURCE_GROUP: ${{secrets.PGSQL_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
+      PGSQL_RESOURCE_GROUP: ${{vars.PGSQL_RESOURCE_GROUP || vars.AKS_RESOURCE_GROUP}}
+      PGSQL_RESOURCE_TAGS: ${{vars.PGSQL_RESOURCE_TAGS}}
+      DBA_GROUP_NAME: ${{vars.DBA_GROUP_NAME}}
+      
+      TODO_APP_DB_NAME: ${{vars.TODO_APP_DB_NAME}}      
+      TODO_APP_DB_USER_NAME: ${{vars.TODO_APP_DB_USER_NAME}}
+      
+      PET_CLINIC_DB_NAME: ${{vars.PET_CLINIC_DB_NAME}}
+      PET_CLINIC_CUSTS_SVC_DB_USER_NAME: ${{vars.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}
+      PET_CLINIC_VETS_SVC_DB_USER_NAME: ${{vars.PET_CLINIC_VETS_SVC_DB_USER_NAME}}
+      PET_CLINIC_VISITS_SVC_DB_USER_NAME: ${{vars.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}
+      
       CONTAINER_REGISTRY_SUBSCRIPTION_ID: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
-      CONTAINER_REGISTRY_RESOURCE_GROUP: ${{secrets.CONTAINER_REGISTRY_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
+      CONTAINER_REGISTRY_RESOURCE_GROUP: ${{vars.CONTAINER_REGISTRY_RESOURCE_GROUP || vars.AKS_RESOURCE_GROUP}}
+      CONTAINER_REGISTRY_RESOURCE_TAGS: ${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}
+      
+      LOG_ANALYTICS_WRKSPC_NAME: ${{vars.LOG_ANALYTICS_WRKSPC_NAME}}
       LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID: ${{secrets.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID || secrets.AKS_SUBSCRIPTION_ID}}
-      LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP: ${{secrets.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP || secrets.AKS_RESOURCE_GROUP}}
+      LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP: ${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP || vars.AKS_RESOURCE_GROUP}}
+      LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS: ${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}
+      
+      DNS_ZONE_NAME: ${{vars.DNS_ZONE_NAME}}
+      PARENT_DNS_ZONE_NAME: ${{vars.PARENT_DNS_ZONE_NAME}}
+      PARENT_DNS_SUBSCRIPTION_ID: ${{secrets.PARENT_DNS_SUBSCRIPTION_ID}}
+      PARENT_DNS_ZONE_RESOURCE_GROUP: ${{vars.PARENT_DNS_ZONE_RESOURCE_GROUP}}
+      PARENT_DNS_ZONE_TAGS: ${{vars.PARENT_DNS_ZONE_TAGS}}
+      TODO_APP_DNS_RECORD_NAME: ${{vars.TODO_APP_DNS_RECORD_NAME}}
+      PET_CLINIC_DNS_RECORD_NAME: ${{vars.PET_CLINIC_DNS_RECORD_NAME}}
+      
+      SSL_CERT_KEYVAULT_SUBSCRIPTION_ID: ${{secrets.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}
+      SSL_CERT_KEYVAULT_RESOURCE_GROUP: ${{vars.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}
+      SSL_CERT_KEYVAULT_NAME: ${{vars.SSL_CERT_KEYVAULT_NAME}}
+      SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME: ${{vars.SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME}}
+      SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME: ${{vars.SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME}}
+      
+      PET_CLINIC_GIT_CONFIG_REPO_URI: ${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}
+      PET_CLINIC_GIT_CONFIG_REPO_USERNAME: ${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}
+      PET_CLINIC_GIT_CONFIG_REPO_PASSWORD: ${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}
+      
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Get the latest version of AZ CLI and Azure Bicep
+        run: |
+            az upgrade -y
+            az bicep upgrade
+
+
       - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v2
         with:
-          client-id: "${{secrets.AAD_CLIENT_ID}}"
-          tenant-id: "${{secrets.AAD_TENANT_ID}}"
+          client-id: "${{env.AAD_CLIENT_ID}}"
+          tenant-id: "${{env.AAD_TENANT_ID}}"
           subscription-id: "${{env.AKS_SUBSCRIPTION_ID}}"
 
       - name: Create Azure resource group
         working-directory: ./scripts/deployment/templates/bicep/
         run: |
             az deployment sub create \
-              -l "${{secrets.AZURE_LOCATION}}" \
+              -l "${{env.AZURE_LOCATION}}" \
               --template-file ./resource_groups.bicep \
-              --parameters location="${{secrets.AZURE_LOCATION}}" \
+              --parameters location="${{env.AZURE_LOCATION}}" \
                            aksRG="${{env.AKS_RESOURCE_GROUP}}" \
-                           aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
+                           aksTags="${{env.AKS_RESOURCE_TAGS}}" \
                            containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
                            containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
-                           containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+                           containerRegistryTags="${{env.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
                            pgsqlSubscriptionId="${{env.PGSQL_SUBSCRIPTION_ID}}" \
                            pgsqlRG="${{env.PGSQL_RESOURCE_GROUP}}" \
-                           pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
+                           pgsqlTags="${{env.PGSQL_RESOURCE_TAGS}}" \
                            logAnalyticsSubscriptionId="${{env.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
                            logAnalyticsRG="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
-                           logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}"
+                           logAnalyticsTags="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}"
         
       - name: Deploy Azure resources
         id: deployment
         working-directory: ./scripts/deployment/templates/bicep/
         run: |
-          if [[ -z "${{secrets.DBA_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.DBA_GROUP_NAME}}" ]]; then
             echo "DBA Group name is not set"
             exit 1
           fi
 
-          if [[ -z "${{secrets.AKS_ADMIN_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.AKS_ADMIN_GROUP_NAME}}" ]]; then
             echo "AKS Admin Group name is not set"
             exit 1
           fi
 
-          if [[ -z "${{secrets.TODO_APP_VIEW_AD_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.TODO_APP_VIEW_AD_GROUP_NAME}}" ]]; then
             echo "TODO_APP Viewer Group name is not set"
             exit 1
           fi
 
-          if [[ -z "${{secrets.TODO_APP_EDIT_AD_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.TODO_APP_EDIT_AD_GROUP_NAME}}" ]]; then
             echo "TODO_APP Admin Group name is not set"
             exit 1
           fi
-          if [[ -z "${{secrets.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" ]]; then
             echo "PET_CLINIC Viewer Group name is not set"
             exit 1
           fi
 
-          if [[ -z "${{secrets.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" ]]; then
+          if [[ -z "${{env.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" ]]; then
             echo "PET_CLINIC Admin Group name is not set"
             exit 1
           fi
 
-          TODO_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.TODO_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
+          TODO_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{env.TODO_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "TODO_APP_VIEW_AD_GROUP_ID=${TODO_APP_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          TODO_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.TODO_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
+          TODO_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{env.TODO_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "TODO_APP_EDIT_AD_GROUP_ID=${TODO_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          PET_CLINIC_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
+          PET_CLINIC_APP_VIEW_AD_GROUP_ID=`az ad group show --group "${{env.PET_CLINIC_APP_VIEW_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "PET_CLINIC_APP_VIEW_AD_GROUP_ID=${PET_CLINIC_APP_VIEW_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          PET_CLINIC_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{secrets.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
+          PET_CLINIC_APP_EDIT_AD_GROUP_ID=`az ad group show --group "${{env.PET_CLINIC_APP_EDIT_AD_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "PET_CLINIC_APP_EDIT_AD_GROUP_ID=${PET_CLINIC_APP_EDIT_AD_GROUP_ID}" >> $GITHUB_OUTPUT
           
-          dbaGroupId=`az ad group show --group "${{secrets.DBA_GROUP_NAME}}" --query '[id]' -o tsv`
+          dbaGroupId=`az ad group show --group "${{env.DBA_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "DBA_GROUP_ID=${dbaGroupId}" >> $GITHUB_OUTPUT
-          aksGroupId=`az ad group show --group "${{secrets.AKS_ADMIN_GROUP_NAME}}" --query '[id]' -o tsv`
+          aksGroupId=`az ad group show --group "${{env.AKS_ADMIN_GROUP_NAME}}" --query '[id]' -o tsv`
           echo "AKS_ADMIN_GROUP_ID=${aksGroupId}" >> $GITHUB_OUTPUT
 
           echo "Deploying with the following parameters:"
-          echo "DBA Group Name: '${{secrets.DBA_GROUP_NAME}}'"
+          echo "DBA Group Name: '${{env.DBA_GROUP_NAME}}'"
           echo "DBA Group Id: $dbaGroupId"
           echo "AKS Service name: '${{env.AKS_NAME}}'"
           echo "Deployment client IP Address: '${clientIP}'"
@@ -109,49 +166,91 @@ jobs:
           # As all is deployed using the template, I will not need an exception for the current
           # GH Runner IP Address
           export clientIP=""
+          # deploymentOutput=`az deployment group create \
+          #                               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+          #                               --template-file ./main.bicep \
+          #                               --parameters aksName="${{env.AKS_NAME}}" \
+          #                                            aksAdminGroupObjectId="${aksGroupId}" \
+          #                                            aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
+          #                                            containerRegistryName="${{secrets.CONTAINER_REGISTRY_NAME}}" \
+          #                                            containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
+          #                                            containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
+          #                                            containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+          #                                            dnsZoneName="${{secrets.DNS_ZONE_NAME}}" \
+          #                                            parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
+          #                                            parentDnsZoneSubscriptionId="${{secrets.PARENT_DNS_SUBSCRIPTION_ID}}" \
+          #                                            parentDnsZoneRG="${{secrets.PARENT_DNS_ZONE_RESOURCE_GROUP}}" \
+          #                                            parentDnsZoneTags="${{vars.PARENT_DNS_ZONE_TAGS}}" \
+          #                                            pgsqlName="${{secrets.PGSQL_NAME}}" \
+          #                                            pgsqlAADAdminGroupName="${{secrets.DBA_GROUP_NAME}}" \
+          #                                            pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
+          #                                            pgsqlSubscriptionId="${{env.PGSQL_SUBSCRIPTION_ID}}" \
+          #                                            pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
+          #                                            pgsqlPetClinicDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
+          #                                            petClinicCustsSvcDbUserName="${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
+          #                                            petClinicVetsSvcDbUserName="${{secrets.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
+          #                                            petClinicVisitsSvcDbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
+          #                                            pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
+          #                                            todoAppDbUserName="${{secrets.TODO_APP_DB_USER_NAME}}" \
+          #                                            pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
+          #                                            logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
+          #                                            logAnalyticsSubscriptionId="${{env.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
+          #                                            logAnalyticsRG="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
+          #                                            logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}" \
+          #                                            petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
+          #                                            petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
+          #                                            petClinicGitConfigRepoPassword="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
+          #                                            parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
+          #                                            todoAppDnsRecordName="${{vars.TODO_APP_DNS_RECORD_NAME}}" \
+          #                                            petClinicDnsRecordName="${{vars.PET_CLINIC_DNS_RECORD_NAME}}" \
+          #                                            sslCertKeyVaultSubscriptionId="${{secrets.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}" \
+          #                                            sslCertKeyVaultRG="${{secrets.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}" \
+          #                                            sslCertKeyVaultName="${{secrets.SSL_CERT_KEYVAULT_NAME}}" \
+          #                                            sslCertKeyVaultToDoCertSecretName="${{secrets.SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME}}" \
+          #                                            sslCertKeyVaultPetClinicCertSecretName="${{secrets.SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME}}" \
+          #                                            location="${{secrets.AZURE_LOCATION}}"`          
           deploymentOutput=`az deployment group create \
                                         --resource-group ${{env.AKS_RESOURCE_GROUP}} \
                                         --template-file ./main.bicep \
                                         --parameters aksName="${{env.AKS_NAME}}" \
                                                      aksAdminGroupObjectId="${aksGroupId}" \
-                                                     aksTags="${{vars.AKS_RESOURCE_TAGS}}" \
-                                                     containerRegistryName="${{secrets.CONTAINER_REGISTRY_NAME}}" \
+                                                     aksTags="${{env.AKS_RESOURCE_TAGS}}" \
+                                                     containerRegistryName="${{env.CONTAINER_REGISTRY_NAME}}" \
                                                      containerRegistrySubscriptionId="${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}" \
                                                      containerRegistryRG="${{env.CONTAINER_REGISTRY_RESOURCE_GROUP}}" \
-                                                     containerRegistryTags="${{vars.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
-                                                     dnsZoneName="${{secrets.DNS_ZONE_NAME}}" \
-                                                     parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
-                                                     parentDnsZoneSubscriptionId="${{secrets.PARENT_DNS_SUBSCRIPTION_ID}}" \
-                                                     parentDnsZoneRG="${{secrets.PARENT_DNS_ZONE_RESOURCE_GROUP}}" \
-                                                     parentDnsZoneTags="${{vars.PARENT_DNS_ZONE_TAGS}}" \
-                                                     pgsqlName="${{secrets.PGSQL_NAME}}" \
-                                                     pgsqlAADAdminGroupName="${{secrets.DBA_GROUP_NAME}}" \
+                                                     containerRegistryTags="${{env.CONTAINER_REGISTRY_RESOURCE_TAGS}}" \
+                                                     dnsZoneName="${{env.DNS_ZONE_NAME}}" \
+                                                     parentDnsZoneName="${{env.PARENT_DNS_ZONE_NAME}}" \
+                                                     parentDnsZoneSubscriptionId="${{env.PARENT_DNS_SUBSCRIPTION_ID}}" \
+                                                     parentDnsZoneRG="${{env.PARENT_DNS_ZONE_RESOURCE_GROUP}}" \
+                                                     parentDnsZoneTags="${{env.PARENT_DNS_ZONE_TAGS}}" \
+                                                     pgsqlName="${{env.PGSQL_NAME}}" \
+                                                     pgsqlAADAdminGroupName="${{env.DBA_GROUP_NAME}}" \
                                                      pgsqlAADAdminGroupObjectId="${dbaGroupId}" \
                                                      pgsqlSubscriptionId="${{env.PGSQL_SUBSCRIPTION_ID}}" \
-                                                     pgsqlRG="${{secrets.PGSQL_RESOURCE_GROUP}}" \
-                                                     pgsqlPetClinicDbName="${{secrets.PET_CLINIC_DB_NAME}}" \
-                                                     petClinicCustsSvcDbUserName="${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
-                                                     petClinicVetsSvcDbUserName="${{secrets.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
-                                                     petClinicVisitsSvcDbUserName="${{secrets.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
-                                                     pgsqlTodoAppDbName="${{secrets.TODO_APP_DB_NAME}}" \
-                                                     todoAppDbUserName="${{secrets.TODO_APP_DB_USER_NAME}}" \
-                                                     pgsqlTags="${{vars.PGSQL_RESOURCE_TAGS}}" \
-                                                     logAnalyticsName="${{secrets.LOG_ANALYTICS_WRKSPC_NAME}}" \
+                                                     pgsqlRG="${{env.PGSQL_RESOURCE_GROUP}}" \
+                                                     pgsqlPetClinicDbName="${{env.PET_CLINIC_DB_NAME}}" \
+                                                     petClinicCustsSvcDbUserName="${{env.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}" \
+                                                     petClinicVetsSvcDbUserName="${{env.PET_CLINIC_VETS_SVC_DB_USER_NAME}}" \
+                                                     petClinicVisitsSvcDbUserName="${{env.PET_CLINIC_VISITS_SVC_DB_USER_NAME}}" \
+                                                     pgsqlTodoAppDbName="${{env.TODO_APP_DB_NAME}}" \
+                                                     todoAppDbUserName="${{env.TODO_APP_DB_USER_NAME}}" \
+                                                     pgsqlTags="${{env.PGSQL_RESOURCE_TAGS}}" \
+                                                     logAnalyticsName="${{env.LOG_ANALYTICS_WRKSPC_NAME}}" \
                                                      logAnalyticsSubscriptionId="${{env.LOG_ANALYTICS_WRKSPC_SUBSCRIPTION_ID}}" \
                                                      logAnalyticsRG="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_GROUP}}" \
-                                                     logAnalyticsTags="${{vars.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}" \
-                                                     petClinicGitConfigRepoUri="${{vars.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
-                                                     petClinicGitConfigRepoUserName="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
-                                                     petClinicGitConfigRepoPassword="${{secrets.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
-                                                     parentDnsZoneName="${{secrets.PARENT_DNS_ZONE_NAME}}" \
-                                                     todoAppDnsRecordName="${{vars.TODO_APP_DNS_RECORD_NAME}}" \
-                                                     petClinicDnsRecordName="${{vars.PET_CLINIC_DNS_RECORD_NAME}}" \
-                                                     sslCertKeyVaultSubscriptionId="${{secrets.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}" \
-                                                     sslCertKeyVaultRG="${{secrets.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}" \
-                                                     sslCertKeyVaultName="${{secrets.SSL_CERT_KEYVAULT_NAME}}" \
-                                                     sslCertKeyVaultToDoCertSecretName="${{secrets.SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME}}" \
-                                                     sslCertKeyVaultPetClinicCertSecretName="${{secrets.SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME}}" \
-                                                     location="${{secrets.AZURE_LOCATION}}"`
+                                                     logAnalyticsTags="${{env.LOG_ANALYTICS_WRKSPC_RESOURCE_TAGS}}" \
+                                                     petClinicGitConfigRepoUri="${{env.PET_CLINIC_GIT_CONFIG_REPO_URI}}" \
+                                                     petClinicGitConfigRepoUserName="${{env.PET_CLINIC_GIT_CONFIG_REPO_USERNAME}}" \
+                                                     petClinicGitConfigRepoPassword="${{env.PET_CLINIC_GIT_CONFIG_REPO_PASSWORD}}" \
+                                                     todoAppDnsRecordName="${{env.TODO_APP_DNS_RECORD_NAME}}" \
+                                                     petClinicDnsRecordName="${{env.PET_CLINIC_DNS_RECORD_NAME}}" \
+                                                     sslCertKeyVaultSubscriptionId="${{env.SSL_CERT_KEYVAULT_SUBSCRIPTION_ID}}" \
+                                                     sslCertKeyVaultRG="${{env.SSL_CERT_KEYVAULT_RESOURCE_GROUP}}" \
+                                                     sslCertKeyVaultName="${{env.SSL_CERT_KEYVAULT_NAME}}" \
+                                                     sslCertKeyVaultToDoCertSecretName="${{env.SSL_CERT_KEYVAULT_TODO_CERT_SECRET_NAME}}" \
+                                                     sslCertKeyVaultPetClinicCertSecretName="${{env.SSL_CERT_KEYVAULT_PETCLINIC_CERT_SECRET_NAME}}" \
+                                                     location="${{env.AZURE_LOCATION}}"`
           
           #azurerm_kubernetes_cluster.aks.network_profile[0].load_balancer_profile[0].effective_outbound_ips
 
@@ -269,10 +368,22 @@ jobs:
       - name: Azure re-login in AKS Subscription
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AAD_CLIENT_ID }}
-          tenant-id: ${{ secrets.AAD_TENANT_ID }}
+          client-id: ${{ env.AAD_CLIENT_ID }}
+          tenant-id: ${{ env.AAD_TENANT_ID }}
           subscription-id: ${{ env.AKS_SUBSCRIPTION_ID }}
       
+      - name: Configure ContainerInsights V2
+        run: |
+          curl -o container-azm-ms-agentconfig.yaml https://raw.githubusercontent.com/microsoft/Docker-Provider/ci_prod/kubernetes/container-azm-ms-agentconfig.yaml
+          echo "container-azm-ms-agentconfig.yaml:"
+          echo "-----------------"
+          cat container-azm-ms-agentconfig.yaml
+          az aks command invoke \
+              --resource-group ${{env.AKS_RESOURCE_GROUP}} \
+              --name ${{env.AKS_NAME}} \
+              --command "kubectl apply -f container-azm-ms-agentconfig.yaml" \
+              --file container-azm-ms-agentconfig.yaml
+
       - name: Create federated identity for AGIC on AKS
         env:
           AGIC_IDENTITY_NAME: ${{steps.deployment.outputs.AGIC_IDENTITY_NAME}}
@@ -532,11 +643,9 @@ jobs:
       - name: Deploy TODO_APP KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           TODO_APP_CLIENT_ID: ${{steps.deployment.outputs.TODO_APP_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
+            cat ./04a-kv-secrets-todo-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} TODO_APP_CLIENT_ID=${{env.TODO_APP_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04a-kv-secrets-todo-app.yml.tmp
             cat ./04a-kv-secrets-todo-app.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
@@ -547,11 +656,9 @@ jobs:
       - name: Deploy PET_CLINIC_APP General KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           PET_CLINIC_APP_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_APP_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
+            cat ./04b-kv-secrets-pet-clinic-app.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} PET_CLINIC_APP_CLIENT_ID=${{env.PET_CLINIC_APP_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04b-kv-secrets-pet-clinic-app.yml.tmp
             cat ./04b-kv-secrets-pet-clinic-app.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
@@ -562,11 +669,9 @@ jobs:
       - name: Deploy PET_CLINIC_CONFIG_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           CONFIG_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CONFIG_SVC_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
+            cat ./04c-kv-secrets-pet-clinic-config-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CONFIG_SVC_CLIENT_ID=${{env.CONFIG_SVC_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
             cat ./04c-kv-secrets-pet-clinic-config-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
@@ -579,9 +684,8 @@ jobs:
         env:
           KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           CUSTS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_CUSTS_SVC_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
+            cat ./04d-kv-secrets-pet-clinic-custs-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} CUSTS_SVC_CLIENT_ID=${{env.CUSTS_SVC_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
             cat ./04d-kv-secrets-pet-clinic-custs-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
@@ -594,9 +698,8 @@ jobs:
         env:
           KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           VETS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VETS_SVC_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
+            cat ./04e-kv-secrets-pet-clinic-vets-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VETS_SVC_CLIENT_ID=${{env.VETS_SVC_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             cat ./04e-kv-secrets-pet-clinic-vets-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \
@@ -607,11 +710,9 @@ jobs:
       - name: Deploy PET_CLINIC_VISITS_SVC KV Secrets manifest
         working-directory: ./scripts/deployment/templates/k8s/
         env:
-          KEYVAULT_NAME: ${{env.AKS_NAME}}-kv
           VISITS_SVC_CLIENT_ID: ${{steps.deployment.outputs.PET_CLINIC_VISITS_SVC_USER_MI_CLIENT_ID}}
-          TENANT_ID: ${{secrets.AAD_TENANT_ID}}
         run: |
-            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
+            cat ./04f-kv-secrets-pet-clinic-visits-svc.yml | KEYVAULT_NAME=${{env.KEYVAULT_NAME}} VISITS_SVC_CLIENT_ID=${{env.VISITS_SVC_CLIENT_ID}} TENANT_ID=${{env.AAD_TENANT_ID}} envsubst > ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
             cat ./04f-kv-secrets-pet-clinic-visits-svc.yml.tmp
             az aks command invoke \
               --resource-group ${{env.AKS_RESOURCE_GROUP}} \

@@ -8,11 +8,11 @@ param logAnalyticsWorkspaceId string
 param location string
 param tagsArray object
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' existing = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
   name: vnetName
 }
 
-resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' existing = {
+resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
   parent: vnet
   name: aksSubnetName
 }
@@ -26,13 +26,13 @@ resource aksSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-05-01' existi
 // }
 
 
-resource agicUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource agicUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: '${name}-agic-identity'
   location: location
   tags: tagsArray
 }
 
-resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-preview' = {
+resource aksService 'Microsoft.ContainerService/managedClusters@2024-10-02-preview' = {
   name: name
   location: location
   tags: tagsArray
@@ -58,7 +58,6 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
         osDiskType: 'Managed'
         //osDiskType: 'Ephemeral' - does not work, temp disk too small
         #disable-next-line BCP037
-        storageProfile: 'ManagedDisks'
         type: 'VirtualMachineScaleSets'
         mode: 'System'
         maxPods: 110
@@ -95,6 +94,34 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
     oidcIssuerProfile: {
       enabled: true
     }
+    //we were missing this one in AKS until now:
+    azureMonitorProfile: {
+      metrics: {
+        enabled: true
+        kubeStateMetrics: {
+          metricLabelsAllowlist: ''
+          metricAnnotationsAllowList: ''
+        }
+      }
+      containerInsights: {
+         enabled: true
+         logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceId
+      }
+      //Following seems to be a preview feature and I see limited docs for it
+      //https://learn.microsoft.com/en-us/azure/templates/microsoft.containerservice/2024-10-02-preview/managedclusters?pivots=deployment-language-bicep#managedclusterazuremonitorprofileappmonitoring
+      //perhaps once it's worth trying, but does not provide the same level of granularity as the YAML files
+      // appMonitoring: {
+      //   autoInstrumentation: {
+      //     enabled: true
+      //   }
+      //   openTelemetryLogs: {
+      //     enabled: true
+      //   }
+      //   openTelemetryMetrics: {
+      //     enabled: true
+      //   }
+      // }
+    }
     addonProfiles: {
       azureKeyvaultSecretsProvider: {
         enabled: true
@@ -120,13 +147,12 @@ resource aksService 'Microsoft.ContainerService/managedClusters@2023-08-02-previ
           logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceId
         }
       }
-      // TODO: fix
-      // azurepolicy: {
-      //   config: {
-      //     version: 'v2'
-      //   }
-      //   enabled:true
-      // }
+      azurepolicy: {
+        config: {
+          version: 'v2'
+        }
+        enabled:true
+      }
     }
     nodeResourceGroup: nodePoolRG 
   }

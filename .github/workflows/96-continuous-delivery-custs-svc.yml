@@ -23,15 +23,17 @@ jobs:
       ARTIFACT_NAME: spring-petclinic-customers-service
       SRC_DIR: spring-petclinic-customers-service
       JAVA_VERSION: 17
-      USER_IDENTITY_NAME: ${{secrets.AKS_NAME}}-pet-clinic-custs-identity
-      PGSQL_NAME: ${{secrets.PGSQL_NAME}}
-      DB: ${{secrets.PET_CLINIC_DB_NAME}}
-      DB_USER_NAME: ${{secrets.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}
-      DBA_GROUP_NAME: ${{secrets.DBA_GROUP_NAME}}
+      AAD_TENANT_ID: ${{secrets.AAD_TENANT_ID}}
+      AAD_CLIENT_ID: ${{secrets.AAD_CLIENT_ID}}
+      USER_IDENTITY_NAME: ${{vars.AKS_NAME}}-pet-clinic-custs-identity
+      PGSQL_NAME: ${{vars.PGSQL_NAME}}
+      DB: ${{vars.PET_CLINIC_DB_NAME}}
+      DB_USER_NAME: ${{vars.PET_CLINIC_CUSTS_SVC_DB_USER_NAME}}
+      DBA_GROUP_NAME: ${{vars.DBA_GROUP_NAME}}
       CONTAINER_REGISTRY_SUBSCRIPTION_ID: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}
-      CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
-      AKS_RESOURCE_GROUP: ${{secrets.AKS_RESOURCE_GROUP}}
-      AKS_NAME: ${{secrets.AKS_NAME}}
+      CONTAINER_REGISTRY_NAME: ${{vars.CONTAINER_REGISTRY_NAME}}
+      AKS_RESOURCE_GROUP: ${{vars.AKS_RESOURCE_GROUP}}
+      AKS_NAME: ${{vars.AKS_NAME}}
       AKS_SUBSCRIPTION_ID: ${{secrets.AKS_SUBSCRIPTION_ID}}
 
     # when called from another workflow directly, it inherits the event name from the caller workflow
@@ -123,8 +125,8 @@ jobs:
       - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
         uses: azure/login@v2
         with:
-          client-id: "${{secrets.AAD_CLIENT_ID}}"
-          tenant-id: "${{secrets.AAD_TENANT_ID}}"
+          client-id: "${{env.AAD_CLIENT_ID}}"
+          tenant-id: "${{env.AAD_TENANT_ID}}"
           subscription-id: "${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
 
       - name: Check container exists in registry
@@ -176,7 +178,7 @@ jobs:
           # Retrieve PGSQL access token 
           export PGPASSWORD=`az account get-access-token --resource-type oss-rdbms --query "[accessToken]" --output tsv`
           echo "Token: ${PGPASSWORD}"
-          
+            
           # Create a new service user if needed
           dbUserExists=`psql --set=sslmode=require -h ${{env.PGSQL_SERVER_NAME}} -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "SELECT 1 FROM pg_roles WHERE rolname='${{env.DB_USER_NAME}}';" -v ON_ERROR_STOP=1`
           if [[ $dbUserExists -ne '1' ]]; then
@@ -196,6 +198,7 @@ jobs:
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT CONNECT ON DATABASE ${{env.DB}} TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT USAGE ON SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
           psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
+          psql --set=sslmode=require -h "${{env.PGSQL_SERVER_NAME}}" -p 5432 -d "${{env.DB}}" -U "${{env.DBA_GROUP_NAME}}" -tAc "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ${{env.DB_USER_NAME}};" -v ON_ERROR_STOP=1
 
       - name: Deploy app into AKS
         env:

@@ -8,7 +8,7 @@ on:
      - 'docker/grafana/**'
 
   workflow_call:
-  
+
   workflow_dispatch:
 
 jobs:
@@ -26,10 +26,12 @@ jobs:
       SRC_DIR: docker/grafana
       JAVA_VERSION: ''
       DB: ''
-      USER_IDENTITY_NAME: '${{secrets.AKS_NAME}}-pet-clinic-app-identity'
+      USER_IDENTITY_NAME: '${{vars.AKS_NAME}}-pet-clinic-app-identity'
+      AAD_CLIENT_ID: ${{secrets.AAD_CLIENT_ID}}
+      AAD_TENANT_ID: ${{secrets.AAD_TENANT_ID}}
       DB_USER_NAME: ''
       CONTAINER_REGISTRY_SUBSCRIPTION_ID: ${{secrets.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}
-      CONTAINER_REGISTRY_NAME: ${{secrets.CONTAINER_REGISTRY_NAME}}
+      CONTAINER_REGISTRY_NAME: ${{vars.CONTAINER_REGISTRY_NAME}}
     outputs:
       VERSION: ${{steps.versions.outputs.VERSION}}
       VERSION_TAG: ${{steps.versions.outputs.VERSION_TAG}}
@@ -169,7 +171,7 @@ jobs:
         zip -r ${{env.RELEASE_ARCHIVE_NAME}} ./${{env.RELEASE_DIR_NAME}}
         ls -la
         echo "RELEASE_NAME=${{env.RELEASE_DIR_NAME}}" >> $GITHUB_OUTPUT
-      
+
     # Only for troubleshooting, otherwise not needed, takes a lot of time
     # - name: Upload build artifact
     #   uses: actions/upload-artifact@v3
@@ -196,8 +198,8 @@ jobs:
     - name: Azure login in AKS Subscription # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure
       uses: azure/login@v2
       with:
-        client-id: "${{secrets.AAD_CLIENT_ID}}"
-        tenant-id: "${{secrets.AAD_TENANT_ID}}"
+        client-id: "${{env.AAD_CLIENT_ID}}"
+        tenant-id: "${{env.AAD_TENANT_ID}}"
         subscription-id: "${{env.CONTAINER_REGISTRY_SUBSCRIPTION_ID}}"
 
     - name: Build a new container image
